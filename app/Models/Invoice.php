@@ -26,7 +26,6 @@ class Invoice extends Model
         'order_id',
         'invoice_number',
         'subtotal',
-        'tax',
         'grand_total',
         'payment_status',
     ];
@@ -40,7 +39,6 @@ class Invoice extends Model
     {
         return [
             'subtotal'    => 'decimal:2',
-            'tax'         => 'decimal:2',
             'grand_total' => 'decimal:2',
         ];
     }
