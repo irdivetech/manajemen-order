@@ -92,6 +92,8 @@
             <tr class="total">
                 <td></td>
                 <td>
+                    Subtotal: Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}<br>
+                    Pajak ({{ $settings->get('tax_rate') }}%): Rp {{ number_format($invoice->tax, 0, ',', '.') }}<br><br>
                     <strong>Total Tagihan: Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</strong>
                 </td>
             </tr>

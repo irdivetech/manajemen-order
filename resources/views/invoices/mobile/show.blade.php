@@ -84,6 +84,14 @@
 {{-- ── Total Summary ── --}}
 <div class="m-card mb-5">
     <div class="m-card-body">
+        <div class="d-flex justify-content-between text-sm mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-6">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</span>
+        </div>
+        <div class="d-flex justify-content-between text-sm mb-3 pb-3 border-bottom">
+            <span class="text-muted">Pajak ({{ $settings->get('tax_rate') }}%)</span>
+            <span class="fw-6">Rp {{ number_format($invoice->tax, 0, ',', '.') }}</span>
+        </div>
         <div class="d-flex justify-content-between align-items-center">
             <span class="fw-8 text-dark" style="font-size:1.1rem;">Total Tagihan</span>
             <span class="fw-8 text-success" style="font-size:1.3rem;">Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</span>
