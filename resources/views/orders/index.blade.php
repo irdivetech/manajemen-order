@@ -64,11 +64,20 @@
                     <td><a href="{{ route('orders.show', $order) }}" class="fw-semibold text-decoration-none">{{ $order->order_number }}</a></td>
                     <td>
                         <div class="fw-medium text-dark">{{ $order->customer_name }}</div>
-                        <div class="small text-muted">{{ $order->customer_phone }}</div>
+                        <div class="small text-muted mb-1">{{ $order->customer_phone }}</div>
+                        @if($order->customer_title)
+                            <div class="small text-secondary fw-semibold">{{ $order->customer_title }}</div>
+                        @endif
+                        @if($order->customer_address)
+                            <div class="small text-muted text-truncate" style="max-width: 150px;" title="{{ $order->customer_address }}">{{ $order->customer_address }}</div>
+                        @endif
                     </td>
                     <td>
-                        <div class="text-dark">{{ $order->product_name }}</div>
+                        <div class="text-dark fw-medium">{{ $order->product_name }}</div>
                         <div class="small text-muted">{{ $order->totalQuantity() }} pcs - {{ $order->color }}</div>
+                        @if($order->material)
+                            <div class="small text-secondary mt-1"><i class="bi bi-tag"></i> {{ $order->material }}</div>
+                        @endif
                     </td>
                     <td><x-badge :status="$order->current_status" /></td>
                     <td class="fw-semibold text-success">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>

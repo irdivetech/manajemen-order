@@ -52,11 +52,16 @@
         <x-badge :status="$order->current_status" />
     </div>
     <div class="oc-body">
-        <div class="oc-name">{{ $order->customer_name }}</div>
+        <div class="oc-name">
+            {{ $order->customer_name }}
+            @if($order->customer_title) <div class="text-xs text-muted" style="font-weight: normal;">{{ $order->customer_title }}</div> @endif
+            @if($order->customer_address) <div class="text-xs text-muted" style="font-weight: normal; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $order->customer_address }}</div> @endif
+        </div>
         <div class="oc-product">
             {{ $order->product_name }} ·
             {{ $order->totalQuantity() }} pcs ·
             {{ $order->color }}
+            @if($order->material) · {{ $order->material }} @endif
         </div>
     </div>
     <div class="oc-footer">

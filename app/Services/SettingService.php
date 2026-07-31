@@ -14,7 +14,8 @@ class SettingService
             $this->updateSettings($this->defaultSettings());
             return $this->defaultSettings();
         }
-        return json_decode(Storage::disk('local')->get($this->file), true) ?? $this->defaultSettings();
+        $stored = json_decode(Storage::disk('local')->get($this->file), true) ?? [];
+        return array_merge($this->defaultSettings(), $stored);
     }
 
     public function updateSettings(array $data): void
