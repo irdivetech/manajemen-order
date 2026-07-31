@@ -65,15 +65,22 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach($order->sizeDetails as $detail)
                         <tr>
                             <td>
                                 <div class="fw-semibold text-dark">{{ $order->product_name }}</div>
-                                <div class="text-muted small">{{ $order->product_type }} - {{ $order->color }} - Ukuran: {{ $order->size }}</div>
+                                <div class="text-muted small">
+                                    {{ $order->product_type }} - {{ $order->color }}
+                                    @if($order->material) - {{ $order->material }} @endif
+                                    - Ukuran: {{ $detail->size }} 
+                                    ({{ ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender }})
+                                </div>
                             </td>
-                            <td class="text-center align-middle">{{ $order->quantity }}</td>
-                            <td class="text-end align-middle">Rp {{ number_format($order->price, 0, ',', '.') }}</td>
-                            <td class="text-end align-middle fw-medium">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                            <td class="text-center align-middle">{{ $detail->quantity }}</td>
+                            <td class="text-end align-middle">Rp {{ number_format($detail->price, 0, ',', '.') }}</td>
+                            <td class="text-end align-middle fw-medium">Rp {{ number_format($detail->quantity * $detail->price, 0, ',', '.') }}</td>
                         </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

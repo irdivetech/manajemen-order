@@ -42,6 +42,9 @@
             </div>
             <div>
                 <div class="fw-7">{{ $order->customer_name }}</div>
+                @if($order->customer_title)
+                <div class="text-xs text-secondary fw-6">{!! nl2br(e($order->customer_title)) !!}</div>
+                @endif
                 <div class="text-sm text-muted">{{ $order->customer_phone }}</div>
             </div>
             @if($order->customer_category === 'b2b')
@@ -50,6 +53,12 @@
                 <span class="ms-auto badge bg-info bg-opacity-10 text-info border border-info-subtle text-xs">Retail</span>
             @endif
         </div>
+        @if($order->customer_address)
+        <div class="mb-3 p-2 bg-light rounded">
+            <div class="text-xs text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Alamat Pemesan</div>
+            <div class="text-sm fw-6">{{ $order->customer_address }}</div>
+        </div>
+        @endif
         <div class="row g-2">
             <div class="col-6">
                 <div class="text-xs text-muted">Tanggal Pesan</div>
@@ -78,6 +87,10 @@
             <div class="col-3">
                 <div class="text-xs text-muted">Warna</div>
                 <div class="text-sm fw-6">{{ $order->color }}</div>
+                @if($order->material)
+                <div class="text-xs text-muted mt-1">Bahan</div>
+                <div class="text-sm fw-6">{{ $order->material }}</div>
+                @endif
             </div>
             <div class="col-2 text-end">
                 <div class="text-xs text-muted">Total</div>

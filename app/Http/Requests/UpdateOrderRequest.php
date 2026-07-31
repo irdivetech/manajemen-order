@@ -22,13 +22,16 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_name'  => ['sometimes', 'string', 'max:255'],
-            'customer_phone' => ['sometimes', 'string', 'max:20'],
+            'customer_name'     => ['sometimes', 'string', 'max:255'],
+            'customer_phone'    => ['sometimes', 'string', 'max:20'],
             'customer_category' => ['sometimes', 'string', 'in:b2b,retail'],
-            'product_name'   => ['sometimes', 'string', 'max:255'],
-            'product_type'   => ['sometimes', 'string', 'max:100'],
-            'color'          => ['sometimes', 'string', 'max:100'],
-            'total_cost'     => ['sometimes', 'numeric', 'min:0'],
+            'customer_title'    => ['nullable', 'string', 'max:1000'],
+            'customer_address'  => ['nullable', 'string', 'max:1000'],
+            'product_name'      => ['sometimes', 'string', 'max:255'],
+            'product_type'      => ['sometimes', 'string', 'max:100'],
+            'color'             => ['sometimes', 'string', 'max:100'],
+            'material'          => ['nullable', 'string', 'max:255'],
+            'total_cost'        => ['sometimes', 'numeric', 'min:0'],
             'size_details'            => ['sometimes', 'array', 'min:1'],
             'size_details.*.gender'   => ['required_with:size_details', 'in:male,female,child'],
             'size_details.*.size'     => ['required_with:size_details', 'string', 'max:20'],
@@ -38,9 +41,9 @@ class UpdateOrderRequest extends FormRequest
             'design_files.*'          => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'delete_design_files'     => ['nullable', 'array'],
             'delete_design_files.*'   => ['integer', 'exists:order_design_files,id'],
-            'order_date'     => ['sometimes', 'date'],
-            'deadline'       => ['sometimes', 'date', 'after_or_equal:order_date'],
-            'notes'          => ['nullable', 'string', 'max:1000'],
+            'order_date'        => ['sometimes', 'date'],
+            'deadline'          => ['sometimes', 'date', 'after_or_equal:order_date'],
+            'notes'             => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

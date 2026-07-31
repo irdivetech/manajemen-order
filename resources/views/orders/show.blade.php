@@ -38,6 +38,12 @@
                             <span class="text-muted small d-block">Nama</span>
                             <span class="fw-semibold">{{ $order->customer_name }}</span>
                         </div>
+                        @if($order->customer_title)
+                        <div>
+                            <span class="text-muted small d-block">Jabatan / Keterangan</span>
+                            <span class="fw-medium text-secondary">{!! nl2br(e($order->customer_title)) !!}</span>
+                        </div>
+                        @endif
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="text-muted small d-block">Telepon</span>
@@ -51,6 +57,12 @@
                                 @endif
                             </div>
                         </div>
+                        @if($order->customer_address)
+                        <div>
+                            <span class="text-muted small d-block">Alamat</span>
+                            <span class="fw-medium">{{ $order->customer_address }}</span>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -67,6 +79,12 @@
                                 <span class="text-muted small d-block">Warna</span>
                                 <span class="fw-medium">{{ $order->color }}</span>
                             </div>
+                            @if($order->material)
+                            <div>
+                                <span class="text-muted small d-block">Bahan / Material</span>
+                                <span class="fw-medium">{{ $order->material }}</span>
+                            </div>
+                            @endif
                             <div>
                                 <span class="text-muted small d-block">Total Jumlah</span>
                                 <span class="fw-medium">{{ $order->totalQuantity() }} pcs</span>

@@ -73,13 +73,21 @@
                 <td>Total Harga</td>
             </tr>
 
-            <tr class="item">
+            @foreach($order->sizeDetails as $detail)
+            <tr class="item {{ $loop->last ? 'last' : '' }}">
                 <td>
                     {{ $order->product_name }} ({{ $order->product_type }})<br>
-                    <small>Ukuran: {{ $order->size }} | Warna: {{ $order->color }} | Qty: {{ $order->quantity }} @ Rp {{ number_format($order->price, 0, ',', '.') }}</small>
+                    <small>
+                        Ukuran: {{ $detail->size }} 
+                        ({{ ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender }}) 
+                        | Warna: {{ $order->color }} 
+                        @if($order->material) | Bahan: {{ $order->material }} @endif 
+                        | Qty: {{ $detail->quantity }} @ Rp {{ number_format($detail->price, 0, ',', '.') }}
+                    </small>
                 </td>
-                <td>Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                <td>Rp {{ number_format($detail->quantity * $detail->price, 0, ',', '.') }}</td>
             </tr>
+            @endforeach
 
             <tr class="total">
                 <td></td>

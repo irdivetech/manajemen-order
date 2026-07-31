@@ -32,6 +32,22 @@
                 </select>
                 @error('customer_category') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
+            <div class="col-md-6">
+                <label class="form-label">Jabatan / Custom Nama</label>
+                <textarea name="customer_title"
+                    class="form-control @error('customer_title') is-invalid @enderror"
+                    rows="3"
+                    placeholder="cth: Ketua OSIS SMA N 1 Semarang&#10;atas nama seluruh anggota&#10;Angkatan 2024"
+                    style="resize:vertical;">{{ old('customer_title') }}</textarea>
+                <div class="form-text small text-muted">Opsional — bisa lebih dari satu baris. Tampil di detail pesanan &amp; laporan.</div>
+                @error('customer_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Alamat Pemesan</label>
+                <input type="text" name="customer_address" class="form-control @error('customer_address') is-invalid @enderror" value="{{ old('customer_address') }}" placeholder="cth: Jl. Merdeka No. 10, Semarang">
+                <div class="form-text small text-muted">Opsional — untuk keperluan pengiriman / surat jalan.</div>
+                @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
         </div>
 
         <div class="row g-3 mb-4">
@@ -46,10 +62,16 @@
                 <input type="text" name="product_type" class="form-control @error('product_type') is-invalid @enderror" value="{{ old('product_type') }}" required>
                 @error('product_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div class="col-12">
+            <div class="col-md-6">
                 <label class="form-label">Warna <span class="text-danger">*</span></label>
                 <input type="text" name="color" class="form-control @error('color') is-invalid @enderror" value="{{ old('color') }}" required>
                 @error('color') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Bahan / Material</label>
+                <input type="text" name="material" class="form-control @error('material') is-invalid @enderror" value="{{ old('material') }}" placeholder="cth: Lacoste CVC, Katun 30s, Polyester">
+                <div class="form-text small text-muted">Opsional — jenis kain / bahan yang digunakan.</div>
+                @error('material') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
         </div>
 
