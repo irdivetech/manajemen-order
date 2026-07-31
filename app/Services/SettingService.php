@@ -34,7 +34,10 @@ class SettingService
             'company_address' => 'Jalan Produksi No. 123, Kota Anda, Provinsi 12345',
             'company_email' => 'kontak@poms.com',
             'company_phone' => '08123456789',
-            'tax_rate' => 11, // 11 percentage
+            'company_logo' => '', // Path to company logo image
+            'owner_name' => '', // e.g. Rini Eka Maulani
+            'owner_title' => '', // e.g. Owner Shaleea
+            'signature_image' => '', // Path to signature image
         ];
     }
 }

@@ -27,6 +27,22 @@ class UpdatePaymentStatusRequest extends FormRequest
                 'string',
                 Rule::in([Invoice::PAYMENT_UNPAID, Invoice::PAYMENT_PAID, Invoice::PAYMENT_PARTIAL]),
             ],
+            'payment_amount' => [
+                'required_if:payment_status,partial,paid',
+                'nullable',
+                'numeric',
+                'min:1'
+            ],
+            'payment_method' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
+            'payment_notes' => [
+                'nullable',
+                'string',
+                'max:500'
+            ],
         ];
     }
 
@@ -36,7 +52,9 @@ class UpdatePaymentStatusRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'payment_status.in' => 'Payment status must be one of: unpaid, paid, or partial.',
+            'payment_status.in' => 'Status pembayaran tidak valid.',
+            'payment_amount.required_if' => 'Nominal pembayaran wajib diisi untuk status Lunas / Cicilan.',
+            'payment_amount.min' => 'Nominal pembayaran tidak boleh kurang dari 1.',
         ];
     }
 }

@@ -60,9 +60,15 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         
-        // Settings Routes
-        Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
-        Route::put('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+        // ─── Settings ───────────────────────────────────────────────────────────
+        Route::get('settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+        Route::put('settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+
+        // ─── Bank Accounts ──────────────────────────────────────────────────────
+        Route::post('settings/bank-accounts', [\App\Http\Controllers\BankAccountController::class, 'store'])->name('bank_accounts.store');
+        Route::put('settings/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'update'])->name('bank_accounts.update');
+        Route::patch('settings/bank-accounts/{bankAccount}/toggle', [\App\Http\Controllers\BankAccountController::class, 'toggle'])->name('bank_accounts.toggle');
+        Route::delete('settings/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'destroy'])->name('bank_accounts.destroy');
 
         // Profile
         Route::get('profile', fn () => view(isMobile() ? 'profile.mobile.index' : 'profile.index'))->name('profile.index');
