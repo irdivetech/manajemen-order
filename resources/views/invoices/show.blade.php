@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@inject('settings', 'App\Services\SettingService')
+@inject('settings', 'App\\Services\\SettingService')
 
 @section('title', 'Faktur: ' . $invoice->invoice_number)
 
