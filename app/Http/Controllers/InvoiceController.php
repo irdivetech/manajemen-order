@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdatePaymentStatusRequest;
 use App\Models\Order;
 use App\Services\InvoiceService;
-use App\Http\Requests\UpdatePaymentStatusRequest;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
@@ -16,33 +17,50 @@ class InvoiceController extends Controller
     /**
      * Display the invoice for a given order.
      */
-    public function show(Order $order): JsonResponse
+    public function show(Order $order): View
     {
+        $order->load(['invoice', 'creator']);
         $invoice = $order->invoice;
 
         if (! $invoice) {
-            return response()->json(['message' => 'Invoice not found for this order.'], 404);
+            abort(404, 'Invoice tidak ditemukan untuk order ini.');
         }
 
-        return response()->json($invoice);
+        return view(isMobile() ? 'invoices.mobile.show' : 'invoices.show', compact('order', 'invoice'));
     }
 
     /**
      * Update the payment status of an order's invoice.
      */
-    public function updatePayment(UpdatePaymentStatusRequest $request, Order $order): JsonResponse
+    public function updatePayment(UpdatePaymentStatusRequest $request, Order $order): RedirectResponse
     {
         $invoice = $order->invoice;
 
         if (! $invoice) {
-            return response()->json(['message' => 'Invoice not found for this order.'], 404);
+            abort(404, 'Invoice tidak ditemukan untuk order ini.');
         }
 
-        $invoice = $this->invoiceService->updatePaymentStatus(
+        $this->invoiceService->updatePaymentStatus(
             $invoice,
             $request->validated('payment_status'),
         );
 
-        return response()->json($invoice);
+        return redirect()->route('orders.invoice', $order)
+            ->with('success', 'Status pembayaran berhasil diperbarui.');
+    }
+
+    /**
+     * Display printable invoice view.
+     */
+    public function print(Order $order): View
+    {
+        $order->load(['invoice', 'creator']);
+        $invoice = $order->invoice;
+
+        if (! $invoice) {
+            abort(404, 'Invoice tidak ditemukan untuk order ini.');
+        }
+
+        return view('invoices.print', compact('order', 'invoice'));
     }
 }

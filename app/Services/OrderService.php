@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\OrderDesignFile;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class OrderService
 {
@@ -20,21 +23,39 @@ class OrderService
      *  1. Generate order number
      *  2. Calculate total price
      *  3. Create the order record
-     *  4. Generate and attach an invoice
-     *  5. Create the initial tracking history entry
+     *  4. Save design files (if any)
+     *  5. Generate and attach an invoice
+     *  6. Create the initial tracking history entry
      *
      * @param  array<string, mixed>  $data
+     * @param  array<int, UploadedFile>  $designFiles
      */
-    public function createOrder(array $data, User $creator): Order
+    public function createOrder(array $data, User $creator, array $designFiles = []): Order
     {
-        return DB::transaction(function () use ($data, $creator): Order {
+        return DB::transaction(function () use ($data, $creator, $designFiles): Order {
             $data['created_by']    = $creator->id;
             $data['order_number']  = $this->generateOrderNumber();
-            $data['total_price']   = $data['quantity'] * $data['price'];
+
+            $totalPrice = collect($data['size_details'])->sum(function ($detail) {
+                return $detail['quantity'] * $detail['price'];
+            });
+            $data['total_price']    = $totalPrice;
             $data['current_status'] = Order::STATUS_ORDER_RECEIVED;
+
+            $sizeDetailsData = $data['size_details'];
+            unset($data['size_details']);
 
             /** @var Order $order */
             $order = Order::create($data);
+
+            foreach ($sizeDetailsData as $detail) {
+                $order->sizeDetails()->create($detail);
+            }
+
+            // Save design files
+            if (!empty($designFiles)) {
+                $this->handleDesignFiles($order, $designFiles);
+            }
 
             // Generate invoice automatically
             $this->invoiceService->generateInvoice($order);
@@ -47,7 +68,7 @@ class OrderService
                 updatedBy: $creator,
             );
 
-            return $order->load(['invoice', 'trackingHistories', 'creator']);
+            return $order->load(['invoice', 'trackingHistories', 'creator', 'designFiles']);
         });
     }
 
@@ -57,23 +78,84 @@ class OrderService
      * Recalculates total_price if quantity or price changes.
      *
      * @param  array<string, mixed>  $data
+     * @param  array<int, UploadedFile>  $newDesignFiles
+     * @param  array<int, int>  $deleteFileIds
      */
-    public function updateOrder(Order $order, array $data): Order
+    public function updateOrder(Order $order, array $data, array $newDesignFiles = [], array $deleteFileIds = []): Order
     {
-        if (isset($data['quantity']) || isset($data['price'])) {
-            $quantity          = $data['quantity'] ?? $order->quantity;
-            $price             = $data['price']    ?? $order->price;
-            $data['total_price'] = $quantity * $price;
+        if (isset($data['size_details'])) {
+            $totalPrice = collect($data['size_details'])->sum(function ($detail) {
+                return $detail['quantity'] * $detail['price'];
+            });
+
+            $data['total_price'] = $totalPrice;
 
             // Sync invoice subtotal
             if ($order->invoice) {
+                // Update order's total price first so invoice service can read it correctly
+                $order->total_price = $data['total_price'];
                 $this->invoiceService->generateInvoice($order);
             }
         }
 
+        $sizeDetailsData = null;
+        if (isset($data['size_details'])) {
+            $sizeDetailsData = $data['size_details'];
+            unset($data['size_details']);
+        }
+
         $order->update($data);
 
-        return $order->fresh(['invoice', 'trackingHistories', 'creator']);
+        if ($sizeDetailsData !== null) {
+            $order->sizeDetails()->delete();
+            foreach ($sizeDetailsData as $detail) {
+                $order->sizeDetails()->create($detail);
+            }
+        }
+
+        // Delete marked design files
+        if (!empty($deleteFileIds)) {
+            $this->deleteDesignFiles($order, $deleteFileIds);
+        }
+
+        // Upload new design files
+        if (!empty($newDesignFiles)) {
+            $this->handleDesignFiles($order, $newDesignFiles);
+        }
+
+        return $order->fresh(['invoice', 'trackingHistories', 'creator', 'designFiles']);
+    }
+
+    /**
+     * Store uploaded design files to disk and record them in the database.
+     *
+     * @param  array<int, UploadedFile>  $files
+     */
+    private function handleDesignFiles(Order $order, array $files): void
+    {
+        foreach ($files as $file) {
+            $path = $file->store("designs/{$order->id}", 'public');
+
+            $order->designFiles()->create([
+                'file_path'     => $path,
+                'original_name' => $file->getClientOriginalName(),
+            ]);
+        }
+    }
+
+    /**
+     * Delete specific design files by their IDs, removing files from disk too.
+     *
+     * @param  array<int, int>  $fileIds
+     */
+    private function deleteDesignFiles(Order $order, array $fileIds): void
+    {
+        $files = $order->designFiles()->whereIn('id', $fileIds)->get();
+
+        foreach ($files as $file) {
+            Storage::disk('public')->delete($file->file_path);
+            $file->delete();
+        }
     }
 
     /**
@@ -97,3 +179,4 @@ class OrderService
         return $prefix . str_pad((string) $nextSequence, 4, '0', STR_PAD_LEFT);
     }
 }
+

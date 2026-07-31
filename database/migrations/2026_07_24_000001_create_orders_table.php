@@ -20,9 +20,6 @@ return new class extends Migration
             $table->string('product_name');
             $table->string('product_type');
             $table->string('color');
-            $table->string('size');
-            $table->unsignedInteger('quantity');
-            $table->decimal('price', 15, 2);
             $table->decimal('total_price', 15, 2);
             $table->date('order_date');
             $table->date('deadline');

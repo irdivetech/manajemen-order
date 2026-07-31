@@ -6,13 +6,19 @@ use App\Models\Order;
 use App\Models\TrackingHistory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 
 class TrackingService
 {
     /**
      * Add a new tracking history entry for the given order and update
-     * the order's current_status. If the new status is 'shipping',
-     * the order will also be automatically archived.
+     * the order's current_status. The new status must be the next one
+     * in the sequential pipeline — no skipping, no going backward.
+     *
+     * If the new status is 'shipping', the order will also be
+     * automatically archived.
+     *
+     * @throws \InvalidArgumentException If the status transition is invalid.
      */
     public function addHistory(
         Order $order,
@@ -20,6 +26,18 @@ class TrackingService
         string $description,
         User $updatedBy,
     ): TrackingHistory {
+        // Enforce sequential advancement, unless it's the very first entry (initial status)
+        $isFirstEntry = ! $order->trackingHistories()->exists();
+        
+        if (! $isFirstEntry && ! $order->canAdvanceTo($status)) {
+            $nextStatus = $order->getNextStatus();
+            $nextLabel = $nextStatus ? Order::statusLabel($nextStatus) : 'Selesai';
+
+            throw new \InvalidArgumentException(
+                "Status tidak valid. Pesanan ini hanya bisa dilanjutkan ke tahap: \"{$nextLabel}\"."
+            );
+        }
+
         // Create the tracking history record
         $tracking = TrackingHistory::create([
             'order_id'    => $order->id,
@@ -33,7 +51,7 @@ class TrackingService
 
         // Auto-archive when shipping status is reached
         if ($status === Order::STATUS_SHIPPING) {
-            $order->archived_at = now();
+            $order->archived_at = Carbon::now();
         }
 
         $order->save();

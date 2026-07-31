@@ -6,6 +6,13 @@ use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReportService
 {
@@ -21,7 +28,7 @@ class ReportService
         ?Carbon $from = null,
         ?Carbon $to = null,
     ): Collection {
-        $query = Order::with(['creator:id,name', 'invoice']);
+        $query = Order::with(['creator:id,name', 'invoice', 'sizeDetails']);
 
         if ($from && $to) {
             $query->whereBetween('order_date', [
@@ -87,6 +94,159 @@ class ReportService
                                ->whereYear('order_date', now()->year),
         };
 
-        return $query->groupBy('current_status')->get();
+        return $query->groupBy('current_status')->pluck('total', 'current_status');
+    }
+
+    /**
+     * Generate a formatted XLSX file from a collection of orders.
+     * Returns the temp file path — caller is responsible for streaming and deleting it.
+     *
+     * @param  Collection<int, Order>  $orders
+     * @param  string  $period
+     */
+    public function exportXlsx(Collection $orders, string $period = 'monthly'): string
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet       = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Laporan Pesanan');
+
+        // ── Title ─────────────────────────────────────────────────────────────
+        $periodLabels = [
+            'daily'   => 'Harian',
+            'weekly'  => 'Mingguan',
+            'monthly' => 'Bulanan',
+            'yearly'  => 'Tahunan',
+        ];
+        $periodLabel = $periodLabels[$period] ?? ucfirst($period);
+
+        $sheet->mergeCells('A1:N1');
+        $sheet->setCellValue('A1', 'LAPORAN PESANAN — ' . strtoupper($periodLabel) . ' — ' . now()->format('d/m/Y'));
+        $sheet->getStyle('A1')->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(28);
+
+        // ── Header row ────────────────────────────────────────────────────────
+        $headers = [
+            'A' => 'No. Pesanan',
+            'B' => 'Nama Pelanggan',
+            'C' => 'No. Telepon',
+            'D' => 'Nama Produk',
+            'E' => 'Tipe / Model',
+            'F' => 'Warna',
+            'G' => 'Total Qty',
+            'H' => 'Qty Laki-laki',
+            'I' => 'Qty Perempuan',
+            'J' => 'Qty Anak-anak',
+            'K' => 'Total Harga (Rp)',
+            'L' => 'Status',
+            'M' => 'Tgl. Pesan',
+            'N' => 'Tenggat',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}2", $label);
+        }
+
+        $headerRange = 'A2:N2';
+        $sheet->getStyle($headerRange)->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF2563EB']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFBFDBFE']]],
+        ]);
+        $sheet->getRowDimension(2)->setRowHeight(22);
+
+        // ── Status labels ─────────────────────────────────────────────────────
+        $statusLabels = [
+            'order_received'      => 'Pesanan Diterima',
+            'fabric_cutting'      => 'Pemotongan Kain',
+            'sewing'              => 'Penjahitan',
+            'embroidery'          => 'Bordir',
+            'button_installation' => 'Pemasangan Kancing',
+            'shipping'            => 'Pengiriman',
+        ];
+
+        // ── Data rows ─────────────────────────────────────────────────────────
+        $rowNum = 3;
+        foreach ($orders as $order) {
+            $isEven  = ($rowNum % 2 === 0);
+            $bgColor = $isEven ? 'FFDBEAFE' : 'FFFFFFFF'; // light blue / white alternating
+
+            $sheet->setCellValue("A{$rowNum}", $order->order_number);
+            $sheet->setCellValue("B{$rowNum}", $order->customer_name);
+            $sheet->setCellValue("C{$rowNum}", $order->customer_phone);
+            $sheet->setCellValue("D{$rowNum}", $order->product_name);
+            $sheet->setCellValue("E{$rowNum}", $order->product_type);
+            $sheet->setCellValue("F{$rowNum}", $order->color);
+            $sheet->setCellValue("G{$rowNum}", $order->totalQuantity());
+            $sheet->setCellValue("H{$rowNum}", $order->quantityByGender('male'));
+            $sheet->setCellValue("I{$rowNum}", $order->quantityByGender('female'));
+            $sheet->setCellValue("J{$rowNum}", $order->quantityByGender('child'));
+            $sheet->setCellValue("K{$rowNum}", (float) $order->total_price);
+            $sheet->setCellValue("L{$rowNum}", $statusLabels[$order->current_status] ?? $order->current_status);
+            $sheet->setCellValue("M{$rowNum}", $order->order_date?->format('d/m/Y'));
+            $sheet->setCellValue("N{$rowNum}", $order->deadline?->format('d/m/Y'));
+
+            $rowStyle = [
+                'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $bgColor]],
+                'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
+                'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFD1D5DB']]],
+            ];
+            $sheet->getStyle("A{$rowNum}:N{$rowNum}")->applyFromArray($rowStyle);
+
+            // Currency format for total price column
+            $sheet->getStyle("K{$rowNum}")->getNumberFormat()
+                ->setFormatCode('#,##0');
+
+            // Center numeric columns
+            $sheet->getStyle("G{$rowNum}:J{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            $rowNum++;
+        }
+
+        // ── Summary row ───────────────────────────────────────────────────────
+        if ($orders->isNotEmpty()) {
+            $lastDataRow = $rowNum - 1;
+
+            $sheet->mergeCells("A{$rowNum}:F{$rowNum}");
+            $sheet->setCellValue("A{$rowNum}", 'TOTAL');
+            $sheet->setCellValue("G{$rowNum}", "=SUM(G3:G{$lastDataRow})");
+            $sheet->setCellValue("H{$rowNum}", "=SUM(H3:H{$lastDataRow})");
+            $sheet->setCellValue("I{$rowNum}", "=SUM(I3:I{$lastDataRow})");
+            $sheet->setCellValue("J{$rowNum}", "=SUM(J3:J{$lastDataRow})");
+            $sheet->setCellValue("K{$rowNum}", "=SUM(K3:K{$lastDataRow})");
+
+            $sheet->getStyle("A{$rowNum}:N{$rowNum}")->applyFromArray([
+                'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+                'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF93C5FD']]],
+            ]);
+            $sheet->getStyle("K{$rowNum}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getRowDimension($rowNum)->setRowHeight(20);
+        }
+
+        // ── Column widths ─────────────────────────────────────────────────────
+        $columnWidths = [
+            'A' => 18, 'B' => 22, 'C' => 16, 'D' => 22, 'E' => 16,
+            'F' => 12, 'G' => 11, 'H' => 13, 'I' => 13, 'J' => 13,
+            'K' => 20, 'L' => 22, 'M' => 13, 'N' => 13,
+        ];
+        foreach ($columnWidths as $col => $width) {
+            $sheet->getColumnDimension($col)->setWidth($width);
+        }
+
+        // Freeze header rows
+        $sheet->freezePane('A3');
+
+        // ── Write to temp file ────────────────────────────────────────────────
+        $tempPath = tempnam(sys_get_temp_dir(), 'report_') . '.xlsx';
+        $writer   = new Xlsx($spreadsheet);
+        $writer->save($tempPath);
+
+        return $tempPath;
     }
 }

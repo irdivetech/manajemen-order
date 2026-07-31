@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\View::composer(['layouts.app', 'layouts.mobile'], function ($view) {
+            $notificationService = app(\App\Services\NotificationService::class);
+            $view->with('systemAlerts', $notificationService->getAlerts());
+        });
     }
 }
