@@ -1,6 +1,6 @@
 @extends('layouts.mobile')
 
-@inject('settings', 'App\Services\SettingService')
+@inject('settings', 'App\\Services\\SettingService')
 
 @section('title', 'Faktur: ' . $invoice->invoice_number)
 
@@ -53,16 +53,14 @@
                     {{ $order->customer_name }}
                     @if($order->customer_title) <br><span class="fw-normal text-muted">{{ $order->customer_title }}</span> @endif
                 </div>
-                @if($order->customer_address)
                 <div class="text-xs text-muted my-1">{!! nl2br(e($order->customer_address)) !!}</div>
-                @endif
                 <div class="text-xs text-muted"><i class="bi bi-telephone"></i> {{ $order->customer_phone }}</div>
             </div>
             <div class="col-6 ps-3">
                 <div class="text-xs text-muted text-uppercase fw-6 mb-1">Status</div>
                 @if($invoice->isPaid())
                     <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-1"><i class="bi bi-check-circle me-1"></i> LUNAS</span>
-                @elseif($invoice->payment_status === 'partial')
+                @elseif($invoice->isPartial())
                     <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle px-2 py-1"><i class="bi bi-clock-history me-1"></i> CICILAN/DP</span>
                 @else
                     <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-2 py-1"><i class="bi bi-x-circle me-1"></i> BLM LUNAS</span>
@@ -88,7 +86,7 @@
                 <div class="text-xs text-muted">
                     Ukuran: {{ $detail->size }} 
                     ({{ ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender }})
-                    • {{ $detail->quantity }} pcs @ Rp {{ number_format($detail->price, 0, ',', '.') }}
+                    <br>{{ $detail->quantity }} pcs @ Rp {{ number_format($detail->price, 0, ',', '.') }}
                 </div>
             </div>
             <div class="text-end">
@@ -99,27 +97,7 @@
     </div>
 </div>
 
-{{-- ── Totals ── --}}
-<div class="m-card mb-4">
-    <div class="m-card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-sm text-muted">Subtotal</span>
-            <span class="fw-6 text-sm">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</span>
-        </div>
-        @if($invoice->tax > 0)
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-sm text-muted">Pajak ({{ $settings->get('tax_rate', '11') }}%)</span>
-            <span class="fw-6 text-sm">Rp {{ number_format($invoice->tax, 0, ',', '.') }}</span>
-        </div>
-        @endif
-        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-            <span class="fw-bold text-dark text-sm">TOTAL TAGIHAN</span>
-            <span class="fw-bold text-primary" style="font-size:1.1rem;">Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</span>
-        </div>
-    </div>
-</div>
-
-{{-- ── Notes ── --}}
+{{-- ── Note & Bank ── --}}
 @if($order->notes)
 <div class="m-card mb-4">
     <div class="m-card-body bg-light">
@@ -128,6 +106,56 @@
     </div>
 </div>
 @endif
+
+<div class="m-card border-primary mb-4 shadow-sm" style="background-color: var(--bs-primary-bg-subtle);">
+    <div class="m-card-header border-0 bg-transparent pb-0">
+        <h6 class="text-primary fw-bold m-0"><i class="bi bi-wallet2 me-1"></i> Informasi Pembayaran</h6>
+    </div>
+    <div class="m-card-body pt-2">
+        @forelse($bankAccounts as $bank)
+        <div class="mb-2 {{ !$loop->last ? 'border-bottom border-primary border-opacity-25 pb-2' : '' }}">
+            <div class="fw-bold text-dark text-sm">{{ $bank->bank_name }}</div>
+            <div class="fw-bold text-primary" style="font-size: 1.1rem; letter-spacing: 1px;">{{ $bank->account_number }}</div>
+            <div class="text-xs text-muted">a/n {{ $bank->account_name }}</div>
+        </div>
+        @empty
+        <div class="text-xs text-muted">Belum ada data rekening.</div>
+        @endforelse
+    </div>
+</div>
+
+{{-- ── Total & Payments ── --}}
+<div class="m-card mb-4">
+    <div class="m-card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-dark text-sm">TOTAL TAGIHAN</span>
+            <span class="fw-bold text-dark" style="font-size:1.1rem;">Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2 text-success">
+            <span class="text-sm">Sudah Dibayar</span>
+            <span class="fw-6 text-sm">Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="fw-bold text-danger text-sm">SISA TAGIHAN</span>
+            <span class="fw-bold text-danger" style="font-size:1.1rem;">Rp {{ number_format($invoice->remainingAmount(), 0, ',', '.') }}</span>
+        </div>
+    </div>
+    
+    @if($invoice->payments->count() > 0)
+    <div class="m-card-body border-top bg-light">
+        <div class="text-xs fw-bold text-muted text-uppercase mb-2">Riwayat Pembayaran:</div>
+        @foreach($invoice->payments as $payment)
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+            <div>
+                <div class="fw-6 text-xs">{{ $payment->paid_at->format('d M Y, H:i') }}</div>
+                <div class="text-muted" style="font-size:0.7rem;">{{ $payment->payment_method ?? 'Cash/Transfer' }}</div>
+            </div>
+            <div class="fw-bold text-success text-sm">+ Rp {{ number_format($payment->amount, 0, ',', '.') }}</div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+</div>
 
 {{-- ── Tanda Tangan ── --}}
 <div class="text-center mb-5 pb-3">
@@ -144,7 +172,7 @@
 @if(Auth::user()?->isAdmin() && !$invoice->isPaid())
 <div class="m-card border-primary mb-4">
     <div class="m-card-header bg-primary bg-opacity-10">
-        <h2 class="text-primary"><i class="bi bi-wallet2 me-1"></i> Ubah Status Pembayaran</h2>
+        <h2 class="text-primary"><i class="bi bi-wallet2 me-1"></i> Input Pembayaran Baru</h2>
     </div>
     <div class="m-card-body">
         <form action="{{ route('orders.invoice.payment', $order) }}" method="POST">
@@ -153,16 +181,46 @@
             
             <div class="mb-3">
                 <label class="form-label text-xs fw-6 text-muted">Status Pembayaran</label>
-                <select name="payment_status" class="form-select" required>
-                    <option value="unpaid" {{ $invoice->isUnpaid() ? 'selected' : '' }}>Belum Lunas</option>
-                    <option value="partial" {{ $invoice->payment_status === 'partial' ? 'selected' : '' }}>Cicilan / DP</option>
+                <select name="payment_status" class="form-select" id="mPaymentStatusSelect" required>
+                    <option value="partial" {{ $invoice->isPartial() ? 'selected' : '' }}>Cicilan / DP</option>
                     <option value="paid" {{ $invoice->isPaid() ? 'selected' : '' }}>Lunas</option>
+                    <option value="unpaid" {{ $invoice->isUnpaid() ? 'selected' : '' }}>Belum Lunas</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary w-100 fw-6">Simpan Perubahan</button>
+            <div class="mb-3">
+                <label class="form-label text-xs fw-6 text-muted">Nominal Pembayaran (Rp)</label>
+                <input type="number" name="payment_amount" class="form-control" id="mPaymentAmountInput" placeholder="Sisa: {{ $invoice->remainingAmount() }}" value="{{ $invoice->remainingAmount() }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-xs fw-6 text-muted">Metode Pembayaran</label>
+                <input type="text" name="payment_method" class="form-control" placeholder="Cth: BCA">
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-xs fw-6 text-muted">Catatan Tambahan</label>
+                <input type="text" name="payment_notes" class="form-control" placeholder="Opsional">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-6">Simpan Pembayaran</button>
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mStatusSelect = document.getElementById('mPaymentStatusSelect');
+        const mAmountInput = document.getElementById('mPaymentAmountInput');
+        const mRemaining = {{ $invoice->remainingAmount() }};
+
+        if (mStatusSelect && mAmountInput) {
+            mStatusSelect.addEventListener('change', function() {
+                if (this.value === 'paid') {
+                    mAmountInput.value = mRemaining;
+                } else if (this.value === 'unpaid') {
+                    mAmountInput.value = '';
+                }
+            });
+        }
+    });
+</script>
 @endif
 
 <div style="height:40px;"></div>

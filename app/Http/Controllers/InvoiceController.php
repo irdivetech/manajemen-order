@@ -19,18 +19,20 @@ class InvoiceController extends Controller
      */
     public function show(Order $order): View
     {
-        $order->load(['invoice', 'creator']);
+        $order->load(['invoice.payments', 'creator', 'sizeDetails']);
         $invoice = $order->invoice;
 
         if (! $invoice) {
             abort(404, 'Invoice tidak ditemukan untuk order ini.');
         }
 
-        return view(isMobile() ? 'invoices.mobile.show' : 'invoices.show', compact('order', 'invoice'));
+        $bankAccounts = \App\Models\BankAccount::active()->get();
+
+        return view(isMobile() ? 'invoices.mobile.show' : 'invoices.show', compact('order', 'invoice', 'bankAccounts'));
     }
 
     /**
-     * Update the payment status of an order's invoice.
+     * Update the payment status of an order's invoice and add payment history.
      */
     public function updatePayment(UpdatePaymentStatusRequest $request, Order $order): RedirectResponse
     {
@@ -40,13 +42,28 @@ class InvoiceController extends Controller
             abort(404, 'Invoice tidak ditemukan untuk order ini.');
         }
 
-        $this->invoiceService->updatePaymentStatus(
-            $invoice,
-            $request->validated('payment_status'),
-        );
+        $status = $request->validated('payment_status');
+        $amount = (float) $request->validated('payment_amount', 0);
+        
+        if ($status === \App\Models\Invoice::PAYMENT_UNPAID) {
+            $this->invoiceService->updatePaymentStatus($invoice, $status);
+        } else {
+            // For partial or paid, if they submitted an amount, record the payment
+            if ($amount > 0) {
+                $this->invoiceService->addPayment(
+                    $invoice,
+                    $amount,
+                    $request->validated('payment_method'),
+                    $request->validated('payment_notes')
+                );
+            } else {
+                // If they just changed status to paid without amount, update status
+                $this->invoiceService->updatePaymentStatus($invoice, $status);
+            }
+        }
 
         return redirect()->route('orders.invoice', $order)
-            ->with('success', 'Status pembayaran berhasil diperbarui.');
+            ->with('success', 'Informasi pembayaran berhasil diperbarui.');
     }
 
     /**
@@ -54,13 +71,15 @@ class InvoiceController extends Controller
      */
     public function print(Order $order): View
     {
-        $order->load(['invoice', 'creator']);
+        $order->load(['invoice', 'creator', 'sizeDetails']);
         $invoice = $order->invoice;
 
         if (! $invoice) {
             abort(404, 'Invoice tidak ditemukan untuk order ini.');
         }
 
-        return view('invoices.print', compact('order', 'invoice'));
+        $bankAccounts = \App\Models\BankAccount::active()->get();
+
+        return view('invoices.print', compact('order', 'invoice', 'bankAccounts'));
     }
 }
