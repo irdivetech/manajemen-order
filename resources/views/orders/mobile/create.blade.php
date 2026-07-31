@@ -37,13 +37,30 @@
                        value="{{ old('customer_phone') }}" required placeholder="08xx-xxxx-xxxx">
                 @error('customer_phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div>
+            <div class="mb-3">
                 <label class="form-label text-sm fw-6">Kategori Pelanggan <span class="text-danger">*</span></label>
                 <select name="customer_category" class="form-select @error('customer_category') is-invalid @enderror" required>
                     <option value="retail" {{ old('customer_category') === 'retail' ? 'selected' : '' }}>Retail (Eceran)</option>
                     <option value="b2b"    {{ old('customer_category') === 'b2b'    ? 'selected' : '' }}>B2B (Grosir / Instansi)</option>
                 </select>
                 @error('customer_category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-sm fw-6">Jabatan / Custom Nama</label>
+                <textarea name="customer_title"
+                       class="form-control @error('customer_title') is-invalid @enderror"
+                       rows="3"
+                       placeholder="cth: Ketua OSIS&#10;atas nama semua anggota" style="resize:vertical;">{{ old('customer_title') }}</textarea>
+                <div class="text-xs text-muted mt-1">Opsional — bisa lebih dari satu baris</div>
+                @error('customer_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div>
+                <label class="form-label text-sm fw-6">Alamat Pemesan</label>
+                <input type="text" name="customer_address"
+                       class="form-control @error('customer_address') is-invalid @enderror"
+                       value="{{ old('customer_address') }}" placeholder="cth: Jl. Merdeka No. 10, Semarang">
+                <div class="text-xs text-muted mt-1">Opsional — untuk keperluan pengiriman</div>
+                @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
         </div>
     </div>
@@ -66,12 +83,20 @@
                        value="{{ old('product_type') }}" required placeholder="Cth: Polo Shirt, Hoodie, dll.">
                 @error('product_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div>
+            <div class="mb-3">
                 <label class="form-label text-sm fw-6">Warna <span class="text-danger">*</span></label>
                 <input type="text" name="color"
                        class="form-control @error('color') is-invalid @enderror"
                        value="{{ old('color') }}" required placeholder="Cth: Merah, Navy, Hitam-Putih">
                 @error('color') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div>
+                <label class="form-label text-sm fw-6">Bahan / Material</label>
+                <input type="text" name="material"
+                       class="form-control @error('material') is-invalid @enderror"
+                       value="{{ old('material') }}" placeholder="cth: Lacoste CVC, Katun 30s">
+                <div class="text-xs text-muted mt-1">Opsional — jenis bahan yang digunakan</div>
+                @error('material') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
         </div>
     </div>

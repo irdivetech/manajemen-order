@@ -119,7 +119,7 @@ class ReportService
         ];
         $periodLabel = $periodLabels[$period] ?? ucfirst($period);
 
-        $sheet->mergeCells('A1:N1');
+        $sheet->mergeCells('A1:Q1');
         $sheet->setCellValue('A1', 'LAPORAN PESANAN — ' . strtoupper($periodLabel) . ' — ' . now()->format('d/m/Y'));
         $sheet->getStyle('A1')->applyFromArray([
             'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
@@ -133,24 +133,27 @@ class ReportService
             'A' => 'No. Pesanan',
             'B' => 'Nama Pelanggan',
             'C' => 'No. Telepon',
-            'D' => 'Nama Produk',
-            'E' => 'Tipe / Model',
-            'F' => 'Warna',
-            'G' => 'Total Qty',
-            'H' => 'Qty Laki-laki',
-            'I' => 'Qty Perempuan',
-            'J' => 'Qty Anak-anak',
-            'K' => 'Total Harga (Rp)',
-            'L' => 'Status',
-            'M' => 'Tgl. Pesan',
-            'N' => 'Tenggat',
+            'D' => 'Jabatan / Custom Nama',
+            'E' => 'Alamat Pemesan',
+            'F' => 'Nama Produk',
+            'G' => 'Tipe / Model',
+            'H' => 'Warna',
+            'I' => 'Bahan / Material',
+            'J' => 'Total Qty',
+            'K' => 'Qty Laki-laki',
+            'L' => 'Qty Perempuan',
+            'M' => 'Qty Anak-anak',
+            'N' => 'Total Harga (Rp)',
+            'O' => 'Status',
+            'P' => 'Tgl. Pesan',
+            'Q' => 'Tenggat',
         ];
 
         foreach ($headers as $col => $label) {
             $sheet->setCellValue("{$col}2", $label);
         }
 
-        $headerRange = 'A2:N2';
+        $headerRange = 'A2:Q2';
         $sheet->getStyle($headerRange)->applyFromArray([
             'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
             'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF2563EB']],
@@ -178,31 +181,34 @@ class ReportService
             $sheet->setCellValue("A{$rowNum}", $order->order_number);
             $sheet->setCellValue("B{$rowNum}", $order->customer_name);
             $sheet->setCellValue("C{$rowNum}", $order->customer_phone);
-            $sheet->setCellValue("D{$rowNum}", $order->product_name);
-            $sheet->setCellValue("E{$rowNum}", $order->product_type);
-            $sheet->setCellValue("F{$rowNum}", $order->color);
-            $sheet->setCellValue("G{$rowNum}", $order->totalQuantity());
-            $sheet->setCellValue("H{$rowNum}", $order->quantityByGender('male'));
-            $sheet->setCellValue("I{$rowNum}", $order->quantityByGender('female'));
-            $sheet->setCellValue("J{$rowNum}", $order->quantityByGender('child'));
-            $sheet->setCellValue("K{$rowNum}", (float) $order->total_price);
-            $sheet->setCellValue("L{$rowNum}", $statusLabels[$order->current_status] ?? $order->current_status);
-            $sheet->setCellValue("M{$rowNum}", $order->order_date?->format('d/m/Y'));
-            $sheet->setCellValue("N{$rowNum}", $order->deadline?->format('d/m/Y'));
+            $sheet->setCellValue("D{$rowNum}", $order->customer_title ?? '');
+            $sheet->setCellValue("E{$rowNum}", $order->customer_address ?? '');
+            $sheet->setCellValue("F{$rowNum}", $order->product_name);
+            $sheet->setCellValue("G{$rowNum}", $order->product_type);
+            $sheet->setCellValue("H{$rowNum}", $order->color);
+            $sheet->setCellValue("I{$rowNum}", $order->material ?? '');
+            $sheet->setCellValue("J{$rowNum}", $order->totalQuantity());
+            $sheet->setCellValue("K{$rowNum}", $order->quantityByGender('male'));
+            $sheet->setCellValue("L{$rowNum}", $order->quantityByGender('female'));
+            $sheet->setCellValue("M{$rowNum}", $order->quantityByGender('child'));
+            $sheet->setCellValue("N{$rowNum}", (float) $order->total_price);
+            $sheet->setCellValue("O{$rowNum}", $statusLabels[$order->current_status] ?? $order->current_status);
+            $sheet->setCellValue("P{$rowNum}", $order->order_date?->format('d/m/Y'));
+            $sheet->setCellValue("Q{$rowNum}", $order->deadline?->format('d/m/Y'));
 
             $rowStyle = [
                 'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $bgColor]],
                 'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
                 'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFD1D5DB']]],
             ];
-            $sheet->getStyle("A{$rowNum}:N{$rowNum}")->applyFromArray($rowStyle);
+            $sheet->getStyle("A{$rowNum}:Q{$rowNum}")->applyFromArray($rowStyle);
 
             // Currency format for total price column
-            $sheet->getStyle("K{$rowNum}")->getNumberFormat()
+            $sheet->getStyle("N{$rowNum}")->getNumberFormat()
                 ->setFormatCode('#,##0');
 
             // Center numeric columns
-            $sheet->getStyle("G{$rowNum}:J{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("J{$rowNum}:M{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             $rowNum++;
         }
@@ -211,29 +217,30 @@ class ReportService
         if ($orders->isNotEmpty()) {
             $lastDataRow = $rowNum - 1;
 
-            $sheet->mergeCells("A{$rowNum}:F{$rowNum}");
+            $sheet->mergeCells("A{$rowNum}:I{$rowNum}");
             $sheet->setCellValue("A{$rowNum}", 'TOTAL');
-            $sheet->setCellValue("G{$rowNum}", "=SUM(G3:G{$lastDataRow})");
-            $sheet->setCellValue("H{$rowNum}", "=SUM(H3:H{$lastDataRow})");
-            $sheet->setCellValue("I{$rowNum}", "=SUM(I3:I{$lastDataRow})");
             $sheet->setCellValue("J{$rowNum}", "=SUM(J3:J{$lastDataRow})");
             $sheet->setCellValue("K{$rowNum}", "=SUM(K3:K{$lastDataRow})");
+            $sheet->setCellValue("L{$rowNum}", "=SUM(L3:L{$lastDataRow})");
+            $sheet->setCellValue("M{$rowNum}", "=SUM(M3:M{$lastDataRow})");
+            $sheet->setCellValue("N{$rowNum}", "=SUM(N3:N{$lastDataRow})");
 
-            $sheet->getStyle("A{$rowNum}:N{$rowNum}")->applyFromArray([
+            $sheet->getStyle("A{$rowNum}:Q{$rowNum}")->applyFromArray([
                 'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
                 'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF93C5FD']]],
             ]);
-            $sheet->getStyle("K{$rowNum}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("N{$rowNum}")->getNumberFormat()->setFormatCode('#,##0');
             $sheet->getRowDimension($rowNum)->setRowHeight(20);
         }
 
         // ── Column widths ─────────────────────────────────────────────────────
         $columnWidths = [
-            'A' => 18, 'B' => 22, 'C' => 16, 'D' => 22, 'E' => 16,
-            'F' => 12, 'G' => 11, 'H' => 13, 'I' => 13, 'J' => 13,
-            'K' => 20, 'L' => 22, 'M' => 13, 'N' => 13,
+            'A' => 18, 'B' => 22, 'C' => 16, 'D' => 28, 'E' => 32,
+            'F' => 22, 'G' => 16, 'H' => 14, 'I' => 20, 'J' => 11,
+            'K' => 13, 'L' => 13, 'M' => 13, 'N' => 20, 'O' => 22,
+            'P' => 13, 'Q' => 13,
         ];
         foreach ($columnWidths as $col => $width) {
             $sheet->getColumnDimension($col)->setWidth($width);

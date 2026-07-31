@@ -59,16 +59,25 @@
 <div class="section-title">Detail Pesanan</div>
 <div class="m-card mb-4">
     <div class="m-card-body p-0">
-        <div class="m-list-item d-flex justify-content-between align-items-start border-0">
+        @foreach($order->sizeDetails as $detail)
+        <div class="m-list-item d-flex justify-content-between align-items-start {{ $loop->last ? 'border-0' : '' }}">
             <div>
                 <div class="fw-7 text-sm">{{ $order->product_name }}</div>
-                <div class="text-xs text-muted mt-1">{{ $order->product_type }} • {{ $order->color }}</div>
-                <div class="text-xs text-muted">Total: {{ $order->totalQuantity() }} pcs</div>
+                <div class="text-xs text-muted mt-1">
+                    {{ $order->product_type }} • {{ $order->color }}
+                    @if($order->material) • {{ $order->material }} @endif
+                </div>
+                <div class="text-xs text-muted">
+                    Ukuran: {{ $detail->size }} 
+                    ({{ ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender }})
+                    • {{ $detail->quantity }} pcs @ Rp {{ number_format($detail->price, 0, ',', '.') }}
+                </div>
             </div>
             <div class="text-end">
-                <div class="fw-7 text-sm text-dark">Rp {{ number_format($order->total_price, 0, ',', '.') }}</div>
+                <div class="fw-7 text-sm text-dark">Rp {{ number_format($detail->quantity * $detail->price, 0, ',', '.') }}</div>
             </div>
         </div>
+        @endforeach
     </div>
 </div>
 
