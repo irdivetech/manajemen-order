@@ -21,8 +21,15 @@ class UpdateTrackingRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var Order $order */
+        $order = $this->route('order');
+        $nextStatus = $order->getNextStatus();
+
+        // Only allow the next sequential status
+        $allowedStatuses = $nextStatus ? [$nextStatus] : [];
+
         return [
-            'status'      => ['required', 'string', Rule::in(Order::STATUSES)],
+            'status'      => ['required', 'string', Rule::in($allowedStatuses)],
             'description' => ['required', 'string', 'max:1000'],
         ];
     }
@@ -32,8 +39,13 @@ class UpdateTrackingRequest extends FormRequest
      */
     public function messages(): array
     {
+        /** @var Order $order */
+        $order = $this->route('order');
+        $nextStatus = $order->getNextStatus();
+        $nextLabel = $nextStatus ? Order::statusLabel($nextStatus) : 'Selesai';
+
         return [
-            'status.in' => 'The status must be one of: ' . implode(', ', Order::STATUSES) . '.',
+            'status.in' => "Status hanya dapat dilanjutkan ke tahap berikutnya: \"{$nextLabel}\". Tidak bisa mundur atau melompati tahap.",
         ];
     }
 }

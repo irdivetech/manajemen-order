@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use App\Services\OrderService;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use Illuminate\Http\JsonResponse;
+use App\Models\Order;
+use App\Services\OrderService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class OrderController extends Controller
 {
@@ -18,71 +19,143 @@ class OrderController extends Controller
     /**
      * Display a listing of the orders.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
-        $query = Order::with(['creator', 'invoice'])->latest();
+        $query = Order::with(['creator', 'invoice'])->active()->latest();
 
-        // Optional status filter
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('product_name', 'like', "%{$search}%");
+            });
+        }
+
         if ($status = $request->query('status')) {
             $query->byStatus($status);
         }
 
-        // Optional archived filter
-        if ($request->query('archived') === 'true') {
-            $query->archived();
-        } elseif ($request->query('archived') === 'false') {
-            $query->active();
-        }
+        $orders = $query->paginate(15)->withQueryString();
 
-        $orders = $query->paginate($request->query('per_page', 15));
+        return view(isMobile() ? 'orders.mobile.index' : 'orders.index', compact('orders'));
+    }
 
-        return response()->json($orders);
+    /**
+     * Show the form for creating a new order.
+     */
+    public function create(): View
+    {
+        return view(isMobile() ? 'orders.mobile.create' : 'orders.create');
     }
 
     /**
      * Store a newly created order in storage.
      */
-    public function store(StoreOrderRequest $request): JsonResponse
+    public function store(StoreOrderRequest $request): RedirectResponse
     {
-        $order = $this->orderService->createOrder(
+        $designFiles = $request->hasFile('design_files')
+            ? $request->file('design_files')
+            : [];
+
+        $this->orderService->createOrder(
             $request->validated(),
-            $request->user()
+            $request->user(),
+            $designFiles
         );
 
-        return response()->json($order, 201);
+        return redirect()->route('orders.index')
+            ->with('success', 'Order berhasil dibuat.');
     }
 
     /**
      * Display the specified order.
      */
-    public function show(Order $order): JsonResponse
+    public function show(Order $order): View
     {
-        $order->load(['creator', 'invoice', 'trackingHistories.updatedBy:id,name']);
+        $order->load(['creator', 'invoice', 'trackingHistories.updatedBy', 'designFiles']);
 
-        return response()->json($order);
+        return view(isMobile() ? 'orders.mobile.show' : 'orders.show', compact('order'));
+    }
+
+    /**
+     * Show the form for editing the specified order.
+     * Only allowed when status is still 'order_received'.
+     */
+    public function edit(Order $order): View
+    {
+        if (! $order->isEditable()) {
+            abort(403, 'Pesanan hanya dapat diubah saat masih dalam tahap "Pesanan Diterima".');
+        }
+
+        $order->load('designFiles');
+
+        return view(isMobile() ? 'orders.mobile.edit' : 'orders.edit', compact('order'));
     }
 
     /**
      * Update the specified order in storage.
+     * Only allowed when status is still 'order_received'.
      */
-    public function update(UpdateOrderRequest $request, Order $order): JsonResponse
+    public function update(UpdateOrderRequest $request, Order $order): RedirectResponse
     {
-        $order = $this->orderService->updateOrder($order, $request->validated());
+        if (! $order->isEditable()) {
+            abort(403, 'Pesanan hanya dapat diubah saat masih dalam tahap "Pesanan Diterima".');
+        }
 
-        return response()->json($order);
+        $newDesignFiles = $request->hasFile('design_files')
+            ? $request->file('design_files')
+            : [];
+
+        $deleteFileIds = $request->input('delete_design_files', []);
+
+        $this->orderService->updateOrder(
+            $order,
+            $request->validated(),
+            $newDesignFiles,
+            array_map('intval', $deleteFileIds)
+        );
+
+        return redirect()->route('orders.show', $order)
+            ->with('success', 'Order berhasil diperbarui.');
     }
 
     /**
-     * Remove the specified order from storage (admin only).
+     * Remove the specified order from storage.
+     * Only allowed when status is still 'order_received'.
      */
-    public function destroy(Request $request, Order $order): JsonResponse
+    public function destroy(Request $request, Order $order): RedirectResponse
     {
         if (! $request->user()?->isAdmin()) {
             abort(403, 'Access denied. Only admin can delete orders.');
         }
 
+        if (! $order->isDeletable()) {
+            abort(403, 'Pesanan hanya dapat dihapus saat masih dalam tahap "Pesanan Diterima". Setelah masuk produksi, data tidak boleh dihapus.');
+        }
+
         $order->delete();
 
-        return response()->json(null, 204);
+        return redirect()->route('orders.index')
+            ->with('success', 'Order berhasil dihapus.');
+    }
+
+    /**
+     * Display archived orders.
+     */
+    public function archives(Request $request): View
+    {
+        $query = Order::with(['creator', 'invoice'])->archived()->latest();
+
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('product_name', 'like', "%{$search}%");
+            });
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
+
+        return view(isMobile() ? 'archives.mobile.index' : 'archives.index', compact('orders'));
     }
 }

@@ -18,7 +18,7 @@ class RoleMiddleware
      *   ->middleware('role:admin')
      *   ->middleware('role:admin,owner')
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Closure(Request): (Response)  $next
      * @param  string  ...$roles  One or more allowed roles
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response

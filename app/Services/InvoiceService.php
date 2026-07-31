@@ -19,8 +19,11 @@ class InvoiceService
      */
     public function generateInvoice(Order $order): Invoice
     {
+        $settingService = app(\App\Services\SettingService::class);
+        $taxRate = (float) $settingService->get('tax_rate') / 100;
+
         $subtotal   = (float) $order->total_price;
-        $tax        = round($subtotal * self::TAX_RATE, 2);
+        $tax        = round($subtotal * $taxRate, 2);
         $grandTotal = round($subtotal + $tax, 2);
 
         $invoice = Invoice::firstOrNew(['order_id' => $order->id]);
