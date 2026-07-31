@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
@@ -26,8 +27,8 @@ class Invoice extends Model
         'order_id',
         'invoice_number',
         'subtotal',
-        'tax',
         'grand_total',
+        'paid_amount',
         'payment_status',
     ];
 
@@ -40,8 +41,8 @@ class Invoice extends Model
     {
         return [
             'subtotal'    => 'decimal:2',
-            'tax'         => 'decimal:2',
             'grand_total' => 'decimal:2',
+            'paid_amount' => 'decimal:2',
         ];
     }
 
@@ -53,6 +54,14 @@ class Invoice extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Get all payment records for this invoice.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(InvoicePayment::class)->latest('paid_at');
     }
 
     // ─── Helper Methods ──────────────────────────────────────────────────────
@@ -71,5 +80,33 @@ class Invoice extends Model
     public function isUnpaid(): bool
     {
         return $this->payment_status === self::PAYMENT_UNPAID;
+    }
+
+    /**
+     * Check if the invoice has partial payment.
+     */
+    public function isPartial(): bool
+    {
+        return $this->payment_status === self::PAYMENT_PARTIAL;
+    }
+
+    /**
+     * Get the remaining amount to be paid.
+     */
+    public function remainingAmount(): float
+    {
+        return max(0, (float) $this->grand_total - (float) $this->paid_amount);
+    }
+
+    /**
+     * Get the paid percentage.
+     */
+    public function paidPercentage(): float
+    {
+        if ((float) $this->grand_total <= 0) {
+            return 0;
+        }
+
+        return round(((float) $this->paid_amount / (float) $this->grand_total) * 100, 1);
     }
 }
