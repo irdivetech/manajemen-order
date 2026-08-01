@@ -6,21 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - POMS</title>
 
-    {{-- Bootstrap 5 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer">
-    {{-- Bootstrap Icons --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-          rel="stylesheet"
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer">
-    {{-- Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-          crossorigin="anonymous">
+    {{-- Local Offline Assets --}}
+    <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet">
 
     <style>
         :root {
@@ -163,14 +152,10 @@
     {{-- Overlay for mobile sidebar --}}
     <div class="sidebar-overlay position-fixed top-0 start-0 w-100 h-100 d-none" style="background:rgba(0,0,0,0.3);z-index:1035;" id="sidebarOverlay"></div>
 
-    {{-- Bootstrap 5 JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"></script>
-
-    {{-- Chart.js --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    {{-- Local Offline JS --}}
+    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/js/chart.min.js') }}"></script>
+    
     <script>
         // Mobile sidebar toggle
         const sidebar = document.getElementById('appSidebar');
@@ -186,7 +171,7 @@
     </script>
     
     {{-- SweetAlert2 --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
