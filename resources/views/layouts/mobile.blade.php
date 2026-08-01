@@ -7,16 +7,10 @@
     <meta name="theme-color" content="#4f46e5">
     <title>@yield('title', 'POMS') — POMS Mobile</title>
 
-    {{-- Bootstrap 5 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
-    {{-- Bootstrap Icons --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-          rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
-    {{-- Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet" crossorigin="anonymous">
+    {{-- Local Offline Assets --}}
+    <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet">
 
     <style>
         /* ─── Root Variables ─── */
@@ -716,11 +710,9 @@
     </div>
 </div>
 
-{{-- Bootstrap JS --}}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-{{-- Chart.js --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{-- Local Offline JS --}}
+<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/js/chart.min.js') }}"></script>
 
 <script>
     // ─── Menu Drawer ───
@@ -754,7 +746,7 @@
 </script>
 
 {{-- SweetAlert2 --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         @if (session('success'))
