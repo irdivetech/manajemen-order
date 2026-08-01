@@ -42,3 +42,8 @@
 body {
     @apply bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500/30;
 }
+
+/* Force SweetAlert to be above everything else (like bottom sheets and offcanvas) */
+.swal2-container {
+    z-index: 9999 !important;
+}

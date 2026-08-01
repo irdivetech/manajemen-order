@@ -783,6 +783,12 @@
     
     function confirmAction(event, form, title, text, confirmText = 'Ya, lanjutkan!', confirmColor = '#4f46e5') {
         event.preventDefault();
+        
+        // Tutup drawer jika sedang terbuka (di mobile)
+        if (typeof closeDrawer === 'function') {
+            closeDrawer();
+        }
+
         Swal.fire({
             title: title,
             text: text,
