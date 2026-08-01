@@ -37,6 +37,19 @@
                     @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
+                <hr class="my-4 text-muted opacity-25">
+                <h6 class="mb-3 text-primary">Ubah Kata Sandi (Opsional)</h6>
+                <div class="mb-3">
+                    <label class="form-label">Kata Sandi Baru</label>
+                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                    @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Konfirmasi Kata Sandi Baru</label>
+                    <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi kata sandi baru">
+                </div>
+
                 <div class="d-flex justify-content-end gap-2 border-top pt-4">
                     <a href="{{ route('users.index') }}" class="btn btn-light border">Batal</a>
                     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>

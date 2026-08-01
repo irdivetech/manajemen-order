@@ -75,9 +75,9 @@
                 <li><hr class="dropdown-divider"></li>
                 @endif
                 <li>
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" onsubmit="confirmAction(event, this, 'Keluar Sistem', 'Apakah Anda yakin ingin keluar dari aplikasi?', 'Ya, Keluar', '#ef4444');">
                         @csrf
-                        <button class="dropdown-item small text-danger"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button>
+                        <button type="submit" class="dropdown-item small text-danger"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button>
                     </form>
                 </li>
             </ul>

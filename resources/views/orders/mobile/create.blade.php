@@ -16,7 +16,7 @@
 
 @section('content')
 
-<form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data" id="createOrderForm">
+<form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data" id="order-form">
     @csrf
 
     {{-- ── Informasi Pelanggan ── --}}
@@ -322,6 +322,40 @@ function updateSummary() {
     card.style.display = totalQty > 0 ? '' : 'none';
     document.getElementById('total-qty-display').textContent   = totalQty + ' pcs';
     document.getElementById('total-price-display').textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
+}
+
+// Frontend validation for HPP vs Subtotal
+const form = document.getElementById('order-form');
+if (form) {
+    form.addEventListener('submit', function(e) {
+        const hppInput = document.querySelector('input[name="total_cost"]');
+        const hppValue = parseFloat(hppInput.value) || 0;
+        
+        let currentSubtotal = 0;
+        document.querySelectorAll('.size-row').forEach(row => {
+            currentSubtotal += parseInt(row.dataset.price) * parseInt(row.dataset.qty);
+        });
+
+        if (hppValue > currentSubtotal) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Input Tidak Valid',
+                text: 'Total HPP / Modal Produksi (Rp ' + new Intl.NumberFormat('id-ID').format(hppValue) + ') tidak boleh melebihi Total Harga / Subtotal (Rp ' + new Intl.NumberFormat('id-ID').format(currentSubtotal) + ').',
+                confirmButtonText: 'Perbaiki Input',
+                confirmButtonColor: '#4f46e5',
+                customClass: { popup: 'rounded-4' }
+            }).then(() => {
+                hppInput.classList.add('is-invalid');
+                hppInput.focus();
+            });
+            
+            // Hapus is-invalid saat diketik ulang
+            hppInput.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            }, { once: true });
+        }
+    });
 }
 </script>
 @endpush

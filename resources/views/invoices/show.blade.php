@@ -34,7 +34,13 @@
         <!-- Actions -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <a href="{{ route('orders.show', $order) }}" class="btn btn-light border"><i class="bi bi-arrow-left me-1"></i> Kembali ke Pesanan</a>
-            <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-printer me-1"></i> Cetak / PDF</a>
+            <div>
+                @if($invoice->isPaid())
+                    <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-printer me-1"></i> Cetak Faktur</a>
+                @else
+                    <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="btn btn-outline-danger me-2"><i class="bi bi-receipt me-1"></i> Cetak Tagihan</a>
+                @endif
+            </div>
         </div>
 
         <x-card class="position-relative overflow-hidden">

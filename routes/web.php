@@ -41,6 +41,7 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     Route::get('orders/{order}/invoice', [InvoiceController::class, 'show'])->name('orders.invoice');
     Route::patch('orders/{order}/invoice/payment', [InvoiceController::class, 'updatePayment'])->name('orders.invoice.payment');
     Route::get('orders/{order}/invoice/print', [InvoiceController::class, 'print'])->name('orders.invoice.print');
+    Route::get('orders/{order}/invoice/print-tagihan', [InvoiceController::class, 'printTagihan'])->name('orders.invoice.print-tagihan');
 
     // ─── Archives ───────────────────────────────────────────────────────────
     Route::get('archives', [OrderController::class, 'archives'])->name('archives.index');

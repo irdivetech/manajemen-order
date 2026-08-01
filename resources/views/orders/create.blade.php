@@ -9,7 +9,7 @@
 
 @section('content')
 <x-card title="Rincian Pesanan Baru">
-    <form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
+    <form id="order-form" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row g-3 mb-4">
@@ -288,6 +288,42 @@ document.addEventListener('DOMContentLoaded', function() {
         oldDetails.forEach(detail => addRow(detail));
     } else {
         addRow(); // Add one empty row by default
+    }
+
+    // Frontend validation for HPP vs Subtotal
+    const form = document.getElementById('order-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const hppInput = document.querySelector('input[name="total_cost"]');
+            const hppValue = parseFloat(hppInput.value) || 0;
+            
+            let currentSubtotal = 0;
+            document.querySelectorAll('#size-details-table tbody tr').forEach(tr => {
+                const qty = parseInt(tr.querySelector('.qty-input').value || 0);
+                const price = parseInt(tr.querySelector('.price-input').value || 0);
+                currentSubtotal += (qty * price);
+            });
+
+            if (hppValue > currentSubtotal) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Tidak Valid',
+                    text: 'Total HPP / Modal Produksi (Rp ' + new Intl.NumberFormat('id-ID').format(hppValue) + ') tidak boleh melebihi Total Harga / Subtotal (Rp ' + new Intl.NumberFormat('id-ID').format(currentSubtotal) + ').',
+                    confirmButtonText: 'Perbaiki Input',
+                    confirmButtonColor: '#4f46e5',
+                    customClass: { popup: 'rounded-4' }
+                }).then(() => {
+                    hppInput.classList.add('is-invalid');
+                    hppInput.focus();
+                });
+                
+                // Hapus is-invalid saat diketik ulang
+                hppInput.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                }, { once: true });
+            }
+        });
     }
 });
 </script>

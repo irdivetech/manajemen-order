@@ -32,6 +32,18 @@ class InvoiceService
 
         $invoice->subtotal    = $subtotal;
         $invoice->grand_total = $grandTotal;
+
+        // Re-evaluate payment status if invoice already exists, since grand_total might have changed
+        if ($invoice->exists) {
+            if ($invoice->paid_amount >= $grandTotal) {
+                $invoice->payment_status = Invoice::PAYMENT_PAID;
+            } elseif ($invoice->paid_amount > 0) {
+                $invoice->payment_status = Invoice::PAYMENT_PARTIAL;
+            } else {
+                $invoice->payment_status = Invoice::PAYMENT_UNPAID;
+            }
+        }
+
         $invoice->save();
 
         return $invoice;

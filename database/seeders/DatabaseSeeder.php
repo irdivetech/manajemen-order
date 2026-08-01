@@ -17,20 +17,24 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create Admin User
-        User::factory()->create([
-            'name' => 'Admin POMS',
-            'email' => 'admin@poms.com',
-            'password' => Hash::make('password123'),
-            'role' => 'admin',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@poms.com'],
+            [
+                'name' => 'Admin POMS',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+            ]
+        );
 
         // Create Owner User
-        User::factory()->create([
-            'name' => 'Owner POMS',
-            'email' => 'owner@poms.com',
-            'password' => Hash::make('password123'),
-            'role' => 'owner',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'owner@poms.com'],
+            [
+                'name' => 'Owner POMS',
+                'password' => Hash::make('password123'),
+                'role' => 'owner',
+            ]
+        );
 
         $this->call([
             DummyDataSeeder::class,

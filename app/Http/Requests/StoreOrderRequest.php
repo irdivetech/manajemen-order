@@ -54,4 +54,29 @@ class StoreOrderRequest extends FormRequest
             'deadline.after_or_equal' => 'The deadline must be on or after the order date.',
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $totalCost = (float) $this->input('total_cost', 0);
+            $sizeDetails = $this->input('size_details', []);
+            
+            $subtotal = 0;
+            foreach ($sizeDetails as $detail) {
+                if (isset($detail['quantity']) && isset($detail['price'])) {
+                    $subtotal += ($detail['quantity'] * $detail['price']);
+                }
+            }
+
+            if ($totalCost > $subtotal) {
+                $validator->errors()->add('total_cost', 'Total HPP / Modal Produksi tidak boleh melebihi Total Harga (Subtotal).');
+            }
+        });
+    }
 }
