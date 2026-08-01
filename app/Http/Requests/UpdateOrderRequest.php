@@ -46,4 +46,36 @@ class UpdateOrderRequest extends FormRequest
             'notes'             => ['nullable', 'string', 'max:1000'],
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $order = $this->route('order');
+            
+            // Get total cost: from input if provided, otherwise from existing order
+            $totalCost = $this->has('total_cost') ? (float) $this->input('total_cost') : (float) $order->total_cost;
+            
+            // Calculate subtotal: from input size_details if provided, otherwise from existing order total_price
+            if ($this->has('size_details')) {
+                $subtotal = 0;
+                foreach ($this->input('size_details', []) as $detail) {
+                    if (isset($detail['quantity']) && isset($detail['price'])) {
+                        $subtotal += ($detail['quantity'] * $detail['price']);
+                    }
+                }
+            } else {
+                $subtotal = (float) $order->total_price;
+            }
+
+            if ($totalCost > $subtotal) {
+                $validator->errors()->add('total_cost', 'Total HPP / Modal Produksi tidak boleh melebihi Total Harga (Subtotal).');
+            }
+        });
+    }
 }

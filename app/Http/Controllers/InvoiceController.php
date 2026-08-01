@@ -82,4 +82,18 @@ class InvoiceController extends Controller
 
         return view('invoices.print', compact('order', 'invoice', 'bankAccounts'));
     }
+
+    public function printTagihan(Order $order): View
+    {
+        $order->load(['invoice.payments', 'creator', 'sizeDetails']);
+        $invoice = $order->invoice;
+
+        if (! $invoice) {
+            abort(404, 'Invoice tidak ditemukan untuk order ini.');
+        }
+
+        $bankAccounts = \App\Models\BankAccount::active()->get();
+
+        return view('invoices.print_tagihan', compact('order', 'invoice', 'bankAccounts'));
+    }
 }

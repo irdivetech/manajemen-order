@@ -30,7 +30,13 @@
             <div class="d-grid gap-2">
                 <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i> Ubah Data Pengguna</a>
                 @if(Auth::id() !== $user->id)
-                <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="confirmDelete(event, this, 'Hapus pengguna ini?');">
+                @php
+                    $orderCount = $user->orders()->count();
+                    $msg = $orderCount > 0 
+                        ? "Pengguna ini memiliki $orderCount pesanan. Seluruh data orderannya akan dipindahkan ke Admin Utama sebelum akun dihapus."
+                        : "Apakah Anda yakin ingin menghapus pengguna ini secara permanen?";
+                @endphp
+                <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="confirmDelete(event, this, '{{ $msg }}');">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-outline-danger w-100"><i class="bi bi-trash me-1"></i> Hapus Pengguna</button>

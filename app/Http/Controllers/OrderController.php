@@ -133,6 +133,9 @@ class OrderController extends Controller
             abort(403, 'Pesanan hanya dapat dihapus saat masih dalam tahap "Pesanan Diterima". Setelah masuk produksi, data tidak boleh dihapus.');
         }
 
+        // Hapus file desain fisik dari storage
+        \Illuminate\Support\Facades\Storage::disk('public')->deleteDirectory("designs/{$order->id}");
+
         $order->delete();
 
         return redirect()->route('orders.index')

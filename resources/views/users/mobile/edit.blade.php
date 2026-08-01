@@ -45,6 +45,22 @@
         </div>
     </div>
 
+    <div class="section-title">Ubah Kata Sandi (Opsional)</div>
+    <div class="m-card mb-4">
+        <div class="m-card-body">
+            <div class="mb-3">
+                <label class="form-label text-sm fw-6">Kata Sandi Baru</label>
+                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Biarkan kosong jika tak diubah">
+                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div>
+                <label class="form-label text-sm fw-6">Konfirmasi Kata Sandi</label>
+                <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi kata sandi baru">
+            </div>
+        </div>
+    </div>
+
     {{-- Spacer --}}
     <div style="height:70px;"></div>
 

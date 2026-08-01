@@ -55,7 +55,13 @@
                             <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-light border" title="Lihat"><i class="bi bi-eye"></i></a>
                             <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-light border" title="Ubah"><i class="bi bi-pencil"></i></a>
                             @if(Auth::id() !== $user->id)
-                            <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="confirmDelete(event, this, 'Apakah Anda yakin ingin menghapus pengguna ini?');">
+                            @php
+                                $orderCount = $user->orders()->count();
+                                $msg = $orderCount > 0 
+                                    ? "Pengguna ini memiliki $orderCount pesanan. Seluruh data orderannya akan dipindahkan ke Admin Utama sebelum akun dihapus."
+                                    : "Apakah Anda yakin ingin menghapus pengguna ini secara permanen?";
+                            @endphp
+                            <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="confirmDelete(event, this, '{{ $msg }}');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-light border text-danger" title="Hapus"><i class="bi bi-trash"></i></button>

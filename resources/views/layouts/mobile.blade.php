@@ -704,7 +704,7 @@
 
         <div class="section-title mt-3">Akun</div>
 
-        <form method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('logout') }}" onsubmit="confirmAction(event, this, 'Keluar Sistem', 'Apakah Anda yakin ingin keluar dari aplikasi?', 'Ya, Keluar', '#ef4444');">
             @csrf
             <button type="submit" class="drawer-nav-item danger w-100" style="text-align:left;">
                 <div class="dni-icon" style="background:#fff1f2; color:var(--danger);">

@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Faktur #{{ $invoice->invoice_number }}</title>
+    <title>Tagihan #{{ $invoice->invoice_number }}</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 40px; background: #fff; }
         .no-print { text-align: center; margin-bottom: 20px; }
@@ -29,7 +29,7 @@
             clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
             width: 220px;
             text-align: center;
-            margin-top: -60px; /* To make it stick to the top edge */
+            margin-top: -60px;
         }
         .logo-container img { max-width: 100%; height: auto; }
         .logo-container h1 { margin: 0; font-family: 'Brush Script MT', cursive; font-size: 38px; color: #7be0d0; }
@@ -75,9 +75,13 @@
 
         .footer-right { width: 48%; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
         
-        .total-box { display: flex; align-items: center; justify-content: flex-end; width: 100%; margin-bottom: 30px; }
-        .total-box span { font-size: 18px; font-weight: bold; font-style: italic; margin-right: 15px; }
-        .total-box .amount { background-color: #b7ce2b; padding: 12px 20px; font-size: 24px; font-weight: 900; color: #333; }
+        .total-box { display: flex; flex-direction: column; align-items: flex-end; width: 100%; margin-bottom: 30px; }
+        .total-box-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
+        .total-box-row.sisa { margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd; }
+        .total-box-row span { font-size: 16px; font-weight: bold; font-style: italic; }
+        .total-box-row .amount-val { font-size: 18px; font-weight: bold; }
+        .total-box-row.sisa span { font-size: 18px; color: #b91c1c; }
+        .total-box-row.sisa .amount-val { background-color: #fecaca; color: #b91c1c; padding: 10px 20px; font-size: 22px; font-weight: 900; border-radius: 5px; }
 
         .payment-info { 
             background-color: #2b82b1; 
@@ -114,7 +118,7 @@
     
     <div class="no-print">
         <a href="{{ route('orders.invoice', $order->id) }}" class="btn-back" style="text-decoration: none; display: inline-block;">Kembali</a>
-        <button class="btn-print" onclick="window.print()">Cetak Faktur</button>
+        <button class="btn-print" onclick="window.print()">Cetak Tagihan</button>
     </div>
     
     <div class="invoice-wrapper">
@@ -131,8 +135,8 @@
                 @endif
             </div>
             <div class="header-title">
-                <h1>INVOICE.</h1>
-                <h3>Account Receivable</h3>
+                <h1>TAGIHAN.</h1>
+                <h3>Billing Statement</h3>
             </div>
         </div>
 
@@ -143,9 +147,15 @@
                     <td>: {{ $invoice->invoice_number }}</td>
                 </tr>
                 <tr>
-                    <td>Tanggal invoice</td>
-                    <td>: {{ strtoupper($invoice->created_at->format('d F Y')) }}</td>
+                    <td>Tanggal Tagihan</td>
+                    <td>: {{ strtoupper(date('d F Y')) }}</td>
                 </tr>
+                @if($order->deadline)
+                <tr>
+                    <td>Jatuh Tempo</td>
+                    <td>: {{ strtoupper(\Carbon\Carbon::parse($order->deadline)->format('d F Y')) }}</td>
+                </tr>
+                @endif
             </table>
         </div>
 
@@ -178,12 +188,37 @@
             </tbody>
         </table>
 
+        <!-- Riwayat Pembayaran -->
+        @if($invoice->payments->count() > 0)
+        <div style="margin-bottom: 20px;">
+            <strong style="font-size: 12px; text-transform: uppercase;">Riwayat Pembayaran (Cicilan):</strong>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #ddd;">
+                        <th style="text-align: left; padding: 8px 0;">Tanggal</th>
+                        <th style="text-align: left; padding: 8px 0;">Metode</th>
+                        <th style="text-align: right; padding: 8px 0;">Jumlah Pembayaran</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($invoice->payments as $payment)
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 0;">{{ $payment->paid_at->format('d M Y, H:i') }}</td>
+                        <td style="padding: 8px 0;">{{ $payment->payment_method ?? 'Cash/Transfer' }}</td>
+                        <td style="text-align: right; padding: 8px 0; color: #15803d; font-weight: bold;">+ Rp. {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+
         <div class="note-section">
             <strong>NOTE:</strong>
             <p>{{ $order->notes }}</p>
         </div>
 
-        <div class="note-line"></div>
+        <div class="note-line" style="margin-top: 20px;"></div>
 
         <div class="footer">
             <div class="footer-left">
@@ -208,8 +243,18 @@
 
             <div class="footer-right">
                 <div class="total-box">
-                    <span>Total Orderan :</span>
-                    <div class="amount">Rp. {{ number_format($invoice->grand_total, 0, ',', '.') }}</div>
+                    <div class="total-box-row">
+                        <span>Total Orderan :</span>
+                        <div class="amount-val">Rp. {{ number_format($invoice->grand_total, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="total-box-row" style="color: #15803d;">
+                        <span>Telah Dibayar :</span>
+                        <div class="amount-val">- Rp. {{ number_format($invoice->paid_amount, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="total-box-row sisa">
+                        <span>Sisa Tagihan :</span>
+                        <div class="amount-val">Rp. {{ number_format($invoice->remainingAmount(), 0, ',', '.') }}</div>
+                    </div>
                 </div>
 
                 <div class="payment-info">

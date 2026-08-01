@@ -86,10 +86,20 @@ class UserController extends Controller
                 ->with('error', 'Tidak dapat menghapus akun sendiri.');
         }
 
-        $user->delete();
+        if ($user->id === 1) {
+            return redirect()->route('users.index')
+                ->with('error', 'Admin Utama tidak dapat dihapus.');
+        }
+
+        $transferredCount = $this->userService->transferOrdersAndDelete($user);
+
+        $message = 'Pengguna berhasil dihapus.';
+        if ($transferredCount > 0) {
+            $message = "Pengguna berhasil dihapus. Sebanyak {$transferredCount} data orderan telah diamankan dan dipindahkan ke Admin Utama.";
+        }
 
         return redirect()->route('users.index')
-            ->with('success', 'User berhasil dihapus.');
+            ->with('success', $message);
     }
 
     /**

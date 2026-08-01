@@ -89,7 +89,13 @@
             <i class="bi bi-pencil"></i> Ubah
         </a>
         @if(Auth::id() !== $user->id)
-        <form action="{{ route('users.destroy', $user) }}" method="POST" class="flex-grow-1" onsubmit="confirmDelete(event, this, 'Apakah Anda yakin ingin menghapus pengguna ini?')">
+        @php
+            $orderCount = $user->orders()->count();
+            $msg = $orderCount > 0 
+                ? "Pengguna ini memiliki $orderCount pesanan. Seluruh data orderannya akan dipindahkan ke Admin Utama sebelum akun dihapus."
+                : "Apakah Anda yakin ingin menghapus pengguna ini secara permanen?";
+        @endphp
+        <form action="{{ route('users.destroy', $user) }}" method="POST" class="flex-grow-1" onsubmit="confirmDelete(event, this, '{{ $msg }}')">
             @csrf @method('DELETE')
             <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2">
                 <i class="bi bi-trash"></i> Hapus

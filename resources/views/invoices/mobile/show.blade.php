@@ -37,9 +37,15 @@
         </div>
     </div>
     <div class="text-end">
-        <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="icon-btn bg-primary text-white border-0" style="width:40px;height:40px;">
-            <i class="bi bi-printer"></i>
-        </a>
+        @if($invoice->isPaid())
+            <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="icon-btn bg-primary text-white border-0" style="width:40px;height:40px;" title="Cetak Faktur">
+                <i class="bi bi-printer"></i>
+            </a>
+        @else
+            <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="icon-btn bg-danger text-white border-0" style="width:40px;height:40px;" title="Cetak Tagihan">
+                <i class="bi bi-receipt"></i>
+            </a>
+        @endif
     </div>
 </div>
 
