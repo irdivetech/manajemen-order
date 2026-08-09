@@ -233,34 +233,42 @@ class DashboardService
     }
 
     /**
-     * Get order breakdown by status for UI bars.
+     * Get order breakdown by status group for UI bars.
      */
     public function getStatusBreakdownUI(): array
     {
         $total = Order::count();
-        if ($total === 0) {
-            return [
-                'received' => ['count' => 0, 'percent' => 0],
-                'cutting'  => ['count' => 0, 'percent' => 0],
-                'sewing'   => ['count' => 0, 'percent' => 0],
-                'embroidery'=> ['count' => 0, 'percent' => 0],
-                'shipping' => ['count' => 0, 'percent' => 0],
-            ];
+        $breakdown = [];
+        
+        $groups = ['penerimaan', 'persiapan', 'produksi', 'finishing', 'pengiriman'];
+        foreach ($groups as $group) {
+            $breakdown[$group] = ['count' => 0, 'percent' => 0];
         }
 
-        $received = Order::byStatus(Order::STATUS_ORDER_RECEIVED)->count();
-        $cutting = Order::byStatus(Order::STATUS_FABRIC_CUTTING)->count();
-        $sewing = Order::byStatus(Order::STATUS_SEWING)->count();
-        $embroidery = Order::byStatus(Order::STATUS_EMBROIDERY)->count() + Order::byStatus(Order::STATUS_BUTTON_INSTALLATION)->count();
-        $shipping = Order::byStatus(Order::STATUS_SHIPPING)->count();
+        if ($total === 0) {
+            return $breakdown;
+        }
 
-        return [
-            'received' => ['count' => $received, 'percent' => round(($received / $total) * 100)],
-            'cutting'  => ['count' => $cutting, 'percent' => round(($cutting / $total) * 100)],
-            'sewing'   => ['count' => $sewing, 'percent' => round(($sewing / $total) * 100)],
-            'embroidery'=> ['count' => $embroidery, 'percent' => round(($embroidery / $total) * 100)],
-            'shipping' => ['count' => $shipping, 'percent' => round(($shipping / $total) * 100)],
-        ];
+        $statuses = \App\Models\MasterTrackingStatus::all();
+        $statusGroups = [];
+        foreach ($statuses as $status) {
+            $statusGroups[$status->code] = $status->group;
+        }
+
+        $orders = Order::select('current_status', DB::raw('COUNT(id) as count'))->groupBy('current_status')->get();
+
+        foreach ($orders as $order) {
+            $group = $statusGroups[$order->current_status] ?? null;
+            if ($group && isset($breakdown[$group])) {
+                $breakdown[$group]['count'] += $order->count;
+            }
+        }
+
+        foreach ($breakdown as $group => $data) {
+            $breakdown[$group]['percent'] = round(($data['count'] / $total) * 100);
+        }
+
+        return $breakdown;
     }
 
     /**

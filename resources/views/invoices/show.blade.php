@@ -113,10 +113,11 @@
                                 <td>
                                     <div class="fw-semibold text-dark">{{ $order->product_name }}</div>
                                     <div class="text-muted small">
-                                        {{ $order->product_type }} - {{ $order->color }}
+                                        {{ $order->product_type }}
                                         @if($order->material) - {{ $order->material }} @endif
-                                        - Ukuran: {{ $detail->size }} 
-                                        ({{ ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender }})
+                                        - Warna: {{ $detail->color ?? '-' }}
+                                        - Ukuran: {{ $detail->masterSize?->name ?? $detail->size }} 
+                                        ({{ $detail->masterGender?->name ?? (['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender) }})
                                     </div>
                                 </td>
                                 <td class="text-center align-middle">{{ $detail->quantity }}</td>

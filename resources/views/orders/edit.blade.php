@@ -34,54 +34,88 @@
                 </select>
                 @error('customer_category') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label">Jabatan / Custom Nama</label>
                 <textarea name="customer_title"
                     class="form-control @error('customer_title') is-invalid @enderror"
                     rows="3"
                     placeholder="cth: Ketua OSIS SMA N 1 Semarang&#10;atas nama seluruh anggota&#10;Angkatan 2024"
                     style="resize:vertical;">{{ old('customer_title', $order->customer_title) }}</textarea>
-                <div class="form-text small text-muted">Opsional — bisa lebih dari satu baris. Tampil di detail pesanan &amp; laporan.</div>
+                <div class="form-text small text-muted">Opsional. Tampil di laporan.</div>
                 @error('customer_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Alamat Pemesan</label>
-                <input type="text" name="customer_address" class="form-control @error('customer_address') is-invalid @enderror" value="{{ old('customer_address', $order->customer_address) }}" placeholder="cth: Jl. Merdeka No. 10, Semarang">
-                <div class="form-text small text-muted">Opsional — untuk keperluan pengiriman / surat jalan.</div>
-                @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <div class="col-md-8">
+                <div class="row g-2">
+                    <div class="col-12">
+                        <label class="form-label">Alamat Lengkap</label>
+                        <input type="text" name="customer_address" class="form-control @error('customer_address') is-invalid @enderror" value="{{ old('customer_address', $order->customer_address) }}" placeholder="cth: Jl. Merdeka No. 10">
+                        @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Kota / Kabupaten</label>
+                        <input type="text" name="customer_city" class="form-control @error('customer_city') is-invalid @enderror" value="{{ old('customer_city', $order->customer_city) }}">
+                        @error('customer_city') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Kecamatan</label>
+                        <input type="text" name="customer_district" class="form-control @error('customer_district') is-invalid @enderror" value="{{ old('customer_district', $order->customer_district) }}">
+                        @error('customer_district') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="row g-3 mb-4">
             <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">Rincian Produk</h6>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
                 <input type="text" name="product_name" class="form-control @error('product_name') is-invalid @enderror" value="{{ old('product_name', $order->product_name) }}" required>
                 @error('product_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Tipe / Model Produk <span class="text-danger">*</span></label>
+            <div class="col-md-4">
+                <label class="form-label">Kategori Baju <span class="text-danger">*</span></label>
+                <select name="clothing_category_id" class="form-select @error('clothing_category_id') is-invalid @enderror" required>
+                    <option value="">-- Pilih --</option>
+                    @foreach($clothingCategories as $cat)
+                        <option value="{{ $cat->id }}" {{ old('clothing_category_id', $order->clothing_category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+                @error('clothing_category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Bahan / Material <span class="text-danger">*</span></label>
+                <select name="material_id" class="form-select @error('material_id') is-invalid @enderror" required>
+                    <option value="">-- Pilih --</option>
+                    @foreach($materials as $mat)
+                        <option value="{{ $mat->id }}" {{ old('material_id', $order->material_id) == $mat->id ? 'selected' : '' }}>{{ $mat->name }}</option>
+                    @endforeach
+                </select>
+                @error('material_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Tipe Lengan / Spesifikasi <span class="text-danger">*</span></label>
                 <input type="text" name="product_type" class="form-control @error('product_type') is-invalid @enderror" value="{{ old('product_type', $order->product_type) }}" required>
                 @error('product_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Warna <span class="text-danger">*</span></label>
-                <input type="text" name="color" class="form-control @error('color') is-invalid @enderror" value="{{ old('color', $order->color) }}" required>
-                @error('color') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <div class="col-md-4">
+                <label class="form-label">Model Produk</label>
+                <input type="text" name="model_product" class="form-control @error('model_product') is-invalid @enderror" value="{{ old('model_product', $order->model_product) }}">
+                @error('model_product') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Bahan / Material</label>
-                <input type="text" name="material" class="form-control @error('material') is-invalid @enderror" value="{{ old('material', $order->material) }}" placeholder="cth: Lacoste CVC, Katun 30s, Polyester">
-                <div class="form-text small text-muted">Opsional — jenis kain / bahan yang digunakan.</div>
-                @error('material') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check form-switch mb-2">
+                    <input type="hidden" name="has_embroidery" value="0">
+                    <input class="form-check-input" type="checkbox" role="switch" id="has_embroidery" name="has_embroidery" value="1" {{ old('has_embroidery', $order->has_embroidery) ? 'checked' : '' }}>
+                    <label class="form-check-label fw-semibold" for="has_embroidery">Dengan Bordir / Sablon</label>
+                </div>
             </div>
         </div>
 
         <div class="row g-3 mb-4">
             <div class="col-12 d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 mt-4">
-                <h6 class="text-primary mb-0">Rincian Ukuran & Jumlah</h6>
+                <h6 class="text-primary mb-0">Rincian Warna, Ukuran & Jumlah</h6>
                 <button type="button" class="btn btn-sm btn-outline-primary" id="add-size-row">
-                    <i class="bi bi-plus-lg"></i> Tambah Ukuran
+                    <i class="bi bi-plus-lg"></i> Tambah Baris
                 </button>
             </div>
             
@@ -91,12 +125,14 @@
                     <table class="table table-bordered align-middle" id="size-details-table">
                         <thead class="table-light">
                             <tr>
-                                <th>Kategori</th>
+                                <th>Warna</th>
+                                <th>Gender</th>
+                                <th>Kategori & Tipe</th>
                                 <th>Ukuran</th>
                                 <th>Harga Satuan</th>
-                                <th>Jumlah (Qty)</th>
+                                <th>Qty</th>
                                 <th>Subtotal</th>
-                                <th class="text-center" style="width: 50px;">Aksi</th>
+                                <th class="text-center" style="width: 40px;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -104,9 +140,10 @@
                         </tbody>
                         <tfoot class="table-light">
                             <tr>
-                                <td colspan="3" class="text-end fw-bold">Total Keseluruhan:</td>
+                                <td colspan="5" class="text-end fw-bold">Total Keseluruhan:</td>
                                 <td class="fw-bold"><span id="total-qty">0</span> pcs</td>
-                                <td colspan="2" class="fw-bold text-success">Rp <span id="total-price">0</span></td>
+                                <td class="fw-bold text-success">Rp <span id="total-price">0</span></td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -127,12 +164,15 @@
                 @error('deadline') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-4">
-                <label class="form-label">Total HPP / Modal Produksi <span class="text-danger">*</span></label>
+                <label class="form-label fw-semibold">Total HPP / Modal Produksi <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <span class="input-group-text">Rp</span>
-                    <input type="number" name="total_cost" class="form-control @error('total_cost') is-invalid @enderror" value="{{ old('total_cost', round($order->total_cost)) }}" required min="0">
+                    <input type="number" name="total_cost" class="form-control @error('total_cost') is-invalid @enderror" value="{{ old('total_cost', round($order->total_cost)) }}" required min="0" step="1000">
+                    <button class="btn btn-outline-secondary" type="button" id="btn-calculate-hpp">
+                        <i class="bi bi-calculator me-1"></i> Hitung Estimasi
+                    </button>
                 </div>
-                <div class="form-text small text-muted">Estimasi total biaya produksi (bahan+tenaga kerja) untuk menghitung profit.</div>
+                <div class="form-text small text-muted">Estimasi total biaya (bahan+tenaga kerja)</div>
                 @error('total_cost') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
             </div>
             
@@ -203,13 +243,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let rowIndex = 0;
     
-    const standardSizes = @json(\App\Models\OrderSizeDetail::STANDARD_SIZES);
-    const childSizes = @json(\App\Models\OrderSizeDetail::CHILD_SIZES);
+    const masterGenders = @json($genders);
+    const masterSizeCategories = @json($sizeCategories);
+    const masterSizes = @json($sizes);
     
     // Add old data if validation fails, otherwise load from order
     let existingDetails = @json(old('size_details', []));
-    if (existingDetails.length === 0) {
+    if (Object.keys(existingDetails).length === 0) {
         existingDetails = @json($order->sizeDetails ?? []);
+    } else {
+        existingDetails = Object.values(existingDetails);
     }
     
     function calculateTotal() {
@@ -231,16 +274,15 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPriceSpan.textContent = new Intl.NumberFormat('id-ID').format(totalPrice);
     }
     
-    function updateSizeOptions(selectElement, gender) {
-        const sizes = gender === 'child' ? childSizes : standardSizes;
-        const currentValue = selectElement.value;
+    function updateSizeOptions(selectElement, categoryId, currentValue = null) {
+        selectElement.innerHTML = '<option value="">Ukuran...</option>';
+        if (!categoryId) return;
         
-        selectElement.innerHTML = '<option value="">Pilih Ukuran...</option>';
-        sizes.forEach(size => {
+        masterSizes.filter(s => s.size_category_id == categoryId).forEach(size => {
             const option = document.createElement('option');
-            option.value = size;
-            option.textContent = size;
-            if (size === currentValue) option.selected = true;
+            option.value = size.id;
+            option.textContent = size.name;
+            if (size.id == currentValue) option.selected = true;
             selectElement.appendChild(option);
         });
     }
@@ -248,53 +290,73 @@ document.addEventListener('DOMContentLoaded', function() {
     function addRow(data = {}) {
         const tr = document.createElement('tr');
         
+        let genderOptions = '<option value="">Pilih...</option>';
+        masterGenders.forEach(g => {
+            genderOptions += `<option value="${g.id}" ${data.gender_id == g.id ? 'selected' : ''}>${g.name}</option>`;
+        });
+
+        let catOptions = '<option value="">Kategori...</option>';
+        masterSizeCategories.forEach(c => {
+            catOptions += `<option value="${c.id}" ${data.size_category_id == c.id ? 'selected' : ''}>${c.name}</option>`;
+        });
+
         tr.innerHTML = `
             <td>
-                <select name="size_details[${rowIndex}][gender]" class="form-select gender-select" required>
-                    <option value="">Pilih...</option>
-                    <option value="male" ${data.gender === 'male' ? 'selected' : ''}>Laki-laki (Dewasa)</option>
-                    <option value="female" ${data.gender === 'female' ? 'selected' : ''}>Perempuan (Dewasa)</option>
-                    <option value="child" ${data.gender === 'child' ? 'selected' : ''}>Anak-anak (Unisex)</option>
+                <input type="text" name="size_details[${rowIndex}][color]" class="form-control form-control-sm" value="${data.color || ''}" placeholder="Warna" required>
+            </td>
+            <td>
+                <select name="size_details[${rowIndex}][gender_id]" class="form-select form-select-sm" required>
+                    ${genderOptions}
                 </select>
             </td>
             <td>
-                <select name="size_details[${rowIndex}][size]" class="form-select size-select" required>
-                    <option value="">Pilih Kategori Dulu...</option>
+                <div class="d-flex flex-column gap-1">
+                    <select name="size_details[${rowIndex}][size_category_id]" class="form-select form-select-sm cat-select" required>
+                        ${catOptions}
+                    </select>
+                    <select name="size_details[${rowIndex}][size_type]" class="form-select form-select-sm" required>
+                        <option value="">Tipe...</option>
+                        <option value="standard" ${data.size_type == 'standard' ? 'selected' : ''}>Standard</option>
+                        <option value="big" ${data.size_type == 'big' ? 'selected' : ''}>Big Size</option>
+                    </select>
+                </div>
+            </td>
+            <td style="vertical-align: top;">
+                <select name="size_details[${rowIndex}][size_id]" class="form-select form-select-sm size-select" required>
+                    <option value="">Ukuran...</option>
                 </select>
             </td>
-            <td>
+            <td style="vertical-align: top;">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text">Rp</span>
                     <input type="number" name="size_details[${rowIndex}][price]" class="form-control price-input" value="${data.price || ''}" required min="0">
                 </div>
             </td>
-            <td>
-                <input type="number" name="size_details[${rowIndex}][quantity]" class="form-control qty-input" value="${data.quantity || 1}" required min="1">
+            <td style="vertical-align: top;">
+                <input type="number" name="size_details[${rowIndex}][quantity]" class="form-control form-control-sm qty-input" value="${data.quantity || 1}" required min="1">
             </td>
-            <td class="align-middle fw-medium">
+            <td class="align-top fw-medium text-nowrap" style="font-size: 0.875rem; padding-top: 0.6rem;">
                 Rp <span class="subtotal-text">0</span>
             </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button>
+            <td class="text-center align-top" style="padding-top: 0.45rem;">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-row py-0 px-1"><i class="bi bi-x fs-5"></i></button>
             </td>
         `;
         
         tableBody.appendChild(tr);
         
-        const genderSelect = tr.querySelector('.gender-select');
+        const catSelect = tr.querySelector('.cat-select');
         const sizeSelect = tr.querySelector('.size-select');
         const priceInput = tr.querySelector('.price-input');
         const qtyInput = tr.querySelector('.qty-input');
         const removeBtn = tr.querySelector('.remove-row');
         
-        // Initial size options if data exists
-        if (data.gender) {
-            sizeSelect.value = data.size || '';
-            updateSizeOptions(sizeSelect, data.gender);
-            sizeSelect.value = data.size || '';
+        // Initial sizes if category is selected
+        if (data.size_category_id) {
+            updateSizeOptions(sizeSelect, data.size_category_id, data.size_id);
         }
         
-        genderSelect.addEventListener('change', function() {
+        catSelect.addEventListener('change', function() {
             updateSizeOptions(sizeSelect, this.value);
         });
         
@@ -322,8 +384,73 @@ document.addEventListener('DOMContentLoaded', function() {
         addRow(); // Add one empty row by default
     }
 
+    // Hitung Estimasi HPP
+    document.getElementById('btn-calculate-hpp').addEventListener('click', async function() {
+        const btn = this;
+        const originalText = btn.innerHTML;
+        
+        const materialId = document.querySelector('select[name="material_id"]').value;
+        if (!materialId) {
+            Swal.fire('Perhatian', 'Silakan pilih Bahan / Material terlebih dahulu.', 'warning');
+            return;
+        }
+
+        const sizes = [];
+        document.querySelectorAll('#size-details-table tbody tr').forEach((tr, idx) => {
+            const sizeId = tr.querySelector(`select[name="size_details[${idx}][size_id]"]`)?.value;
+            const qty = tr.querySelector(`input[name="size_details[${idx}][quantity]"]`)?.value;
+            if (sizeId && qty) {
+                sizes.push({ size_id: sizeId, quantity: qty });
+            }
+        });
+
+        if (sizes.length === 0) {
+            Swal.fire('Perhatian', 'Silakan tambahkan minimal satu rincian ukuran.', 'warning');
+            return;
+        }
+
+        try {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghitung...';
+            btn.disabled = true;
+
+            const response = await fetch('/api/hpp/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                },
+                body: JSON.stringify({
+                    material_id: materialId,
+                    size_details: sizes
+                })
+            });
+
+            if (!response.ok) throw new Error('API Error');
+            
+            const data = await response.json();
+            const estimatedHpp = data.estimated_hpp || 0;
+            
+            document.querySelector('input[name="total_cost"]').value = estimatedHpp;
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'HPP Dihitung',
+                text: 'Estimasi HPP: Rp ' + estimatedHpp.toLocaleString('id-ID'),
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } catch (e) {
+            console.error(e);
+            Swal.fire('Error', 'Gagal menghitung estimasi HPP. Pastikan data estimasi penggunaan bahan tersedia.', 'error');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+
     // Frontend validation for HPP vs Subtotal
-    const form = document.getElementById('order-form');
+    const form = document.getElementById('editOrderForm');
     if (form) {
         form.addEventListener('submit', function(e) {
             const hppInput = document.querySelector('input[name="total_cost"]');
@@ -441,4 +568,3 @@ document.querySelectorAll('.delete-file-cb').forEach(cb => {
 })();
 </script>
 @endpush
-

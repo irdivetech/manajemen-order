@@ -40,7 +40,18 @@ class OrderService
                 return $detail['quantity'] * $detail['price'];
             });
             $data['total_price']    = $totalPrice;
-            $data['current_status'] = Order::STATUS_ORDER_RECEIVED;
+            
+            // Snapshot material price
+            if (isset($data['material_id'])) {
+                $material = \App\Models\MasterMaterial::find($data['material_id']);
+                if ($material) {
+                    $data['material_price_snapshot'] = $material->price;
+                }
+            }
+
+            // Get initial status from DB
+            $initialStatus = \App\Models\MasterTrackingStatus::where('is_initial', true)->value('code') ?? Order::STATUS_ORDER_RECEIVED;
+            $data['current_status'] = $initialStatus;
 
             $sizeDetailsData = $data['size_details'];
             unset($data['size_details']);
@@ -63,8 +74,8 @@ class OrderService
             // Create initial tracking history
             $this->trackingService->addHistory(
                 order: $order,
-                status: Order::STATUS_ORDER_RECEIVED,
-                description: 'Order has been received and is being processed.',
+                status: $initialStatus,
+                description: 'Pesanan baru dibuat dan sedang diproses.',
                 updatedBy: $creator,
             );
 
@@ -95,6 +106,14 @@ class OrderService
                 // Update order's total price first so invoice service can read it correctly
                 $order->total_price = $data['total_price'];
                 $this->invoiceService->generateInvoice($order);
+            }
+        }
+        
+        // Snapshot material price if material changed
+        if (isset($data['material_id']) && $data['material_id'] != $order->material_id) {
+            $material = \App\Models\MasterMaterial::find($data['material_id']);
+            if ($material) {
+                $data['material_price_snapshot'] = $material->price;
             }
         }
 

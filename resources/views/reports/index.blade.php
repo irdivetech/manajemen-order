@@ -12,6 +12,13 @@
         <x-card>
             <form action="{{ route('reports.index') }}" method="GET" class="row g-3 align-items-end">
                 <div class="col-md-3">
+                    <label class="form-label small text-muted">Filter Berdasarkan</label>
+                    <select name="date_column" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="order_date" {{ request('date_column', 'order_date') === 'order_date' ? 'selected' : '' }}>Tanggal Pesan</option>
+                        <option value="deadline" {{ request('date_column') === 'deadline' ? 'selected' : '' }}>Tenggat Waktu</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label small text-muted">Periode Waktu</label>
                     <select name="period" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="daily" {{ request('period') === 'daily' ? 'selected' : '' }}>Harian</option>
@@ -23,16 +30,16 @@
                 </div>
                 
                 @if(request('period') === 'custom')
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label small text-muted">Dari Tanggal</label>
                     <input type="date" name="from" class="form-control form-control-sm" value="{{ request('from') }}" required>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small text-muted">Hingga Tanggal</label>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Hingga</label>
                     <input type="date" name="to" class="form-control form-control-sm" value="{{ request('to') }}" required>
                 </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-filter"></i> Terapkan Filter</button>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-filter"></i> Terapkan</button>
                 </div>
                 @endif
             </form>

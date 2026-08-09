@@ -24,6 +24,7 @@ class TrackingHistory extends Model
     protected $fillable = [
         'order_id',
         'status',
+        'sub_type', // NEW
         'description',
         'updated_by',
     ];

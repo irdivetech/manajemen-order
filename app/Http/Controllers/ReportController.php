@@ -23,7 +23,9 @@ class ReportController extends Controller
         $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
         $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
 
-        $orders = $this->reportService->getOrdersByPeriod($period, $from, $to);
+        $dateColumn = $request->query('date_column', 'order_date');
+
+        $orders = $this->reportService->getOrdersByPeriod($period, $from, $to, $dateColumn);
         
         $totalRevenue = (float) $orders->filter(function ($order) {
             return $order->invoice !== null && $order->invoice->isPaid();
@@ -31,9 +33,9 @@ class ReportController extends Controller
             return (float) $order->invoice->grand_total;
         });
 
-        $statusBreakdown = $this->reportService->getStatusBreakdown($period);
+        $statusBreakdown = $this->reportService->getStatusBreakdown($period, $dateColumn);
 
-        return view(isMobile() ? 'reports.mobile.index' : 'reports.index', compact('orders', 'totalRevenue', 'statusBreakdown', 'period'));
+        return view(isMobile() ? 'reports.mobile.index' : 'reports.index', compact('orders', 'totalRevenue', 'statusBreakdown', 'period', 'dateColumn'));
     }
 
     /**
@@ -45,7 +47,9 @@ class ReportController extends Controller
         $from     = $request->query('from') ? Carbon::parse($request->query('from')) : null;
         $to       = $request->query('to') ? Carbon::parse($request->query('to')) : null;
 
-        $orders   = $this->reportService->getOrdersByPeriod($period, $from, $to);
+        $dateColumn = $request->query('date_column', 'order_date');
+
+        $orders   = $this->reportService->getOrdersByPeriod($period, $from, $to, $dateColumn);
         $tempPath = $this->reportService->exportXlsx($orders, $period);
 
         $filename = "laporan_{$period}_" . now()->format('Ymd_His') . ".xlsx";

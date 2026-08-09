@@ -45,10 +45,13 @@
     </div>
     <div class="m-card-body">
         <div class="d-flex flex-column gap-2 mb-3">
-            @foreach(\App\Models\Order::STATUSES as $idx => $pipelineStatus)
+            @php
+                $currentIdx = $pipeline->search(fn($item) => $item->code === $order->current_status);
+                $nextIdx = $pipeline->search(fn($item) => $item->code === $nextStatus);
+                $nextStatusModel = $pipeline->firstWhere('code', $nextStatus);
+            @endphp
+            @foreach($pipeline as $idx => $pipelineStatus)
                 @php
-                    $currentIdx = \App\Models\Order::getStatusIndex($order->current_status);
-                    $nextIdx = \App\Models\Order::getStatusIndex($nextStatus);
                     $isCompleted = $idx < $currentIdx;
                     $isCurrent = $idx === $currentIdx;
                     $isNext = $idx === $nextIdx;
@@ -64,7 +67,7 @@
                         <i class="bi bi-circle text-muted opacity-50" style="font-size:0.6rem; margin-left:2px;"></i>
                     @endif
                     <span class="text-sm {{ $isCurrent ? 'fw-7 text-primary' : ($isCompleted ? 'fw-6 text-success' : ($isNext ? 'fw-6 text-warning' : 'text-muted opacity-50')) }}">
-                        {{ \App\Models\Order::statusLabel($pipelineStatus) }}
+                        {{ $pipelineStatus->label }}
                     </span>
                 </div>
             @endforeach
@@ -74,6 +77,19 @@
             @csrf
             <input type="hidden" name="status" value="{{ $nextStatus }}">
             
+            @if(isset($nextStatusModel) && $nextStatusModel->is_produksi)
+                <div class="mb-3">
+                    <label class="form-label text-sm fw-6">Tipe Produksi <span class="text-danger">*</span></label>
+                    <select name="sub_type" class="form-select text-sm @error('sub_type') is-invalid @enderror" required>
+                        <option value="">-- Pilih Tipe Produksi --</option>
+                        <option value="penjahitan" {{ old('sub_type') == 'penjahitan' ? 'selected' : '' }}>Penjahitan</option>
+                        <option value="bordir" {{ old('sub_type') == 'bordir' ? 'selected' : '' }}>Bordir</option>
+                        <option value="penjahitan_dan_bordir" {{ old('sub_type') == 'penjahitan_dan_bordir' ? 'selected' : '' }}>Penjahitan & Bordir</option>
+                    </select>
+                    @error('sub_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            @endif
+
             <div class="mb-3">
                 <label class="form-label text-sm fw-6">Catatan Pembaruan <span class="text-danger">*</span></label>
                 <textarea name="description" class="form-control text-sm @error('description') is-invalid @enderror" 
@@ -109,6 +125,9 @@
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <div class="fw-7 text-sm {{ $loop->first ? 'text-primary' : '' }}">
                                 {{ \App\Models\Order::statusLabel($item->status) }}
+                                @if($item->sub_type)
+                                    <span class="badge bg-secondary ms-1" style="font-size:0.6rem;">{{ ucfirst(str_replace('_', ' ', $item->sub_type)) }}</span>
+                                @endif
                             </div>
                             <span class="text-xs text-muted fw-6">{{ $item->created_at->format('d M y, H:i') }}</span>
                         </div>

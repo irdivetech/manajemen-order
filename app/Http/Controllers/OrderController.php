@@ -45,7 +45,13 @@ class OrderController extends Controller
      */
     public function create(): View
     {
-        return view(isMobile() ? 'orders.mobile.create' : 'orders.create');
+        $genders = \App\Models\MasterGender::where('is_active', true)->get();
+        $sizeCategories = \App\Models\MasterSizeCategory::where('is_active', true)->get();
+        $sizes = \App\Models\MasterSize::where('is_active', true)->get();
+        $materials = \App\Models\MasterMaterial::where('is_active', true)->get();
+        $clothingCategories = \App\Models\MasterClothingCategory::where('is_active', true)->get();
+
+        return view(isMobile() ? 'orders.mobile.create' : 'orders.create', compact('genders', 'sizeCategories', 'sizes', 'materials', 'clothingCategories'));
     }
 
     /**
@@ -72,7 +78,7 @@ class OrderController extends Controller
      */
     public function show(Order $order): View
     {
-        $order->load(['creator', 'invoice', 'trackingHistories.updatedBy', 'designFiles']);
+        $order->load(['creator', 'invoice', 'trackingHistories.updatedBy', 'designFiles', 'sizeDetails.gender', 'sizeDetails.sizeCategory', 'sizeDetails.size', 'clothingCategory', 'material']);
 
         return view(isMobile() ? 'orders.mobile.show' : 'orders.show', compact('order'));
     }
@@ -87,9 +93,15 @@ class OrderController extends Controller
             abort(403, 'Pesanan hanya dapat diubah saat masih dalam tahap "Pesanan Diterima".');
         }
 
-        $order->load('designFiles');
+        $order->load('designFiles', 'sizeDetails');
 
-        return view(isMobile() ? 'orders.mobile.edit' : 'orders.edit', compact('order'));
+        $genders = \App\Models\MasterGender::where('is_active', true)->get();
+        $sizeCategories = \App\Models\MasterSizeCategory::where('is_active', true)->get();
+        $sizes = \App\Models\MasterSize::where('is_active', true)->get();
+        $materials = \App\Models\MasterMaterial::where('is_active', true)->get();
+        $clothingCategories = \App\Models\MasterClothingCategory::where('is_active', true)->get();
+
+        return view(isMobile() ? 'orders.mobile.edit' : 'orders.edit', compact('order', 'genders', 'sizeCategories', 'sizes', 'materials', 'clothingCategories'));
     }
 
     /**

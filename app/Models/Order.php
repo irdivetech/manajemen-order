@@ -52,10 +52,15 @@ class Order extends Model
         'customer_category',
         'customer_title',
         'customer_address',
+        'customer_city', // NEW
+        'customer_district', // NEW
         'product_name',
         'product_type',
-        'color',
-        'material',
+        'model_product', // NEW
+        'has_embroidery', // NEW
+        'clothing_category_id', // NEW
+        'material_id', // NEW
+        'material_price_snapshot', // NEW
         'total_price',
         'total_cost',
         'order_date',
@@ -78,7 +83,45 @@ class Order extends Model
             'deadline'    => 'date',
             'archived_at' => 'datetime',
             'total_price' => 'decimal:2',
+            'has_embroidery' => 'boolean',
+            'material_price_snapshot' => 'decimal:2',
         ];
+    }
+
+    // ─── Accessors ───────────────────────────────────────────────────────────
+    
+    /**
+     * Get unique colors from size details as comma separated string.
+     */
+    public function getColorAttribute(): string
+    {
+        return $this->sizeDetails->pluck('color')->filter()->unique()->implode(', ');
+    }
+
+    /**
+     * Get material name from relation.
+     */
+    public function getMaterialAttribute(): string
+    {
+        return $this->masterMaterial?->name ?? '-';
+    }
+
+    // ─── Helper Methods ──────────────────────────────────────────────────────
+
+    /**
+     * Check if the order is archived.
+     */
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
+    }
+
+    /**
+     * Check if the order has reached the shipping status.
+     */
+    public function isShipped(): bool
+    {
+        return $this->current_status === self::STATUS_SHIPPING;
     }
 
     // ─── Relationships ───────────────────────────────────────────────────────
@@ -89,6 +132,16 @@ class Order extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function clothingCategory(): BelongsTo
+    {
+        return $this->belongsTo(MasterClothingCategory::class, 'clothing_category_id');
+    }
+
+    public function masterMaterial(): BelongsTo
+    {
+        return $this->belongsTo(MasterMaterial::class, 'material_id');
     }
 
     /**
@@ -149,50 +202,28 @@ class Order extends Model
         return $query->where('current_status', $status);
     }
 
-    // ─── Helper Methods ──────────────────────────────────────────────────────
-
     /**
-     * Check if the order is archived.
-     */
-    public function isArchived(): bool
-    {
-        return $this->archived_at !== null;
-    }
-
-    /**
-     * Check if the order has reached the shipping status.
-     */
-    public function isShipped(): bool
-    {
-        return $this->current_status === self::STATUS_SHIPPING;
-    }
-
-    /**
-     * Get the numeric index of a status in the production pipeline.
-     */
-    public static function getStatusIndex(string $status): int
-    {
-        return array_search($status, self::STATUSES, true);
-    }
-
-    /**
-     * Get the next status in the sequential production pipeline.
-     * Returns null if the order is already at the final status (shipping).
+     * Get the next status in the sequential production pipeline from database rules.
+     * Returns null if the order is already at the final status.
      */
     public function getNextStatus(): ?string
     {
-        $currentIndex = self::getStatusIndex($this->current_status);
-
-        if ($currentIndex === false || $currentIndex >= count(self::STATUSES) - 1) {
+        $currentStatusId = \App\Models\MasterTrackingStatus::where('code', $this->current_status)->value('id');
+        if (!$currentStatusId) {
             return null;
         }
 
-        return self::STATUSES[$currentIndex + 1];
+        $nextStatusId = \App\Models\TrackingFlowRule::where('from_status_id', $currentStatusId)->value('to_status_id');
+        if (!$nextStatusId) {
+            return null;
+        }
+
+        return \App\Models\MasterTrackingStatus::where('id', $nextStatusId)->value('code');
     }
 
     /**
      * Check if the order can advance to the given status.
-     * The new status must be exactly the next one in the pipeline (no skipping, no going back).
+     * The new status must be exactly the next one in the pipeline.
      */
     public function canAdvanceTo(string $newStatus): bool
     {
@@ -222,16 +253,8 @@ class Order extends Model
      */
     public static function statusLabel(string $status): string
     {
-        $labels = [
-            self::STATUS_ORDER_RECEIVED     => 'Pesanan Diterima',
-            self::STATUS_FABRIC_CUTTING     => 'Pemotongan Kain',
-            self::STATUS_SEWING             => 'Penjahitan',
-            self::STATUS_EMBROIDERY         => 'Bordir',
-            self::STATUS_BUTTON_INSTALLATION => 'Pemasangan Kancing',
-            self::STATUS_SHIPPING           => 'Pengiriman',
-        ];
-
-        return $labels[$status] ?? ucfirst(str_replace('_', ' ', $status));
+        $master = \App\Models\MasterTrackingStatus::where('code', $status)->first();
+        return $master ? $master->label : ucfirst(str_replace('_', ' ', $status));
     }
 
     /**
@@ -243,19 +266,21 @@ class Order extends Model
     }
 
     /**
-     * Get total quantity of items in this order by gender.
+     * Get total quantity of items in this order by gender name.
+     * This is primarily used for the excel report.
      */
-    public function quantityByGender(string $gender): int
+    public function quantityByGender(string $genderName): int
     {
-        return $this->sizeDetails->where('gender', $gender)->sum('quantity');
-    }
-
-    /**
-     * Get size details grouped by gender.
-     */
-    public function sizeDetailsByGender()
-    {
-        return $this->sizeDetails->groupBy('gender');
+        return $this->sizeDetails->filter(function ($detail) use ($genderName) {
+            // master_genders -> name (e.g. "Laki-laki", "Perempuan", "Anak-anak")
+            // The old hardcoded genders were 'male', 'female', 'child'
+            // We map them loosely or exactly
+            $name = strtolower($detail->gender?->name ?? '');
+            if ($genderName === 'male') return str_contains($name, 'laki');
+            if ($genderName === 'female') return str_contains($name, 'perempuan');
+            if ($genderName === 'child') return str_contains($name, 'anak');
+            return $name === strtolower($genderName);
+        })->sum('quantity');
     }
 
     /**

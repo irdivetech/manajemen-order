@@ -91,7 +91,12 @@
                             <div class="card bg-light border-0 shadow-sm mb-0">
                                 <div class="card-body py-3 px-4">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 class="mb-0 fw-bold text-dark">{{ $statusLabels[$item->status] ?? ucfirst(str_replace('_', ' ', $item->status)) }}</h6>
+                                        <h6 class="mb-0 fw-bold text-dark">
+                                            {{ \App\Models\Order::statusLabel($item->status) }}
+                                            @if($item->sub_type)
+                                                <span class="badge bg-secondary ms-2">{{ ucfirst(str_replace('_', ' ', $item->sub_type)) }}</span>
+                                            @endif
+                                        </h6>
                                         <span class="small text-muted"><i class="bi bi-calendar3 me-1"></i> {{ $item->created_at->format('d M Y, H:i') }}</span>
                                     </div>
                                     <p class="mb-2 text-muted small">{{ $item->description }}</p>
@@ -136,10 +141,13 @@
             {{-- Visual Pipeline Indicator --}}
             <div class="mb-4">
                 <div class="d-flex flex-column gap-2">
-                    @foreach(\App\Models\Order::STATUSES as $idx => $pipelineStatus)
+                    @php
+                        $currentIdx = $pipeline->search(fn($item) => $item->code === $order->current_status);
+                        $nextIdx = $pipeline->search(fn($item) => $item->code === $nextStatus);
+                        $nextStatusModel = $pipeline->firstWhere('code', $nextStatus);
+                    @endphp
+                    @foreach($pipeline as $idx => $pipelineStatus)
                         @php
-                            $currentIdx = \App\Models\Order::getStatusIndex($order->current_status);
-                            $nextIdx = \App\Models\Order::getStatusIndex($nextStatus);
                             $isCompleted = $idx < $currentIdx;
                             $isCurrent = $idx === $currentIdx;
                             $isNext = $idx === $nextIdx;
@@ -156,7 +164,7 @@
                                 <i class="bi bi-circle text-muted opacity-50"></i>
                             @endif
                             <span class="small {{ $isCurrent ? 'fw-bold text-primary' : ($isCompleted ? 'text-success' : ($isNext ? 'fw-semibold text-warning' : 'text-muted opacity-50')) }}">
-                                {{ \App\Models\Order::statusLabel($pipelineStatus) }}
+                                {{ $pipelineStatus->label }}
                             </span>
                         </div>
                     @endforeach
@@ -174,6 +182,19 @@
             <form action="{{ route('orders.tracking.store', $order) }}" method="POST">
                 @csrf
                 <input type="hidden" name="status" value="{{ $nextStatus }}">
+
+                @if($nextStatusModel && $nextStatusModel->is_produksi)
+                    <div class="mb-3">
+                        <label class="form-label">Tipe Produksi <span class="text-danger">*</span></label>
+                        <select name="sub_type" class="form-select @error('sub_type') is-invalid @enderror" required>
+                            <option value="">-- Pilih Tipe Produksi --</option>
+                            <option value="penjahitan" {{ old('sub_type') == 'penjahitan' ? 'selected' : '' }}>Penjahitan</option>
+                            <option value="bordir" {{ old('sub_type') == 'bordir' ? 'selected' : '' }}>Bordir</option>
+                            <option value="penjahitan_dan_bordir" {{ old('sub_type') == 'penjahitan_dan_bordir' ? 'selected' : '' }}>Penjahitan & Bordir</option>
+                        </select>
+                        @error('sub_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                @endif
 
                 <div class="mb-3">
                     <label class="form-label">Keterangan / Catatan <span class="text-danger">*</span></label>

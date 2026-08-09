@@ -25,6 +25,7 @@ class TrackingService
         string $status,
         string $description,
         User $updatedBy,
+        ?string $subType = null,
     ): TrackingHistory {
         // Enforce sequential advancement, unless it's the very first entry (initial status)
         $isFirstEntry = ! $order->trackingHistories()->exists();
@@ -42,6 +43,7 @@ class TrackingService
         $tracking = TrackingHistory::create([
             'order_id'    => $order->id,
             'status'      => $status,
+            'sub_type'    => $subType,
             'description' => $description,
             'updated_by'  => $updatedBy->id,
         ]);

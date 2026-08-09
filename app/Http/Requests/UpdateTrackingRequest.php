@@ -30,6 +30,7 @@ class UpdateTrackingRequest extends FormRequest
 
         return [
             'status'      => ['required', 'string', Rule::in($allowedStatuses)],
+            'sub_type'    => ['nullable', 'string', 'max:100'],
             'description' => ['required', 'string', 'max:1000'],
         ];
     }

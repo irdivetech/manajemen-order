@@ -22,7 +22,18 @@ class TrackingController extends Controller
         $order->load(['trackingHistories.updatedBy']);
         $history = $this->trackingService->getHistory($order);
 
-        return view(isMobile() ? 'tracking.mobile.index' : 'tracking.index', compact('order', 'history'));
+        // Fetch sequential pipeline
+        $pipeline = collect();
+        $currentId = \App\Models\MasterTrackingStatus::where('is_initial', true)->value('id');
+        while ($currentId) {
+            $status = \App\Models\MasterTrackingStatus::find($currentId);
+            if ($status) {
+                $pipeline->push($status);
+            }
+            $currentId = \App\Models\TrackingFlowRule::where('from_status_id', $currentId)->value('to_status_id');
+        }
+
+        return view(isMobile() ? 'tracking.mobile.index' : 'tracking.index', compact('order', 'history', 'pipeline'));
     }
 
     /**
@@ -35,6 +46,7 @@ class TrackingController extends Controller
             status: $request->validated('status'),
             description: $request->validated('description'),
             updatedBy: $request->user(),
+            subType: $request->validated('sub_type')
         );
 
         return redirect()->route('orders.tracking', $order)

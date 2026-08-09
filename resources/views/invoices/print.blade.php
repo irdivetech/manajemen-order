@@ -166,8 +166,9 @@
                     <td class="desc">
                         {{ $order->product_name }}
                         <small>
-                            Ukuran: {{ $detail->size }} 
-                            ({{ ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender }})
+                            Warna: {{ $detail->color ?? '-' }} <br>
+                            Ukuran: {{ $detail->masterSize?->name ?? $detail->size }} 
+                            ({{ $detail->masterGender?->name ?? (['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'][$detail->gender] ?? $detail->gender) }})
                         </small>
                     </td>
                     <td class="text-center" style="font-size: 18px;">{{ $detail->quantity }}</td>

@@ -70,16 +70,27 @@
                             <div class="col-sm-6">
                                 <div class="d-flex flex-wrap gap-3">
                                     <div>
-                                        <div class="info-label">Warna</div>
+                                        <div class="info-label">Kategori / Model</div>
                                         <div class="info-value d-flex align-items-center gap-1">
-                                            <span class="badge bg-light text-dark border fw-medium">{{ $order->color }}</span>
+                                            <span class="badge bg-light text-dark border fw-medium">{{ $order->clothingCategory?->name ?? '-' }}</span>
+                                            @if($order->model_product)
+                                                <span class="badge bg-light text-dark border fw-medium">{{ $order->model_product }}</span>
+                                            @endif
                                         </div>
                                     </div>
                                     @if($order->material)
                                     <div>
                                         <div class="info-label">Material</div>
                                         <div class="info-value">
-                                            <span class="badge bg-light text-dark border fw-medium"><i class="bi bi-tag-fill text-muted me-1"></i>{{ $order->material }}</span>
+                                            <span class="badge bg-light text-dark border fw-medium"><i class="bi bi-tag-fill text-muted me-1"></i>{{ $order->material->name }}</span>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    @if($order->has_embroidery)
+                                    <div>
+                                        <div class="info-label">Sablon / Bordir</div>
+                                        <div class="info-value">
+                                            <span class="badge bg-success bg-opacity-10 text-success border fw-bold">YA</span>
                                         </div>
                                     </div>
                                     @endif
@@ -95,24 +106,13 @@
 
                         <!-- Size Table -->
                         <div class="p-4 bg-white">
-                            @php
-                                $genderLabels = [
-                                    'male' => 'Laki-laki (Dewasa)',
-                                    'female' => 'Perempuan (Dewasa)',
-                                    'child' => 'Anak-anak (Unisex)'
-                                ];
-                                $genderIcons = [
-                                    'male' => 'bi-gender-male text-primary',
-                                    'female' => 'bi-gender-female text-danger',
-                                    'child' => 'bi-emoji-smile text-success'
-                                ];
-                            @endphp
-                            
                             <div class="table-responsive">
                                 <table class="table size-table mb-0 w-100">
                                     <thead>
                                         <tr>
-                                            <th>Kategori</th>
+                                            <th>Warna</th>
+                                            <th>Gender</th>
+                                            <th>Kategori & Tipe</th>
                                             <th>Ukuran</th>
                                             <th class="text-end">Harga Satuan</th>
                                             <th class="text-center">Jumlah (Pcs)</th>
@@ -120,23 +120,19 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($order->sizeDetailsByGender() as $gender => $details)
-                                            @foreach($details as $index => $detail)
-                                            <tr>
-                                                @if($index === 0)
-                                                <td rowspan="{{ count($details) }}" class="align-middle border-end border-light" style="width: 25%;">
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <i class="bi {{ $genderIcons[$gender] }} fs-5"></i>
-                                                        <span class="fw-semibold text-dark">{{ $genderLabels[$gender] ?? ucfirst($gender) }}</span>
-                                                    </div>
-                                                </td>
-                                                @endif
-                                                <td class="fw-bold text-dark" style="width: 15%;">{{ $detail->size }}</td>
-                                                <td class="text-end text-muted" style="width: 20%;">Rp {{ number_format($detail->price, 0, ',', '.') }}</td>
-                                                <td class="text-center fw-semibold text-primary" style="width: 15%;">{{ $detail->quantity }}</td>
-                                                <td class="text-end fw-medium" style="width: 25%;">Rp {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }}</td>
-                                            </tr>
-                                            @endforeach
+                                        @foreach($order->sizeDetails as $detail)
+                                        <tr>
+                                            <td class="align-middle fw-medium" style="width: 15%;">{{ $detail->color }}</td>
+                                            <td class="align-middle" style="width: 15%;">{{ $detail->gender?->name ?? '-' }}</td>
+                                            <td class="align-middle" style="width: 20%;">
+                                                {{ $detail->sizeCategory?->name ?? '-' }}
+                                                <div class="text-muted small">{{ ucfirst($detail->size_type) }}</div>
+                                            </td>
+                                            <td class="align-middle fw-bold text-dark" style="width: 10%;">{{ $detail->size?->name ?? '-' }}</td>
+                                            <td class="align-middle text-end text-muted" style="width: 15%;">Rp {{ number_format($detail->price, 0, ',', '.') }}</td>
+                                            <td class="align-middle text-center fw-semibold text-primary" style="width: 10%;">{{ $detail->quantity }}</td>
+                                            <td class="align-middle text-end fw-medium" style="width: 15%;">Rp {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }}</td>
+                                        </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -280,12 +276,17 @@
                                 </div>
                             </li>
                             @endif
-                            @if($order->customer_address)
+                            @if($order->customer_address || $order->customer_city || $order->customer_district)
                             <li class="d-flex gap-3">
                                 <i class="bi bi-geo-alt text-muted mt-1"></i>
                                 <div>
                                     <div class="info-label">Alamat Lengkap</div>
-                                    <div class="info-value" style="line-height: 1.4;">{{ $order->customer_address }}</div>
+                                    <div class="info-value" style="line-height: 1.4;">
+                                        {{ $order->customer_address }}<br>
+                                        @if($order->customer_district || $order->customer_city)
+                                            <span class="text-muted small">{{ collect([$order->customer_district, $order->customer_city])->filter()->join(', ') }}</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </li>
                             @endif

@@ -171,11 +171,11 @@
                     <ul class="list-unstyled mb-0 small space-y-2 gap-2 d-flex flex-column">
                         <li class="d-flex align-items-center gap-2">
                             <span class="rounded-circle bg-success d-inline-block" style="width:10px;height:10px;"></span> 
-                            Selesai ({{ $statusBreakdownUI['shipping']['percent'] ?? 0 }}%)
+                            Selesai ({{ $statusBreakdownUI['pengiriman']['percent'] ?? 0 }}%)
                         </li>
                         <li class="d-flex align-items-center gap-2">
                             <span class="rounded-circle bg-primary d-inline-block" style="width:10px;height:10px;"></span> 
-                            Diproses ({{ 100 - ($statusBreakdownUI['shipping']['percent'] ?? 0) - ($summary['total_orders'] > 0 ? round(($summary['archived']/$summary['total_orders'])*100) : 0) }}%)
+                            Diproses ({{ 100 - ($statusBreakdownUI['pengiriman']['percent'] ?? 0) - ($summary['total_orders'] > 0 ? round(($summary['archived']/$summary['total_orders'])*100) : 0) }}%)
                         </li>
                         <li class="d-flex align-items-center gap-2">
                             <span class="rounded-circle bg-secondary d-inline-block" style="width:10px;height:10px;"></span> 
@@ -256,15 +256,15 @@ document.addEventListener("DOMContentLoaded", function() {
     new Chart(ctxProd, {
         type: 'bar',
         data: {
-            labels: ['Diterima', 'Potong Kain', 'Menjahit', 'Bordir/Kancing', 'Selesai (Kirim)'],
+            labels: ['Penerimaan', 'Persiapan', 'Produksi', 'Finishing', 'Pengiriman'],
             datasets: [{
                 label: 'Jumlah Pesanan',
                 data: [
-                    {{ $statusBreakdownUI['received']['count'] }},
-                    {{ $statusBreakdownUI['cutting']['count'] }},
-                    {{ $statusBreakdownUI['sewing']['count'] }},
-                    {{ $statusBreakdownUI['embroidery']['count'] }},
-                    {{ $statusBreakdownUI['shipping']['count'] }}
+                    {{ $statusBreakdownUI['penerimaan']['count'] ?? 0 }},
+                    {{ $statusBreakdownUI['persiapan']['count'] ?? 0 }},
+                    {{ $statusBreakdownUI['produksi']['count'] ?? 0 }},
+                    {{ $statusBreakdownUI['finishing']['count'] ?? 0 }},
+                    {{ $statusBreakdownUI['pengiriman']['count'] ?? 0 }}
                 ],
                 backgroundColor: [
                     '#94a3b8', // secondary
@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 2. Order Distribution Chart (Doughnut)
     const ctxDist = document.getElementById('orderDistributionChart').getContext('2d');
-    const pctShipping = {{ $statusBreakdownUI['shipping']['percent'] ?? 0 }};
+    const pctShipping = {{ $statusBreakdownUI['pengiriman']['percent'] ?? 0 }};
     const pctArchived = {{ $summary['total_orders'] > 0 ? round(($summary['archived']/$summary['total_orders'])*100) : 0 }};
     const pctInProgress = 100 - pctShipping - pctArchived;
 

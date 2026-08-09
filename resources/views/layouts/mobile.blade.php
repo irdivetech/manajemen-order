@@ -676,6 +676,15 @@
 
 
         @if(Auth::user()?->isAdmin())
+        <div class="section-title mt-3">Laporan</div>
+        <a href="{{ route('hpp.index') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#fee2e2; color:var(--danger);">
+                <i class="bi bi-calculator"></i>
+            </div>
+            Laporan Modal (HPP)
+        </a>
+
+        <div class="section-title mt-3">Sistem</div>
         <a href="{{ route('users.index') }}" class="drawer-nav-item">
             <div class="dni-icon" style="background:#f0fdf4; color:var(--success);">
                 <i class="bi bi-people-fill"></i>

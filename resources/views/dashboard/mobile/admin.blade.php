@@ -91,11 +91,11 @@
     <div class="m-card-body">
         @php
             $statusItems = [
-                ['label' => 'Pesanan Diterima', 'key' => 'received',   'color' => '#94a3b8'],
-                ['label' => 'Potong Kain',       'key' => 'cutting',    'color' => '#818cf8'],
-                ['label' => 'Penjahitan',         'key' => 'sewing',     'color' => '#4f46e5'],
-                ['label' => 'Bordir/Kancing',     'key' => 'embroidery', 'color' => '#f59e0b'],
-                ['label' => 'Pengiriman',         'key' => 'shipping',   'color' => '#10b981'],
+                ['label' => 'Penerimaan', 'key' => 'penerimaan', 'color' => '#94a3b8'],
+                ['label' => 'Persiapan',  'key' => 'persiapan',  'color' => '#818cf8'],
+                ['label' => 'Produksi',   'key' => 'produksi',   'color' => '#4f46e5'],
+                ['label' => 'Finishing',  'key' => 'finishing',  'color' => '#f59e0b'],
+                ['label' => 'Pengiriman', 'key' => 'pengiriman', 'color' => '#10b981'],
             ];
         @endphp
         <div class="d-flex flex-column gap-2">
@@ -107,13 +107,13 @@
                         {{ $item['label'] }}
                     </span>
                     <span class="fw-6">
-                        {{ $statusBreakdownUI[$item['key']]['count'] }}
-                        <span class="text-muted fw-4">({{ $statusBreakdownUI[$item['key']]['percent'] }}%)</span>
+                        {{ $statusBreakdownUI[$item['key']]['count'] ?? 0 }}
+                        <span class="text-muted fw-4">({{ $statusBreakdownUI[$item['key']]['percent'] ?? 0 }}%)</span>
                     </span>
                 </div>
                 <div class="progress" style="height:5px; border-radius:3px;">
                     <div class="progress-bar" role="progressbar"
-                         style="width:{{ $statusBreakdownUI[$item['key']]['percent'] }}%; background:{{ $item['color'] }};">
+                         style="width:{{ $statusBreakdownUI[$item['key']]['percent'] ?? 0 }}%; background:{{ $item['color'] }};">
                     </div>
                 </div>
             </div>

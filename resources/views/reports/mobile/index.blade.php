@@ -114,6 +114,14 @@
                         @endforeach
                     </div>
 
+                    <div class="mb-4">
+                        <label class="form-label text-sm fw-6">Filter Berdasarkan</label>
+                        <select name="date_column" class="form-select">
+                            <option value="order_date" {{ request('date_column', 'order_date') === 'order_date' ? 'selected' : '' }}>Tanggal Pesan</option>
+                            <option value="deadline" {{ request('date_column') === 'deadline' ? 'selected' : '' }}>Tenggat Waktu</option>
+                        </select>
+                    </div>
+
                     <div id="customDates" class="mb-4" style="display:{{ request('period') === 'custom' ? 'block' : 'none' }};">
                         <div class="mb-3">
                             <label class="form-label text-sm fw-6">Dari Tanggal</label>
