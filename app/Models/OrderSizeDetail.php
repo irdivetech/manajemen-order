@@ -25,8 +25,13 @@ class OrderSizeDetail extends Model
 
     protected $fillable = [
         'order_id',
-        'gender',
-        'size',
+        'color', // NEW
+        'gender_id', // NEW
+        'size_category_id', // NEW
+        'size_type', // NEW
+        'size_id', // NEW
+        'gender', // DEPRECATED
+        'size', // DEPRECATED
         'quantity',
         'price',
     ];
@@ -47,5 +52,20 @@ class OrderSizeDetail extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function masterGender(): BelongsTo
+    {
+        return $this->belongsTo(MasterGender::class, 'gender_id');
+    }
+
+    public function sizeCategory(): BelongsTo
+    {
+        return $this->belongsTo(MasterSizeCategory::class, 'size_category_id');
+    }
+
+    public function masterSize(): BelongsTo
+    {
+        return $this->belongsTo(MasterSize::class, 'size_id');
     }
 }

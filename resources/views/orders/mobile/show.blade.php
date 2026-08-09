@@ -53,10 +53,15 @@
                 <span class="ms-auto badge bg-info bg-opacity-10 text-info border border-info-subtle text-xs">Retail</span>
             @endif
         </div>
-        @if($order->customer_address)
+        @if($order->customer_address || $order->customer_city || $order->customer_district)
         <div class="mb-3 p-2 bg-light rounded">
-            <div class="text-xs text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Alamat Pemesan</div>
-            <div class="text-sm fw-6">{{ $order->customer_address }}</div>
+            <div class="text-xs text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Alamat Lengkap</div>
+            <div class="text-sm fw-6">
+                {{ $order->customer_address }}<br>
+                @if($order->customer_district || $order->customer_city)
+                    <span class="text-muted small">{{ collect([$order->customer_district, $order->customer_city])->filter()->join(', ') }}</span>
+                @endif
+            </div>
         </div>
         @endif
         <div class="row g-2">
@@ -82,14 +87,15 @@
             <div class="col-7">
                 <div class="text-xs text-muted">Produk</div>
                 <div class="text-sm fw-6">{{ $order->product_name }}</div>
-                <div class="text-xs text-muted">{{ $order->product_type }}</div>
+                <div class="text-xs text-muted">{{ $order->clothingCategory?->name ?? '-' }} - {{ $order->product_type }}</div>
             </div>
             <div class="col-3">
-                <div class="text-xs text-muted">Warna</div>
-                <div class="text-sm fw-6">{{ $order->color }}</div>
                 @if($order->material)
-                <div class="text-xs text-muted mt-1">Bahan</div>
-                <div class="text-sm fw-6">{{ $order->material }}</div>
+                <div class="text-xs text-muted">Bahan</div>
+                <div class="text-sm fw-6">{{ $order->material->name }}</div>
+                @endif
+                @if($order->has_embroidery)
+                <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle mt-1 text-xs">Bordir / Sablon</span>
                 @endif
             </div>
             <div class="col-2 text-end">
@@ -99,27 +105,22 @@
             </div>
         </div>
 
-        {{-- Size breakdown per gender --}}
-        @php
-            $genderLabels = ['male' => 'Laki-laki', 'female' => 'Perempuan', 'child' => 'Anak-anak'];
-            $genderColors = ['male' => 'primary', 'female' => 'danger', 'child' => 'success'];
-        @endphp
-        @foreach($order->sizeDetailsByGender() as $gender => $details)
+        {{-- Size breakdown --}}
         <div class="mb-2">
-            <div class="text-xs fw-6 text-{{ $genderColors[$gender] ?? 'secondary' }} text-uppercase mb-1">
-                {{ $genderLabels[$gender] ?? $gender }}
-                — {{ $details->sum('quantity') }} pcs
-            </div>
-            <div class="d-flex flex-wrap gap-1">
-                @foreach($details as $detail)
-                <div class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1" style="font-size:0.72rem;">
-                    <span class="fw-7">{{ $detail->size }}</span>
-                    <span class="text-muted">×{{ $detail->quantity }}</span>
+            <div class="d-flex flex-column gap-2">
+                @foreach($order->sizeDetails as $detail)
+                <div class="d-flex align-items-center justify-content-between border rounded p-2" style="font-size:0.75rem;">
+                    <div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary text-xs me-1">{{ $detail->color }}</span>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary text-xs me-1">{{ $detail->gender?->name ?? '-' }}</span>
+                        <span class="fw-7 ms-1">{{ $detail->size?->name ?? '-' }}</span>
+                        <span class="text-muted ms-1">({{ ucfirst($detail->size_type) }})</span>
+                    </div>
+                    <div class="fw-6 text-dark">{{ $detail->quantity }} pcs</div>
                 </div>
                 @endforeach
             </div>
         </div>
-        @endforeach
     </div>
 </div>
 

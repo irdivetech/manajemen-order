@@ -27,32 +27,33 @@ class ReportService
         string $period = 'monthly',
         ?Carbon $from = null,
         ?Carbon $to = null,
+        string $dateColumn = 'order_date'
     ): Collection {
-        $query = Order::with(['creator:id,name', 'invoice', 'sizeDetails']);
+        $query = Order::with(['creator:id,name', 'invoice', 'sizeDetails', 'clothingCategory', 'material', 'sizeDetails.gender']);
 
         if ($from && $to) {
-            $query->whereBetween('order_date', [
+            $query->whereBetween($dateColumn, [
                 $from->startOfDay(),
                 $to->endOfDay(),
             ]);
         } else {
-            $query->where(function ($q) use ($period): void {
+            $query->where(function ($q) use ($period, $dateColumn): void {
                 match ($period) {
-                    'daily'   => $q->whereDate('order_date', today()),
-                    'weekly'  => $q->whereBetween('order_date', [
+                    'daily'   => $q->whereDate($dateColumn, today()),
+                    'weekly'  => $q->whereBetween($dateColumn, [
                         now()->startOfWeek(),
                         now()->endOfWeek(),
                     ]),
-                    'monthly' => $q->whereMonth('order_date', now()->month)
-                                   ->whereYear('order_date', now()->year),
-                    'yearly'  => $q->whereYear('order_date', now()->year),
-                    default   => $q->whereMonth('order_date', now()->month)
-                                   ->whereYear('order_date', now()->year),
+                    'monthly' => $q->whereMonth($dateColumn, now()->month)
+                                   ->whereYear($dateColumn, now()->year),
+                    'yearly'  => $q->whereYear($dateColumn, now()->year),
+                    default   => $q->whereMonth($dateColumn, now()->month)
+                                   ->whereYear($dateColumn, now()->year),
                 };
             });
         }
 
-        return $query->orderByDesc('order_date')->get();
+        return $query->orderByDesc($dateColumn)->get();
     }
 
     /**
@@ -79,19 +80,19 @@ class ReportService
      *
      * @return \Illuminate\Support\Collection<int, array<string, mixed>>
      */
-    public function getStatusBreakdown(string $period = 'monthly'): \Illuminate\Support\Collection
+    public function getStatusBreakdown(string $period = 'monthly', string $dateColumn = 'order_date'): \Illuminate\Support\Collection
     {
         $query = Order::selectRaw('current_status, COUNT(*) as total');
 
         match ($period) {
-            'daily'  => $query->whereDate('order_date', today()),
-            'weekly' => $query->whereBetween('order_date', [
+            'daily'  => $query->whereDate($dateColumn, today()),
+            'weekly' => $query->whereBetween($dateColumn, [
                 now()->startOfWeek(),
                 now()->endOfWeek(),
             ]),
-            'yearly' => $query->whereYear('order_date', now()->year),
-            default  => $query->whereMonth('order_date', now()->month)
-                               ->whereYear('order_date', now()->year),
+            'yearly' => $query->whereYear($dateColumn, now()->year),
+            default  => $query->whereMonth($dateColumn, now()->month)
+                               ->whereYear($dateColumn, now()->year),
         };
 
         return $query->groupBy('current_status')->pluck('total', 'current_status');
@@ -163,14 +164,7 @@ class ReportService
         $sheet->getRowDimension(2)->setRowHeight(22);
 
         // ── Status labels ─────────────────────────────────────────────────────
-        $statusLabels = [
-            'order_received'      => 'Pesanan Diterima',
-            'fabric_cutting'      => 'Pemotongan Kain',
-            'sewing'              => 'Penjahitan',
-            'embroidery'          => 'Bordir',
-            'button_installation' => 'Pemasangan Kancing',
-            'shipping'            => 'Pengiriman',
-        ];
+        $statusLabels = \App\Models\MasterTrackingStatus::pluck('name', 'code')->toArray();
 
         // ── Data rows ─────────────────────────────────────────────────────────
         $rowNum = 3;

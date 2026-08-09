@@ -46,9 +46,13 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     // ─── Archives ───────────────────────────────────────────────────────────
     Route::get('archives', [OrderController::class, 'archives'])->name('archives.index');
 
-    // ─── Reports ────────────────────────────────────────────────────────────
-    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+    // ─── Laporan ────────────────────────────────────────────────────────────
+    Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [\App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
+
+    // ─── Modal Belanja Bahan (HPP) ──────────────────────────────────────────
+    Route::get('/hpp-reports', [\App\Http\Controllers\HppReportController::class, 'index'])->name('hpp.index');
+    Route::get('/hpp-reports/export', [\App\Http\Controllers\HppReportController::class, 'export'])->name('hpp.export');
 
     // ─── Admin Only ─────────────────────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
@@ -70,6 +74,14 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
         Route::put('settings/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'update'])->name('bank_accounts.update');
         Route::patch('settings/bank-accounts/{bankAccount}/toggle', [\App\Http\Controllers\BankAccountController::class, 'toggle'])->name('bank_accounts.toggle');
         Route::delete('settings/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'destroy'])->name('bank_accounts.destroy');
+
+        // ─── Master Data ────────────────────────────────────────────────────────
+        Route::get('master-data/{type}', [\App\Http\Controllers\MasterDataController::class, 'index'])->name('master-data.index');
+        Route::get('master-data/{type}/create', [\App\Http\Controllers\MasterDataController::class, 'create'])->name('master-data.create');
+        Route::post('master-data/{type}', [\App\Http\Controllers\MasterDataController::class, 'store'])->name('master-data.store');
+        Route::get('master-data/{type}/{id}/edit', [\App\Http\Controllers\MasterDataController::class, 'edit'])->name('master-data.edit');
+        Route::put('master-data/{type}/{id}', [\App\Http\Controllers\MasterDataController::class, 'update'])->name('master-data.update');
+        Route::delete('master-data/{type}/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroy'])->name('master-data.destroy');
 
         // Profile
         Route::get('profile', fn () => view(isMobile() ? 'profile.mobile.index' : 'profile.index'))->name('profile.index');

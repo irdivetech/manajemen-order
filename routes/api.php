@@ -25,6 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // ─── Orders (CRUD) ──────────────────────────────────────────────────────
     Route::apiResource('orders', OrderController::class);
 
+    // ─── HPP Calculation ────────────────────────────────────────────────────
+    Route::post('hpp/calculate', [\App\Http\Controllers\HppController::class, 'calculateApi']);
+
     // ─── Tracking History ───────────────────────────────────────────────────
     Route::get('orders/{order}/tracking', [TrackingController::class, 'index']);
     Route::post('orders/{order}/tracking', [TrackingController::class, 'store']);
