@@ -18,6 +18,7 @@ class HppController extends Controller
     {
         $request->validate([
             'material_id' => 'required|exists:master_materials,id',
+            'clothing_category_id' => 'required|exists:master_clothing_categories,id',
             'size_details' => 'required|array',
             'size_details.*.size_id' => 'required|exists:master_sizes,id',
             'size_details.*.quantity' => 'required|integer|min:1',
@@ -25,6 +26,7 @@ class HppController extends Controller
 
         $estimatedHpp = $this->hppService->calculateEstimatedHpp(
             $request->input('material_id'),
+            $request->input('clothing_category_id'),
             $request->input('size_details')
         );
 

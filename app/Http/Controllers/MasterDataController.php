@@ -32,7 +32,6 @@ class MasterDataController extends Controller
                 'title' => 'Master Kategori Ukuran',
                 'fields' => [
                     'name' => ['label' => 'Nama Kategori', 'type' => 'text', 'rules' => 'required|string|max:255'],
-                    'sort_order' => ['label' => 'Urutan', 'type' => 'number', 'rules' => 'required|integer'],
                     'is_active' => ['label' => 'Aktif', 'type' => 'boolean', 'rules' => 'boolean']
                 ],
                 'relations' => []
@@ -44,7 +43,6 @@ class MasterDataController extends Controller
                     'size_type' => ['label' => 'Jenis Size', 'type' => 'select', 'options' => ['standard' => 'Standard', 'big' => 'Big'], 'rules' => 'required|in:standard,big'],
                     'code' => ['label' => 'Kode Ukuran', 'type' => 'text', 'rules' => 'required|string|max:255'],
                     'label' => ['label' => 'Label Tampilan', 'type' => 'text', 'rules' => 'required|string|max:255'],
-                    'sort_order' => ['label' => 'Urutan', 'type' => 'number', 'rules' => 'required|integer'],
                     'is_active' => ['label' => 'Aktif', 'type' => 'boolean', 'rules' => 'boolean']
                 ],
                 'relations' => []
@@ -74,10 +72,11 @@ class MasterDataController extends Controller
                 'title' => 'Estimasi Penggunaan Bahan',
                 'fields' => [
                     'material_id' => ['label' => 'Bahan', 'type' => 'select_model', 'model' => MasterMaterial::class, 'display' => 'name', 'rules' => 'required|exists:master_materials,id'],
+                    'clothing_category_id' => ['label' => 'Kategori Baju', 'type' => 'select_model', 'model' => MasterClothingCategory::class, 'display' => 'name', 'rules' => 'required|exists:master_clothing_categories,id'],
                     'size_id' => ['label' => 'Ukuran', 'type' => 'select_model', 'model' => MasterSize::class, 'display' => 'label', 'rules' => 'required|exists:master_sizes,id'],
                     'estimated_usage' => ['label' => 'Estimasi Penggunaan', 'type' => 'number', 'step' => '0.0001', 'rules' => 'required|numeric|min:0']
                 ],
-                'relations' => ['material', 'size']
+                'relations' => ['material', 'clothingCategory', 'size']
             ],
             'tracking-statuses' => [
                 'model' => MasterTrackingStatus::class,
@@ -191,7 +190,7 @@ class MasterDataController extends Controller
 
         // Special handling for unique constraint in usage-estimates
         if ($type === 'usage-estimates') {
-            $rules['size_id'] = 'required|exists:master_sizes,id|unique:material_usage_estimates,size_id,' . $id . ',id,material_id,' . $request->material_id;
+            $rules['size_id'] = 'required|exists:master_sizes,id|unique:material_usage_estimates,size_id,' . $id . ',id,material_id,' . $request->material_id . ',clothing_category_id,' . $request->clothing_category_id;
         }
 
         $validated = $request->validate($rules);
@@ -219,5 +218,22 @@ class MasterDataController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('master-data.index', $type)->with('error', 'Data tidak dapat dihapus karena sedang digunakan.');
         }
+    }
+
+    public function toggleActive($type, $id)
+    {
+        $config = $this->getConfig($type);
+        
+        // Only allow toggling if the model has is_active field
+        if (!isset($config['fields']['is_active'])) {
+            abort(404);
+        }
+
+        $data = $config['model']::findOrFail($id);
+        $data->is_active = !$data->is_active;
+        $data->save();
+
+        return redirect()->route('master-data.index', $type)
+            ->with('success', 'Status berhasil diubah menjadi ' . ($data->is_active ? 'Aktif' : 'Tidak Aktif') . '.');
     }
 }

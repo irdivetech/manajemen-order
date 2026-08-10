@@ -49,8 +49,8 @@ class OrderService
                 }
             }
 
-            // Get initial status from DB
-            $initialStatus = \App\Models\MasterTrackingStatus::where('is_initial', true)->value('code') ?? Order::STATUS_ORDER_RECEIVED;
+            // Get initial status from DB (lowest sort_order is assumed to be initial)
+            $initialStatus = \App\Models\MasterTrackingStatus::orderBy('sort_order')->value('code') ?? Order::STATUS_ORDER_RECEIVED;
             $data['current_status'] = $initialStatus;
 
             $sizeDetailsData = $data['size_details'];
@@ -60,6 +60,9 @@ class OrderService
             $order = Order::create($data);
 
             foreach ($sizeDetailsData as $detail) {
+                // Ensure the deprecated fields are filled to avoid SQL errors
+                $detail['gender'] = \App\Models\OrderSizeDetail::GENDER_MALE;
+                $detail['size'] = 'M';
                 $order->sizeDetails()->create($detail);
             }
 
@@ -128,6 +131,9 @@ class OrderService
         if ($sizeDetailsData !== null) {
             $order->sizeDetails()->delete();
             foreach ($sizeDetailsData as $detail) {
+                // Ensure the deprecated fields are filled to avoid SQL errors
+                $detail['gender'] = \App\Models\OrderSizeDetail::GENDER_MALE;
+                $detail['size'] = 'M';
                 $order->sizeDetails()->create($detail);
             }
         }

@@ -15,9 +15,9 @@ class HppService
      * @param array $sizeDetails Array of size details containing 'size_id' and 'quantity'
      * @return float Estimated total cost
      */
-    public function calculateEstimatedHpp(?int $materialId, array $sizeDetails): float
+    public function calculateEstimatedHpp(?int $materialId, ?int $clothingCategoryId, array $sizeDetails): float
     {
-        if (!$materialId) {
+        if (!$materialId || !$clothingCategoryId) {
             return 0;
         }
 
@@ -36,6 +36,7 @@ class HppService
             if ($sizeId && $quantity > 0) {
                 // Find estimate
                 $estimate = MaterialUsageEstimate::where('material_id', $materialId)
+                    ->where('clothing_category_id', $clothingCategoryId)
                     ->where('size_id', $sizeId)
                     ->first();
 

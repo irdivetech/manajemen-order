@@ -262,24 +262,15 @@
             <label class="form-label text-sm fw-6">Gender</label>
             <select id="modal-gender" class="form-select">
                 @foreach($genders as $g)
-                    <option value="{{ $g->id }}">{{ $g->name }}</option>
+                    <option value="{{ $g->id }}">{{ $g->label }}</option>
                 @endforeach
             </select>
         </div>
         <div class="row g-2 mb-3">
-            <div class="col-6">
-                <label class="form-label text-sm fw-6">Kategori</label>
-                <select id="modal-size-cat" class="form-select">
-                    <option value="">Pilih...</option>
-                    @foreach($sizeCategories as $c)
-                        <option value="{{ $c->id }}">{{ $c->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-6">
+            <div class="col-12">
                 <label class="form-label text-sm fw-6">Tipe Ukuran</label>
                 <select id="modal-size-type" class="form-select">
-                    <option value="standard">Standard</option>
+                    <option value="standard" selected>Standard</option>
                     <option value="big">Big Size</option>
                 </select>
             </div>
@@ -287,7 +278,7 @@
         <div class="mb-3">
             <label class="form-label text-sm fw-6">Ukuran</label>
             <select id="modal-size-id" class="form-select">
-                <option value="">Pilih Kategori...</option>
+                <option value="">Pilih Ukuran...</option>
             </select>
         </div>
         <div class="row g-2 mb-4">
@@ -314,21 +305,24 @@
 let rowIndex = 0;
 
 const masterSizes = @json($sizes);
-const modalSizeCat = document.getElementById('modal-size-cat');
+const modalSizeType = document.getElementById('modal-size-type');
 const modalSizeId = document.getElementById('modal-size-id');
 
-modalSizeCat.addEventListener('change', function() {
+modalSizeType.addEventListener('change', function() {
     modalSizeId.innerHTML = '<option value="">Pilih Ukuran...</option>';
-    const catId = this.value;
-    if (catId) {
-        masterSizes.filter(s => s.size_category_id == catId).forEach(size => {
+    const type = this.value;
+    if (type) {
+        masterSizes.filter(s => s.size_type == type).forEach(size => {
             const option = document.createElement('option');
             option.value = size.id;
-            option.textContent = size.name;
+            option.textContent = size.label;
             modalSizeId.appendChild(option);
         });
     }
 });
+
+// Trigger change event to populate sizes initially
+modalSizeType.dispatchEvent(new Event('change'));
 
 document.getElementById('addSizeModal').addEventListener('show.bs.offcanvas', () => {
     document.getElementById('modal-color').value  = '';
@@ -341,15 +335,14 @@ document.getElementById('confirmAddSize').addEventListener('click', () => {
     const color = document.getElementById('modal-color').value.trim();
     const genderId = document.getElementById('modal-gender').value;
     const genderText = document.getElementById('modal-gender').options[document.getElementById('modal-gender').selectedIndex].text;
-    const sizeCatId = document.getElementById('modal-size-cat').value;
     const sizeTypeId = document.getElementById('modal-size-type').value;
     const sizeId = document.getElementById('modal-size-id').value;
     const sizeText = modalSizeId.options[modalSizeId.selectedIndex]?.text || '';
     const price  = parseInt(document.getElementById('modal-price').value) || 0;
     const qty    = parseInt(document.getElementById('modal-qty').value) || 0;
 
-    if (!color || !sizeCatId || !sizeId || qty <= 0 || price < 0) {
-        alert('Harap isi warna, kategori, ukuran, harga, dan jumlah dengan benar.');
+    if (!color || !sizeId || qty <= 0 || price < 0) {
+        alert('Harap isi warna, ukuran, harga, dan jumlah dengan benar.');
         return;
     }
 
@@ -376,7 +369,6 @@ document.getElementById('confirmAddSize').addEventListener('click', () => {
             
             <input type="hidden" name="size_details[${rowIndex}][color]"   value="${color}">
             <input type="hidden" name="size_details[${rowIndex}][gender_id]" value="${genderId}">
-            <input type="hidden" name="size_details[${rowIndex}][size_category_id]" value="${sizeCatId}">
             <input type="hidden" name="size_details[${rowIndex}][size_type]" value="${sizeTypeId}">
             <input type="hidden" name="size_details[${rowIndex}][size_id]" value="${sizeId}">
             <input type="hidden" name="size_details[${rowIndex}][price]"    value="${price}">
@@ -420,20 +412,22 @@ document.getElementById('btn-calculate-hpp').addEventListener('click', async fun
     const originalText = btn.innerHTML;
     
     const materialId = document.querySelector('select[name="material_id"]').value;
-    if (!materialId) {
+    const clothingCategoryId = document.querySelector('select[name="clothing_category_id"]').value;
+    
+    if (!materialId || !clothingCategoryId) {
         Swal.fire({
             icon: 'warning',
             title: 'Perhatian',
-            text: 'Silakan pilih Bahan / Material terlebih dahulu.',
+            text: 'Silakan pilih Kategori Baju dan Bahan / Material terlebih dahulu.',
             customClass: { popup: 'rounded-4' }
         });
         return;
     }
 
     const sizes = [];
-    document.querySelectorAll('.size-row').forEach((row, idx) => {
-        const sizeId = document.querySelector(`input[name="size_details[${idx}][size_id]"]`)?.value;
-        const qty = document.querySelector(`input[name="size_details[${idx}][quantity]"]`)?.value;
+    document.querySelectorAll('.size-row').forEach(row => {
+        const sizeId = row.querySelector('input[name$="[size_id]"]')?.value;
+        const qty = row.querySelector('input[name$="[quantity]"]')?.value;
         if (sizeId && qty) {
             sizes.push({ size_id: sizeId, quantity: qty });
         }
@@ -453,7 +447,7 @@ document.getElementById('btn-calculate-hpp').addEventListener('click', async fun
         btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
         btn.disabled = true;
 
-        const response = await fetch('/api/hpp/calculate', {
+        const response = await fetch('/hpp/calculate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -462,6 +456,7 @@ document.getElementById('btn-calculate-hpp').addEventListener('click', async fun
             },
             body: JSON.stringify({
                 material_id: materialId,
+                clothing_category_id: clothingCategoryId,
                 size_details: sizes
             })
         });

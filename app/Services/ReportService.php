@@ -29,7 +29,7 @@ class ReportService
         ?Carbon $to = null,
         string $dateColumn = 'order_date'
     ): Collection {
-        $query = Order::with(['creator:id,name', 'invoice', 'sizeDetails', 'clothingCategory', 'material', 'sizeDetails.gender']);
+        $query = Order::with(['creator:id,name', 'invoice', 'sizeDetails', 'clothingCategory', 'masterMaterial', 'sizeDetails.gender']);
 
         if ($from && $to) {
             $query->whereBetween($dateColumn, [

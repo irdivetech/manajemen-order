@@ -117,7 +117,8 @@ class MasterDataSeeder extends Seeder
         
         // 8. Sample Material Usage Estimates for Cotton Combed 30s
         $cotton = MasterMaterial::where('name', 'Cotton Combed 30s')->first();
-        if ($cotton) {
+        $kaosCat = \App\Models\MasterClothingCategory::where('name', 'Kaos')->first();
+        if ($cotton && $kaosCat) {
             $sizes = MasterSize::all();
             $estimates = [
                 'XS' => 0.25,
@@ -133,6 +134,7 @@ class MasterDataSeeder extends Seeder
                 if (isset($estimates[$size->code])) {
                     MaterialUsageEstimate::updateOrCreate([
                         'material_id' => $cotton->id,
+                        'clothing_category_id' => $kaosCat->id,
                         'size_id' => $size->id,
                     ], [
                         'estimated_usage' => $estimates[$size->code],

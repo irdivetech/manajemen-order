@@ -127,7 +127,7 @@
                             <tr>
                                 <th>Warna</th>
                                 <th>Gender</th>
-                                <th>Kategori & Tipe</th>
+                                <th>Tipe Ukuran</th>
                                 <th>Ukuran</th>
                                 <th>Harga Satuan</th>
                                 <th>Qty</th>
@@ -274,14 +274,14 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPriceSpan.textContent = new Intl.NumberFormat('id-ID').format(totalPrice);
     }
     
-    function updateSizeOptions(selectElement, categoryId, currentValue = null) {
+    function updateSizeOptions(selectElement, type, currentValue = null) {
         selectElement.innerHTML = '<option value="">Ukuran...</option>';
-        if (!categoryId) return;
+        if (!type) return;
         
-        masterSizes.filter(s => s.size_category_id == categoryId).forEach(size => {
+        masterSizes.filter(s => s.size_type == type).forEach(size => {
             const option = document.createElement('option');
             option.value = size.id;
-            option.textContent = size.name;
+            option.textContent = size.label;
             if (size.id == currentValue) option.selected = true;
             selectElement.appendChild(option);
         });
@@ -292,13 +292,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let genderOptions = '<option value="">Pilih...</option>';
         masterGenders.forEach(g => {
-            genderOptions += `<option value="${g.id}" ${data.gender_id == g.id ? 'selected' : ''}>${g.name}</option>`;
+            genderOptions += `<option value="${g.id}" ${data.gender_id == g.id ? 'selected' : ''}>${g.label}</option>`;
         });
 
-        let catOptions = '<option value="">Kategori...</option>';
-        masterSizeCategories.forEach(c => {
-            catOptions += `<option value="${c.id}" ${data.size_category_id == c.id ? 'selected' : ''}>${c.name}</option>`;
-        });
+        const currentType = data.size_type || 'standard';
 
         tr.innerHTML = `
             <td>
@@ -311,13 +308,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </td>
             <td>
                 <div class="d-flex flex-column gap-1">
-                    <select name="size_details[${rowIndex}][size_category_id]" class="form-select form-select-sm cat-select" required>
-                        ${catOptions}
-                    </select>
-                    <select name="size_details[${rowIndex}][size_type]" class="form-select form-select-sm" required>
-                        <option value="">Tipe...</option>
-                        <option value="standard" ${data.size_type == 'standard' ? 'selected' : ''}>Standard</option>
-                        <option value="big" ${data.size_type == 'big' ? 'selected' : ''}>Big Size</option>
+                    <select name="size_details[${rowIndex}][size_type]" class="form-select form-select-sm type-select" required>
+                        <option value="standard" ${currentType == 'standard' ? 'selected' : ''}>Standard</option>
+                        <option value="big" ${currentType == 'big' ? 'selected' : ''}>Big Size</option>
                     </select>
                 </div>
             </td>
@@ -345,18 +338,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         tableBody.appendChild(tr);
         
-        const catSelect = tr.querySelector('.cat-select');
+        const typeSelect = tr.querySelector('.type-select');
         const sizeSelect = tr.querySelector('.size-select');
         const priceInput = tr.querySelector('.price-input');
         const qtyInput = tr.querySelector('.qty-input');
         const removeBtn = tr.querySelector('.remove-row');
         
-        // Initial sizes if category is selected
-        if (data.size_category_id) {
-            updateSizeOptions(sizeSelect, data.size_category_id, data.size_id);
-        }
+        // Initial sizes
+        updateSizeOptions(sizeSelect, currentType, data.size_id);
         
-        catSelect.addEventListener('change', function() {
+        typeSelect.addEventListener('change', function() {
             updateSizeOptions(sizeSelect, this.value);
         });
         
@@ -390,15 +381,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const originalText = btn.innerHTML;
         
         const materialId = document.querySelector('select[name="material_id"]').value;
-        if (!materialId) {
-            Swal.fire('Perhatian', 'Silakan pilih Bahan / Material terlebih dahulu.', 'warning');
+        const clothingCategoryId = document.querySelector('select[name="clothing_category_id"]').value;
+        
+        if (!materialId || !clothingCategoryId) {
+            Swal.fire('Perhatian', 'Silakan pilih Kategori Baju dan Bahan / Material terlebih dahulu.', 'warning');
             return;
         }
 
         const sizes = [];
-        document.querySelectorAll('#size-details-table tbody tr').forEach((tr, idx) => {
-            const sizeId = tr.querySelector(`select[name="size_details[${idx}][size_id]"]`)?.value;
-            const qty = tr.querySelector(`input[name="size_details[${idx}][quantity]"]`)?.value;
+        document.querySelectorAll('#size-details-table tbody tr').forEach(tr => {
+            const sizeId = tr.querySelector('.size-select')?.value;
+            const qty = tr.querySelector('.qty-input')?.value;
             if (sizeId && qty) {
                 sizes.push({ size_id: sizeId, quantity: qty });
             }
@@ -413,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghitung...';
             btn.disabled = true;
 
-            const response = await fetch('/api/hpp/calculate', {
+            const response = await fetch('/hpp/calculate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -422,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     material_id: materialId,
+                    clothing_category_id: clothingCategoryId,
                     size_details: sizes
                 })
             });

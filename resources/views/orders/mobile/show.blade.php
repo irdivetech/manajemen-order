@@ -92,7 +92,7 @@
             <div class="col-3">
                 @if($order->material)
                 <div class="text-xs text-muted">Bahan</div>
-                <div class="text-sm fw-6">{{ $order->material->name }}</div>
+                <div class="text-sm fw-6">{{ $order->masterMaterial->name }}</div>
                 @endif
                 @if($order->has_embroidery)
                 <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle mt-1 text-xs">Bordir / Sablon</span>
@@ -112,8 +112,8 @@
                 <div class="d-flex align-items-center justify-content-between border rounded p-2" style="font-size:0.75rem;">
                     <div>
                         <span class="badge bg-primary bg-opacity-10 text-primary text-xs me-1">{{ $detail->color }}</span>
-                        <span class="badge bg-secondary bg-opacity-10 text-secondary text-xs me-1">{{ $detail->gender?->name ?? '-' }}</span>
-                        <span class="fw-7 ms-1">{{ $detail->size?->name ?? '-' }}</span>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary text-xs me-1">{{ $detail->gender?->label ?? '-' }}</span>
+                        <span class="fw-7 ms-1">{{ $detail->size?->label ?? '-' }}</span>
                         <span class="text-muted ms-1">({{ ucfirst($detail->size_type) }})</span>
                     </div>
                     <div class="fw-6 text-dark">{{ $detail->quantity }} pcs</div>

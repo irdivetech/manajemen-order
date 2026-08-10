@@ -68,4 +68,20 @@ class OrderSizeDetail extends Model
     {
         return $this->belongsTo(MasterSize::class, 'size_id');
     }
+
+    /**
+     * Alias for masterGender() — used in views and eager loading.
+     */
+    public function gender(): BelongsTo
+    {
+        return $this->belongsTo(MasterGender::class, 'gender_id');
+    }
+
+    /**
+     * Alias for masterSize() — used in views and eager loading.
+     */
+    public function size(): BelongsTo
+    {
+        return $this->belongsTo(MasterSize::class, 'size_id');
+    }
 }

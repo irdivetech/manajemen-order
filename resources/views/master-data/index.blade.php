@@ -47,15 +47,26 @@
                                         </span>
                                     @elseif($field['type'] === 'select_model')
                                         @php
-                                            $relationName = str_replace('_id', '', $key);
+                                            $relationName = \Illuminate\Support\Str::camel(str_replace('_id', '', $key));
                                         @endphp
                                         <span class="fw-medium text-dark">{{ $item->$relationName->{$field['display']} ?? '-' }}</span>
+                                    @elseif($key === 'estimated_usage')
+                                        <span class="fw-medium text-dark">{{ rtrim(rtrim(number_format($item->$key, 4, ',', '.'), '0'), ',') }} {{ $item->material->unit ?? 'M' }}</span>
                                     @else
                                         <span class="fw-medium text-dark">{{ $item->$key }}</span>
                                     @endif
                                 </td>
                             @endforeach
                             <td class="py-3 px-4 text-center">
+                                @if(isset($config['fields']['is_active']))
+                                <form action="{{ route('master-data.toggle', ['type' => $type, 'id' => $item->id]) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-sm {{ $item->is_active ? 'btn-outline-secondary' : 'btn-outline-success' }} shadow-sm rounded-pill me-1" title="{{ $item->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                        <i class="bi bi-power"></i>
+                                    </button>
+                                </form>
+                                @endif
                                 <a href="{{ route('master-data.edit', ['type' => $type, 'id' => $item->id]) }}" class="btn btn-sm btn-light text-primary shadow-sm rounded-pill me-1" title="Edit">
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>

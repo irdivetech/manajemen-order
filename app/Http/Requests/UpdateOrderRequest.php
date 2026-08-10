@@ -41,7 +41,6 @@ class UpdateOrderRequest extends FormRequest
             'size_details'            => ['sometimes', 'array', 'min:1'],
             'size_details.*.color' => ['required_with:size_details', 'string', 'max:100'],
             'size_details.*.gender_id'        => ['required_with:size_details', 'exists:master_genders,id'],
-            'size_details.*.size_category_id' => ['required_with:size_details', 'exists:master_size_categories,id'],
             'size_details.*.size_type'        => ['required_with:size_details', 'in:standard,big'],
             'size_details.*.size_id'          => ['required_with:size_details', 'exists:master_sizes,id'],
             'size_details.*.quantity'         => ['required_with:size_details', 'integer', 'min:1'],

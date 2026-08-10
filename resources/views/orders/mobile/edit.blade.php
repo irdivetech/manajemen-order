@@ -167,8 +167,8 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <span class="badge bg-primary bg-opacity-10 text-primary text-xs">{{ $detail['color'] }}</span>
-                            <span class="badge bg-secondary bg-opacity-10 text-secondary text-xs">{{ $gender ? $gender->name : '' }}</span>
-                            <span class="fw-7">{{ $size ? $size->name : '' }}</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary text-xs">{{ $gender ? $gender->label : '' }}</span>
+                            <span class="fw-7">{{ $size ? $size->label : '' }}</span>
                             <span class="text-xs text-muted">({{ ucfirst($detail['size_type']) }})</span>
                         </div>
                         <div class="text-xs text-muted">Rp {{ number_format($detail['price'], 0, ',', '.') }} × {{ $detail['quantity'] }} pcs = <strong class="text-dark">Rp {{ number_format($detail['price'] * $detail['quantity'], 0, ',', '.') }}</strong></div>
@@ -179,7 +179,6 @@
                 </div>
                 <input type="hidden" name="size_details[{{ $sizeIndex }}][color]"   value="{{ $detail['color'] }}">
                 <input type="hidden" name="size_details[{{ $sizeIndex }}][gender_id]" value="{{ $detail['gender_id'] }}">
-                <input type="hidden" name="size_details[{{ $sizeIndex }}][size_category_id]" value="{{ $detail['size_category_id'] }}">
                 <input type="hidden" name="size_details[{{ $sizeIndex }}][size_type]" value="{{ $detail['size_type'] }}">
                 <input type="hidden" name="size_details[{{ $sizeIndex }}][size_id]" value="{{ $detail['size_id'] }}">
                 <input type="hidden" name="size_details[{{ $sizeIndex }}][price]"    value="{{ $detail['price'] }}">
@@ -236,11 +235,17 @@
         <div class="m-card-body">
             <div class="mb-3">
                 <label class="form-label text-sm fw-6">Total HPP / Modal Produksi <span class="text-danger">*</span></label>
-                <input type="number" name="total_cost"
-                       class="form-control @error('total_cost') is-invalid @enderror"
-                       value="{{ old('total_cost', round($order->total_cost)) }}" min="0" step="1000" required>
+                <div class="input-group">
+                    <span class="input-group-text">Rp</span>
+                    <input type="number" name="total_cost"
+                           class="form-control @error('total_cost') is-invalid @enderror"
+                           value="{{ old('total_cost', round($order->total_cost)) }}" min="0" step="1000" required>
+                    <button class="btn btn-outline-secondary" type="button" id="btn-calculate-hpp">
+                        <i class="bi bi-calculator"></i>
+                    </button>
+                </div>
                 <div class="text-xs text-muted mt-1">Estimasi biaya bahan & tenaga kerja</div>
-                @error('total_cost') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                @error('total_cost') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
             </div>
             <div>
                 <label class="form-label text-sm fw-6">Catatan Tambahan</label>
@@ -319,24 +324,15 @@
             <label class="form-label text-sm fw-6">Gender</label>
             <select id="modal-gender" class="form-select">
                 @foreach($genders as $g)
-                    <option value="{{ $g->id }}">{{ $g->name }}</option>
+                    <option value="{{ $g->id }}">{{ $g->label }}</option>
                 @endforeach
             </select>
         </div>
         <div class="row g-2 mb-3">
-            <div class="col-6">
-                <label class="form-label text-sm fw-6">Kategori</label>
-                <select id="modal-size-cat" class="form-select">
-                    <option value="">Pilih...</option>
-                    @foreach($sizeCategories as $c)
-                        <option value="{{ $c->id }}">{{ $c->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-6">
+            <div class="col-12">
                 <label class="form-label text-sm fw-6">Tipe Ukuran</label>
                 <select id="modal-size-type" class="form-select">
-                    <option value="standard">Standard</option>
+                    <option value="standard" selected>Standard</option>
                     <option value="big">Big Size</option>
                 </select>
             </div>
@@ -344,7 +340,7 @@
         <div class="mb-3">
             <label class="form-label text-sm fw-6">Ukuran</label>
             <select id="modal-size-id" class="form-select">
-                <option value="">Pilih Kategori...</option>
+                <option value="">Pilih Ukuran...</option>
             </select>
         </div>
         <div class="row g-2 mb-4">
@@ -371,21 +367,24 @@
 let rowIndex = {{ count($oldDetails ?? []) }};
 
 const masterSizes = @json($sizes);
-const modalSizeCat = document.getElementById('modal-size-cat');
+const modalSizeType = document.getElementById('modal-size-type');
 const modalSizeId = document.getElementById('modal-size-id');
 
-modalSizeCat.addEventListener('change', function() {
+modalSizeType.addEventListener('change', function() {
     modalSizeId.innerHTML = '<option value="">Pilih Ukuran...</option>';
-    const catId = this.value;
-    if (catId) {
-        masterSizes.filter(s => s.size_category_id == catId).forEach(size => {
+    const type = this.value;
+    if (type) {
+        masterSizes.filter(s => s.size_type == type).forEach(size => {
             const option = document.createElement('option');
             option.value = size.id;
-            option.textContent = size.name;
+            option.textContent = size.label;
             modalSizeId.appendChild(option);
         });
     }
 });
+
+// Trigger change event to populate sizes initially
+modalSizeType.dispatchEvent(new Event('change'));
 
 document.getElementById('addSizeModal').addEventListener('show.bs.offcanvas', () => {
     document.getElementById('modal-color').value  = '';
@@ -398,15 +397,14 @@ document.getElementById('confirmAddSize').addEventListener('click', () => {
     const color = document.getElementById('modal-color').value.trim();
     const genderId = document.getElementById('modal-gender').value;
     const genderText = document.getElementById('modal-gender').options[document.getElementById('modal-gender').selectedIndex].text;
-    const sizeCatId = document.getElementById('modal-size-cat').value;
     const sizeTypeId = document.getElementById('modal-size-type').value;
     const sizeId = document.getElementById('modal-size-id').value;
     const sizeText = modalSizeId.options[modalSizeId.selectedIndex]?.text || '';
     const price  = parseInt(document.getElementById('modal-price').value) || 0;
     const qty    = parseInt(document.getElementById('modal-qty').value) || 0;
 
-    if (!color || !sizeCatId || !sizeId || qty <= 0 || price < 0) {
-        alert('Harap isi warna, kategori, ukuran, harga, dan jumlah dengan benar.');
+    if (!color || !sizeId || qty <= 0 || price < 0) {
+        alert('Harap isi warna, ukuran, harga, dan jumlah dengan benar.');
         return;
     }
 
@@ -433,7 +431,6 @@ document.getElementById('confirmAddSize').addEventListener('click', () => {
             
             <input type="hidden" name="size_details[${rowIndex}][color]"   value="${color}">
             <input type="hidden" name="size_details[${rowIndex}][gender_id]" value="${genderId}">
-            <input type="hidden" name="size_details[${rowIndex}][size_category_id]" value="${sizeCatId}">
             <input type="hidden" name="size_details[${rowIndex}][size_type]" value="${sizeTypeId}">
             <input type="hidden" name="size_details[${rowIndex}][size_id]" value="${sizeId}">
             <input type="hidden" name="size_details[${rowIndex}][price]"    value="${price}">
@@ -474,13 +471,98 @@ function updateSummary() {
 // Initial update
 updateSummary();
 
+// Hitung Estimasi HPP
+const btnCalc = document.getElementById('btn-calculate-hpp');
+if (btnCalc) {
+    btnCalc.addEventListener('click', async function() {
+        const btn = this;
+        const icon = btn.querySelector('i');
+        const originalIcon = icon.className;
+        
+        const materialId = document.querySelector('select[name="material_id"]').value;
+        const clothingCategoryId = document.querySelector('select[name="clothing_category_id"]').value;
+        
+        if (!materialId || !clothingCategoryId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: 'Silakan pilih Kategori Baju dan Bahan / Material terlebih dahulu.',
+                customClass: { popup: 'rounded-4' }
+            });
+            return;
+        }
+
+        const sizes = [];
+        document.querySelectorAll('.size-row').forEach(row => {
+            const sizeId = row.querySelector('input[name*="[size_id]"]')?.value;
+            const qty = row.querySelector('input[name*="[quantity]"]')?.value;
+            if (sizeId && qty) sizes.push({ size_id: sizeId, quantity: qty });
+        });
+
+        if (sizes.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: 'Silakan tambahkan minimal satu rincian ukuran.',
+                customClass: { popup: 'rounded-4' }
+            });
+            return;
+        }
+
+        try {
+            icon.className = 'spinner-border spinner-border-sm';
+            btn.disabled = true;
+
+            const response = await fetch('/hpp/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    material_id: materialId,
+                    clothing_category_id: clothingCategoryId,
+                    size_details: sizes
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.querySelector('input[name="total_cost"]').value = Math.round(data.estimated_hpp);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Estimasi HPP otomatis: Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(data.estimated_hpp)),
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-4' }
+                });
+            } else {
+                throw new Error(data.message || 'Gagal menghitung HPP');
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+                customClass: { popup: 'rounded-4' }
+            });
+        } finally {
+            icon.className = originalIcon;
+            btn.disabled = false;
+        }
+    });
+}
+
 // Frontend validation for HPP vs Subtotal
 const form = document.getElementById('editOrderForm');
 if (form) {
     form.addEventListener('submit', function(e) {
         const hppInput = document.querySelector('input[name="total_cost"]');
         const hppValue = parseFloat(hppInput.value) || 0;
-        
+
         let currentSubtotal = 0;
         document.querySelectorAll('.size-row').forEach(row => {
             currentSubtotal += parseInt(row.dataset.price) * parseInt(row.dataset.qty);

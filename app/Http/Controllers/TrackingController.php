@@ -24,7 +24,7 @@ class TrackingController extends Controller
 
         // Fetch sequential pipeline
         $pipeline = collect();
-        $currentId = \App\Models\MasterTrackingStatus::where('is_initial', true)->value('id');
+        $currentId = \App\Models\MasterTrackingStatus::orderBy('sort_order')->value('id');
         while ($currentId) {
             $status = \App\Models\MasterTrackingStatus::find($currentId);
             if ($status) {

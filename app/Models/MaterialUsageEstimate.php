@@ -9,6 +9,7 @@ class MaterialUsageEstimate extends Model
 {
     protected $fillable = [
         'material_id',
+        'clothing_category_id',
         'size_id',
         'estimated_usage',
     ];
@@ -23,6 +24,11 @@ class MaterialUsageEstimate extends Model
     public function material(): BelongsTo
     {
         return $this->belongsTo(MasterMaterial::class, 'material_id');
+    }
+
+    public function clothingCategory(): BelongsTo
+    {
+        return $this->belongsTo(MasterClothingCategory::class, 'clothing_category_id');
     }
 
     public function size(): BelongsTo

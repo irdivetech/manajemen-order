@@ -78,7 +78,7 @@ class OrderController extends Controller
      */
     public function show(Order $order): View
     {
-        $order->load(['creator', 'invoice', 'trackingHistories.updatedBy', 'designFiles', 'sizeDetails.gender', 'sizeDetails.sizeCategory', 'sizeDetails.size', 'clothingCategory', 'material']);
+        $order->load(['creator', 'invoice', 'trackingHistories.updatedBy', 'designFiles', 'sizeDetails.gender', 'sizeDetails.sizeCategory', 'sizeDetails.size', 'clothingCategory', 'masterMaterial']);
 
         return view(isMobile() ? 'orders.mobile.show' : 'orders.show', compact('order'));
     }

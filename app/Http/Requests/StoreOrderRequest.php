@@ -41,7 +41,6 @@ class StoreOrderRequest extends FormRequest
             'size_details'         => ['required', 'array', 'min:1'],
             'size_details.*.color' => ['required', 'string', 'max:100'],
             'size_details.*.gender_id'        => ['required', 'exists:master_genders,id'],
-            'size_details.*.size_category_id' => ['required', 'exists:master_size_categories,id'],
             'size_details.*.size_type'        => ['required', 'in:standard,big'],
             'size_details.*.size_id'          => ['required', 'exists:master_sizes,id'],
             'size_details.*.quantity'         => ['required', 'integer', 'min:1'],

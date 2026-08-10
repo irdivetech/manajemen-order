@@ -78,11 +78,11 @@
                                             @endif
                                         </div>
                                     </div>
-                                    @if($order->material)
+                                    @if($order->masterMaterial)
                                     <div>
                                         <div class="info-label">Material</div>
                                         <div class="info-value">
-                                            <span class="badge bg-light text-dark border fw-medium"><i class="bi bi-tag-fill text-muted me-1"></i>{{ $order->material->name }}</span>
+                                            <span class="badge bg-light text-dark border fw-medium"><i class="bi bi-tag-fill text-muted me-1"></i>{{ $order->masterMaterial->name }}</span>
                                         </div>
                                     </div>
                                     @endif
@@ -112,7 +112,7 @@
                                         <tr>
                                             <th>Warna</th>
                                             <th>Gender</th>
-                                            <th>Kategori & Tipe</th>
+                                            <th>Tipe Ukuran</th>
                                             <th>Ukuran</th>
                                             <th class="text-end">Harga Satuan</th>
                                             <th class="text-center">Jumlah (Pcs)</th>
@@ -123,12 +123,11 @@
                                         @foreach($order->sizeDetails as $detail)
                                         <tr>
                                             <td class="align-middle fw-medium" style="width: 15%;">{{ $detail->color }}</td>
-                                            <td class="align-middle" style="width: 15%;">{{ $detail->gender?->name ?? '-' }}</td>
+                                            <td class="align-middle" style="width: 15%;">{{ $detail->gender?->label ?? '-' }}</td>
                                             <td class="align-middle" style="width: 20%;">
-                                                {{ $detail->sizeCategory?->name ?? '-' }}
                                                 <div class="text-muted small">{{ ucfirst($detail->size_type) }}</div>
                                             </td>
-                                            <td class="align-middle fw-bold text-dark" style="width: 10%;">{{ $detail->size?->name ?? '-' }}</td>
+                                            <td class="align-middle fw-bold text-dark" style="width: 10%;">{{ $detail->size?->label ?? '-' }}</td>
                                             <td class="align-middle text-end text-muted" style="width: 15%;">Rp {{ number_format($detail->price, 0, ',', '.') }}</td>
                                             <td class="align-middle text-center fw-semibold text-primary" style="width: 10%;">{{ $detail->quantity }}</td>
                                             <td class="align-middle text-end fw-medium" style="width: 15%;">Rp {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }}</td>

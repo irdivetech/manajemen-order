@@ -21,6 +21,8 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->name('login.submit');
 });
 
+Route::get('test-sizes', function() { return \App\Models\MasterSize::all(); });
+
 // Authenticated Routes
 Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
@@ -53,6 +55,7 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     // ─── Modal Belanja Bahan (HPP) ──────────────────────────────────────────
     Route::get('/hpp-reports', [\App\Http\Controllers\HppReportController::class, 'index'])->name('hpp.index');
     Route::get('/hpp-reports/export', [\App\Http\Controllers\HppReportController::class, 'export'])->name('hpp.export');
+    Route::post('/hpp/calculate', [\App\Http\Controllers\HppController::class, 'calculateApi'])->name('hpp.calculate');
 
     // ─── Admin Only ─────────────────────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
@@ -82,6 +85,7 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
         Route::get('master-data/{type}/{id}/edit', [\App\Http\Controllers\MasterDataController::class, 'edit'])->name('master-data.edit');
         Route::put('master-data/{type}/{id}', [\App\Http\Controllers\MasterDataController::class, 'update'])->name('master-data.update');
         Route::delete('master-data/{type}/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroy'])->name('master-data.destroy');
+        Route::patch('master-data/{type}/{id}/toggle', [\App\Http\Controllers\MasterDataController::class, 'toggleActive'])->name('master-data.toggle');
 
         // Profile
         Route::get('profile', fn () => view(isMobile() ? 'profile.mobile.index' : 'profile.index'))->name('profile.index');
