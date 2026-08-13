@@ -81,11 +81,13 @@ class MasterDataSeeder extends Seeder
             ['sort_order' => 3, 'code' => 'material_order_ready', 'label' => 'Order Bahan - Ready', 'group' => 'persiapan', 'requires_payment' => false, 'has_sub_type' => false],
             ['sort_order' => 4, 'code' => 'fabric_cutting', 'label' => 'Pemotongan Kain', 'group' => 'persiapan', 'requires_payment' => false, 'has_sub_type' => false],
             ['sort_order' => 5, 'code' => 'production', 'label' => 'Produksi', 'group' => 'produksi', 'requires_payment' => false, 'has_sub_type' => true],
-            ['sort_order' => 6, 'code' => 'button_installation', 'label' => 'Pemasangan Kancing', 'group' => 'produksi', 'requires_payment' => false, 'has_sub_type' => false],
-            ['sort_order' => 7, 'code' => 'qc', 'label' => 'Quality Control', 'group' => 'finishing', 'requires_payment' => false, 'has_sub_type' => false],
-            ['sort_order' => 8, 'code' => 'ironing', 'label' => 'Setrika', 'group' => 'finishing', 'requires_payment' => false, 'has_sub_type' => false],
-            ['sort_order' => 9, 'code' => 'packing', 'label' => 'Packing', 'group' => 'finishing', 'requires_payment' => false, 'has_sub_type' => false],
-            ['sort_order' => 10, 'code' => 'shipping', 'label' => 'Pengiriman', 'group' => 'pengiriman', 'requires_payment' => true, 'has_sub_type' => false],
+            ['sort_order' => 6, 'code' => 'embroidery', 'label' => 'Bordir', 'group' => 'produksi', 'requires_payment' => false, 'has_sub_type' => false],
+            ['sort_order' => 7, 'code' => 'sewing', 'label' => 'Penjahitan', 'group' => 'produksi', 'requires_payment' => false, 'has_sub_type' => false],
+            ['sort_order' => 8, 'code' => 'button_installation', 'label' => 'Pemasangan Kancing', 'group' => 'produksi', 'requires_payment' => false, 'has_sub_type' => false],
+            ['sort_order' => 9, 'code' => 'qc', 'label' => 'Quality Control', 'group' => 'finishing', 'requires_payment' => false, 'has_sub_type' => false],
+            ['sort_order' => 10, 'code' => 'ironing', 'label' => 'Setrika', 'group' => 'finishing', 'requires_payment' => false, 'has_sub_type' => true],
+            ['sort_order' => 11, 'code' => 'packing', 'label' => 'Packing', 'group' => 'finishing', 'requires_payment' => false, 'has_sub_type' => false],
+            ['sort_order' => 12, 'code' => 'shipping', 'label' => 'Pengiriman', 'group' => 'pengiriman', 'requires_payment' => true, 'has_sub_type' => false],
         ];
         foreach ($statuses as $status) {
             MasterTrackingStatus::updateOrCreate(['code' => $status['code']], $status);
@@ -98,7 +100,6 @@ class MasterDataSeeder extends Seeder
             'material_order_pending' => 'material_order_ready',
             'material_order_ready' => 'fabric_cutting',
             'fabric_cutting' => 'production',
-            'production' => 'button_installation',
             'button_installation' => 'qc',
             'qc' => 'ironing',
             'ironing' => 'packing',

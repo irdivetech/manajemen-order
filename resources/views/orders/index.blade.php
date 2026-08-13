@@ -28,18 +28,8 @@
             <div class="col-md-4">
                 <select name="status" class="form-select form-select-sm">
                     <option value="">Semua Status Produksi</option>
-                    @php
-                        $statusLabels = [
-                            'order_received' => 'Pesanan Diterima',
-                            'fabric_cutting' => 'Pemotongan Kain',
-                            'sewing' => 'Penjahitan',
-                            'embroidery' => 'Bordir',
-                            'button_installation' => 'Pemasangan Kancing',
-                            'shipping' => 'Pengiriman',
-                        ];
-                    @endphp
-                    @foreach(\App\Models\Order::STATUSES as $status)
-                        <option value="{{ $status }}" {{ request('status') === $status ? 'selected' : '' }}>{{ $statusLabels[$status] }}</option>
+                    @foreach(\App\Models\MasterTrackingStatus::where('is_active', true)->orderBy('sort_order')->get() as $trackingStatus)
+                        <option value="{{ $trackingStatus->code }}" {{ request('status') === $trackingStatus->code ? 'selected' : '' }}>{{ $trackingStatus->label }}</option>
                     @endforeach
                 </select>
             </div>

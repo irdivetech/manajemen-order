@@ -41,7 +41,6 @@ class DummyDataSeeder extends Seeder
                 'customer_category' => rand(1, 10) > 3 ? 'b2b' : 'retail', // 70% B2B, 30% Retail
                 'product_name' => 'Custom ' . $productTypes[array_rand($productTypes)],
                 'product_type' => $productTypes[array_rand($productTypes)],
-                'color' => ['Navy Blue', 'Maroon', 'Hitam', 'Putih', 'Abu-abu', 'Hijau Army'][rand(0, 5)],
                 'total_price' => 0, // Will update later
                 'total_cost' => 0, // Will update later
                 'order_date' => $createdDate->toDateString(),

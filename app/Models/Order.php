@@ -20,23 +20,38 @@ class Order extends Model
 
     /**
      * Production status constants.
+     * These must match the `code` values in the `master_tracking_statuses` table.
      */
-    public const STATUS_ORDER_RECEIVED    = 'order_received';
-    public const STATUS_FABRIC_CUTTING    = 'fabric_cutting';
-    public const STATUS_SEWING            = 'sewing';
-    public const STATUS_EMBROIDERY        = 'embroidery';
-    public const STATUS_BUTTON_INSTALLATION = 'button_installation';
-    public const STATUS_SHIPPING          = 'shipping';
+    public const STATUS_ORDER_RECEIVED        = 'order_received';
+    public const STATUS_MATERIAL_ORDER_PENDING = 'material_order_pending';
+    public const STATUS_MATERIAL_ORDER_READY   = 'material_order_ready';
+    public const STATUS_FABRIC_CUTTING        = 'fabric_cutting';
+    public const STATUS_PRODUCTION            = 'production';
+    public const STATUS_EMBROIDERY            = 'embroidery';
+    public const STATUS_SEWING                = 'sewing';
+    public const STATUS_BUTTON_INSTALLATION   = 'button_installation';
+    public const STATUS_QC                    = 'qc';
+    public const STATUS_IRONING               = 'ironing';
+    public const STATUS_PACKING               = 'packing';
+    public const STATUS_SHIPPING              = 'shipping';
 
     /**
-     * Ordered list of all production statuses.
+     * All available statuses in pipeline order.
+     *
+     * @var list<string>
      */
     public const STATUSES = [
         self::STATUS_ORDER_RECEIVED,
+        self::STATUS_MATERIAL_ORDER_PENDING,
+        self::STATUS_MATERIAL_ORDER_READY,
         self::STATUS_FABRIC_CUTTING,
-        self::STATUS_SEWING,
+        self::STATUS_PRODUCTION,
         self::STATUS_EMBROIDERY,
+        self::STATUS_SEWING,
         self::STATUS_BUTTON_INSTALLATION,
+        self::STATUS_QC,
+        self::STATUS_IRONING,
+        self::STATUS_PACKING,
         self::STATUS_SHIPPING,
     ];
 
@@ -67,6 +82,7 @@ class Order extends Model
         'deadline',
         'notes',
         'current_status',
+        'production_route',
         'created_by',
         'archived_at',
         'is_material_purchased',
@@ -211,7 +227,28 @@ class Order extends Model
      */
     public function getNextStatus(): ?string
     {
-        $currentStatusId = \App\Models\MasterTrackingStatus::where('code', $this->current_status)->value('id');
+        $currentStatus = $this->current_status;
+        $route = $this->production_route;
+
+        // Conditional Routing Logic for Production Phase
+        if ($currentStatus === 'production') {
+            if ($route === 'bordir') return 'embroidery';
+            if ($route === 'penjahitan') return 'sewing';
+            if ($route === 'penjahitan_dan_bordir') return 'button_installation';
+        }
+
+        if ($currentStatus === 'embroidery') {
+            if ($route === 'bordir') return 'sewing';
+            return 'button_installation';
+        }
+
+        if ($currentStatus === 'sewing') {
+            if ($route === 'penjahitan') return 'embroidery';
+            return 'button_installation';
+        }
+
+        // Default sequential logic from DB for other statuses
+        $currentStatusId = \App\Models\MasterTrackingStatus::where('code', $currentStatus)->value('id');
         if (!$currentStatusId) {
             return null;
         }

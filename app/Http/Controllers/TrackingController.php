@@ -24,16 +24,40 @@ class TrackingController extends Controller
 
         // Fetch sequential pipeline (only active statuses)
         $pipeline = collect();
-        $currentId = \App\Models\MasterTrackingStatus::orderBy('sort_order')->value('id');
-        while ($currentId) {
-            $status = \App\Models\MasterTrackingStatus::find($currentId);
-            if ($status) {
-                if ($status->is_active) {
-                    $pipeline->push($status);
-                }
-                $currentId = \App\Models\TrackingFlowRule::where('from_status_id', $currentId)->value('to_status_id');
-            } else {
-                $currentId = null;
+        $allStatuses = \App\Models\MasterTrackingStatus::where('is_active', true)
+            ->get()
+            ->keyBy('code');
+
+        $route = $order->production_route;
+
+        $codes = [
+            'order_received',
+            'material_order_pending',
+            'material_order_ready',
+            'fabric_cutting',
+            'production',
+        ];
+
+        if ($route === 'bordir') {
+            $codes[] = 'embroidery';
+            $codes[] = 'sewing';
+        } elseif ($route === 'penjahitan') {
+            $codes[] = 'sewing';
+            $codes[] = 'embroidery';
+        }
+        // If penjahitan_dan_bordir or null, both are excluded.
+
+        $codes = array_merge($codes, [
+            'button_installation',
+            'qc',
+            'ironing',
+            'packing',
+            'shipping',
+        ]);
+
+        foreach ($codes as $code) {
+            if ($allStatuses->has($code)) {
+                $pipeline->push($allStatuses->get($code));
             }
         }
 

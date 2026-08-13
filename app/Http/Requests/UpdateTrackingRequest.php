@@ -28,11 +28,20 @@ class UpdateTrackingRequest extends FormRequest
         // Only allow the next sequential status
         $allowedStatuses = $nextStatus ? [$nextStatus] : [];
 
-        return [
+        $rules = [
             'status'      => ['required', 'string', Rule::in($allowedStatuses)],
-            'sub_type'    => ['nullable', 'string', 'max:100'],
             'description' => ['required', 'string', 'max:1000'],
         ];
+
+        if ($nextStatus === 'production') {
+            $rules['sub_type'] = ['required', 'string', Rule::in(['bordir', 'penjahitan', 'penjahitan_dan_bordir'])];
+        } elseif ($nextStatus === 'ironing') {
+            $rules['sub_type'] = ['required', 'string', Rule::in(['dalam', 'vendor'])];
+        } else {
+            $rules['sub_type'] = ['nullable', 'string', 'max:100'];
+        }
+
+        return $rules;
     }
 
     /**
