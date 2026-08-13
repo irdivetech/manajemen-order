@@ -179,14 +179,24 @@
                 </div>
             </div>
 
+            @if($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled)
+                <div class="alert alert-danger d-flex align-items-start gap-2 py-2 mb-3">
+                    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                    <div class="small">
+                        <strong>Pembayaran Belum Lunas!</strong><br>
+                        Tahap "{{ \App\Models\Order::statusLabel($nextStatus) }}" mensyaratkan pesanan sudah lunas. Silakan cek invoice dan selesaikan pembayaran terlebih dahulu.
+                    </div>
+                </div>
+            @endif
+
             <form action="{{ route('orders.tracking.store', $order) }}" method="POST">
                 @csrf
                 <input type="hidden" name="status" value="{{ $nextStatus }}">
 
-                @if($nextStatusModel && $nextStatusModel->is_produksi)
+                @if($nextStatusModel && $nextStatusModel->has_sub_type)
                     <div class="mb-3">
                         <label class="form-label">Tipe Produksi <span class="text-danger">*</span></label>
-                        <select name="sub_type" class="form-select @error('sub_type') is-invalid @enderror" required>
+                        <select name="sub_type" class="form-select @error('sub_type') is-invalid @enderror" required {{ ($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>
                             <option value="">-- Pilih Tipe Produksi --</option>
                             <option value="penjahitan" {{ old('sub_type') == 'penjahitan' ? 'selected' : '' }}>Penjahitan</option>
                             <option value="bordir" {{ old('sub_type') == 'bordir' ? 'selected' : '' }}>Bordir</option>
@@ -198,13 +208,13 @@
 
                 <div class="mb-3">
                     <label class="form-label">Keterangan / Catatan <span class="text-danger">*</span></label>
-                    <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3" required placeholder="Tambahkan rincian tentang pembaruan ini...">{{ old('description') }}</textarea>
+                    <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3" required placeholder="Tambahkan rincian tentang pembaruan ini..." {{ ($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>{{ old('description') }}</textarea>
                     @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     @error('status') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary" onclick="confirmAction(event, this.closest('form'), 'Lanjutkan Pesanan?', 'Anda yakin ingin melanjutkan pesanan ini ke tahap: {{ \App\Models\Order::statusLabel($nextStatus) }}? Tindakan ini tidak dapat dibatalkan.')">
+                    <button type="submit" class="btn btn-primary" {{ ($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }} onclick="confirmAction(event, this.closest('form'), 'Lanjutkan Pesanan?', 'Anda yakin ingin melanjutkan pesanan ini ke tahap: {{ \App\Models\Order::statusLabel($nextStatus) }}? Tindakan ini tidak dapat dibatalkan.')">
                         <i class="bi bi-arrow-right-circle me-1"></i> Lanjutkan ke: {{ \App\Models\Order::statusLabel($nextStatus) }}
                     </button>
                 </div>

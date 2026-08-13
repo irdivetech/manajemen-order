@@ -33,7 +33,7 @@ class ReportController extends Controller
             return (float) $order->invoice->grand_total;
         });
 
-        $statusBreakdown = $this->reportService->getStatusBreakdown($period, $dateColumn);
+        $statusBreakdown = $this->reportService->getStatusBreakdown($period, $dateColumn, $from, $to);
 
         return view(isMobile() ? 'reports.mobile.index' : 'reports.index', compact('orders', 'totalRevenue', 'statusBreakdown', 'period', 'dateColumn'));
     }

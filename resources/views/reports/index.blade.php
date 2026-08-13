@@ -103,6 +103,7 @@
                             <th>Status</th>
                             <th>Tanggal</th>
                             <th class="text-end">Total Harga</th>
+                            <th class="text-end">Total Bayar (Invoice)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,10 +115,11 @@
                             <td><x-badge :status="$order->current_status" /></td>
                             <td>{{ $order->order_date?->format('d M Y') }}</td>
                             <td class="text-end fw-semibold">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                            <td class="text-end fw-semibold text-success">{{ $order->invoice ? 'Rp ' . number_format($order->invoice->grand_total, 0, ',', '.') : '-' }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Tidak ada pesanan ditemukan untuk periode ini.</td>
+                            <td colspan="7" class="text-center py-4 text-muted">Tidak ada pesanan ditemukan untuk periode ini.</td>
                         </tr>
                         @endforelse
                     </tbody>

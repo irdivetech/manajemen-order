@@ -80,20 +80,27 @@ class ReportService
      *
      * @return \Illuminate\Support\Collection<int, array<string, mixed>>
      */
-    public function getStatusBreakdown(string $period = 'monthly', string $dateColumn = 'order_date'): \Illuminate\Support\Collection
+    public function getStatusBreakdown(string $period = 'monthly', string $dateColumn = 'order_date', ?Carbon $from = null, ?Carbon $to = null): \Illuminate\Support\Collection
     {
         $query = Order::selectRaw('current_status, COUNT(*) as total');
 
-        match ($period) {
-            'daily'  => $query->whereDate($dateColumn, today()),
-            'weekly' => $query->whereBetween($dateColumn, [
-                now()->startOfWeek(),
-                now()->endOfWeek(),
-            ]),
-            'yearly' => $query->whereYear($dateColumn, now()->year),
-            default  => $query->whereMonth($dateColumn, now()->month)
-                               ->whereYear($dateColumn, now()->year),
-        };
+        if ($from && $to) {
+            $query->whereBetween($dateColumn, [
+                $from->startOfDay(),
+                $to->endOfDay(),
+            ]);
+        } else {
+            match ($period) {
+                'daily'  => $query->whereDate($dateColumn, today()),
+                'weekly' => $query->whereBetween($dateColumn, [
+                    now()->startOfWeek(),
+                    now()->endOfWeek(),
+                ]),
+                'yearly' => $query->whereYear($dateColumn, now()->year),
+                default  => $query->whereMonth($dateColumn, now()->month)
+                                   ->whereYear($dateColumn, now()->year),
+            };
+        }
 
         return $query->groupBy('current_status')->pluck('total', 'current_status');
     }
@@ -164,7 +171,7 @@ class ReportService
         $sheet->getRowDimension(2)->setRowHeight(22);
 
         // ── Status labels ─────────────────────────────────────────────────────
-        $statusLabels = \App\Models\MasterTrackingStatus::pluck('name', 'code')->toArray();
+        $statusLabels = \App\Models\MasterTrackingStatus::pluck('label', 'code')->toArray();
 
         // ── Data rows ─────────────────────────────────────────────────────────
         $rowNum = 3;
@@ -249,5 +256,91 @@ class ReportService
         $writer->save($tempPath);
 
         return $tempPath;
+    }
+
+    /**
+     * Get material purchasing summary using SQL aggregation.
+     * Groups by material and calculates total usage in meters and estimated cost.
+     */
+    public function getMaterialPurchasingSummary(
+        string $period = 'monthly',
+        ?Carbon $from = null,
+        ?Carbon $to = null,
+        string $dateColumn = 'order_date'
+    ): \Illuminate\Support\Collection {
+        $query = \Illuminate\Support\Facades\DB::table('orders as o')
+            ->join('order_size_details as osd', 'o.id', '=', 'osd.order_id')
+            ->join('master_materials as m', 'o.material_id', '=', 'm.id')
+            ->join('material_usage_estimates as mue', function ($join) {
+                $join->on('mue.material_id', '=', 'o.material_id')
+                     ->on('mue.clothing_category_id', '=', 'o.clothing_category_id')
+                     ->on('mue.size_id', '=', 'osd.size_id');
+            })
+            ->where('o.is_material_purchased', false)
+            ->where('o.current_status', '!=', Order::STATUS_SHIPPING)
+            ->whereNull('o.archived_at');
+
+        if ($from && $to) {
+            $query->whereBetween("o.{$dateColumn}", [
+                $from->startOfDay(),
+                $to->endOfDay(),
+            ]);
+        } else {
+            match ($period) {
+                'daily'   => $query->whereDate("o.{$dateColumn}", today()),
+                'weekly'  => $query->whereBetween("o.{$dateColumn}", [
+                    now()->startOfWeek(),
+                    now()->endOfWeek(),
+                ]),
+                'yearly'  => $query->whereYear("o.{$dateColumn}", now()->year),
+                default   => $query->whereMonth("o.{$dateColumn}", now()->month)
+                                   ->whereYear("o.{$dateColumn}", now()->year),
+            };
+        }
+
+        return $query->select(
+            'm.id as material_id',
+            'm.name as material_name',
+            'm.price_per_unit as current_price',
+            \Illuminate\Support\Facades\DB::raw('SUM(osd.quantity * mue.estimated_usage) as total_usage_meter'),
+            \Illuminate\Support\Facades\DB::raw('SUM(osd.quantity * mue.estimated_usage) * m.price_per_unit as total_estimated_cost')
+        )
+        ->groupBy('m.id', 'm.name', 'm.price_per_unit')
+        ->get();
+    }
+
+    /**
+     * Get raw orders that need materials purchased, for the detail view.
+     */
+    public function getUnpurchasedOrders(
+        string $period = 'monthly',
+        ?Carbon $from = null,
+        ?Carbon $to = null,
+        string $dateColumn = 'order_date'
+    ): \Illuminate\Database\Eloquent\Collection {
+        $query = Order::with(['sizeDetails', 'masterMaterial', 'clothingCategory'])
+            ->where('is_material_purchased', false)
+            ->where('current_status', '!=', Order::STATUS_SHIPPING)
+            ->active();
+
+        if ($from && $to) {
+            $query->whereBetween($dateColumn, [
+                $from->startOfDay(),
+                $to->endOfDay(),
+            ]);
+        } else {
+            match ($period) {
+                'daily'   => $query->whereDate($dateColumn, today()),
+                'weekly'  => $query->whereBetween($dateColumn, [
+                    now()->startOfWeek(),
+                    now()->endOfWeek(),
+                ]),
+                'yearly'  => $query->whereYear($dateColumn, now()->year),
+                default   => $query->whereMonth($dateColumn, now()->month)
+                                   ->whereYear($dateColumn, now()->year),
+            };
+        }
+
+        return $query->orderByDesc($dateColumn)->get();
     }
 }

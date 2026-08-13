@@ -57,6 +57,11 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     Route::get('/hpp-reports/export', [\App\Http\Controllers\HppReportController::class, 'export'])->name('hpp.export');
     Route::post('/hpp/calculate', [\App\Http\Controllers\HppController::class, 'calculateApi'])->name('hpp.calculate');
 
+    // ─── Views Belanja Bahan ────────────────────────────────────────────────
+    Route::get('/material-purchases', [\App\Http\Controllers\MaterialPurchaseController::class, 'index'])->name('material-purchases.index');
+    Route::patch('/material-purchases/{order}/mark-purchased', [\App\Http\Controllers\MaterialPurchaseController::class, 'markAsPurchased'])->name('material-purchases.mark-purchased');
+    Route::patch('/material-purchases/{order}/sync-hpp', [\App\Http\Controllers\MaterialPurchaseController::class, 'syncHpp'])->name('material-purchases.sync-hpp');
+
     // ─── Admin Only ─────────────────────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
         // User Management

@@ -15,6 +15,9 @@
         <a href="{{ route('orders.index') }}" class="nav-link {{ request()->routeIs('orders.*') && !request()->routeIs('orders.tracking') && !request()->routeIs('orders.invoice*') ? 'active' : '' }}">
             <i class="bi bi-clipboard2-data-fill"></i> Data Pesanan
         </a>
+        <a href="{{ route('material-purchases.index') }}" class="nav-link {{ request()->routeIs('material-purchases.*') ? 'active' : '' }}">
+            <i class="bi bi-cart-check"></i> Belanja Bahan
+        </a>
         <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
             <i class="bi bi-bar-chart-line-fill"></i> Laporan Keuangan
         </a>

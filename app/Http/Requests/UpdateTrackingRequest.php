@@ -36,6 +36,27 @@ class UpdateTrackingRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $status = $this->input('status');
+            $targetStatusModel = \App\Models\MasterTrackingStatus::where('code', $status)->first();
+            
+            if ($targetStatusModel && $targetStatusModel->requires_payment) {
+                /** @var Order $order */
+                $order = $this->route('order');
+                $order->loadMissing('invoice');
+                
+                if (!$order->invoice || !$order->invoice->isPaid()) {
+                    $validator->errors()->add('status', "Pesanan harus lunas sebelum bisa lanjut ke tahap \"{$targetStatusModel->label}\".");
+                }
+            }
+        });
+    }
+
+    /**
      * @return array<string, string>
      */
     public function messages(): array

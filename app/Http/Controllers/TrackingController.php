@@ -19,21 +19,27 @@ class TrackingController extends Controller
      */
     public function index(Order $order): View
     {
-        $order->load(['trackingHistories.updatedBy']);
+        $order->load(['trackingHistories.updatedBy', 'invoice']);
         $history = $this->trackingService->getHistory($order);
 
-        // Fetch sequential pipeline
+        // Fetch sequential pipeline (only active statuses)
         $pipeline = collect();
         $currentId = \App\Models\MasterTrackingStatus::orderBy('sort_order')->value('id');
         while ($currentId) {
             $status = \App\Models\MasterTrackingStatus::find($currentId);
             if ($status) {
-                $pipeline->push($status);
+                if ($status->is_active) {
+                    $pipeline->push($status);
+                }
+                $currentId = \App\Models\TrackingFlowRule::where('from_status_id', $currentId)->value('to_status_id');
+            } else {
+                $currentId = null;
             }
-            $currentId = \App\Models\TrackingFlowRule::where('from_status_id', $currentId)->value('to_status_id');
         }
 
-        return view(isMobile() ? 'tracking.mobile.index' : 'tracking.index', compact('order', 'history', 'pipeline'));
+        $isPaymentFulfilled = $order->invoice && $order->invoice->isPaid();
+
+        return view(isMobile() ? 'tracking.mobile.index' : 'tracking.index', compact('order', 'history', 'pipeline', 'isPaymentFulfilled'));
     }
 
     /**
