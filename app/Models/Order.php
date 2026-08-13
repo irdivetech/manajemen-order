@@ -69,6 +69,7 @@ class Order extends Model
         'current_status',
         'created_by',
         'archived_at',
+        'is_material_purchased',
     ];
 
     /**
@@ -83,7 +84,9 @@ class Order extends Model
             'deadline'    => 'date',
             'archived_at' => 'datetime',
             'total_price' => 'decimal:2',
+            'total_cost'  => 'decimal:2',
             'has_embroidery' => 'boolean',
+            'is_material_purchased' => 'boolean',
             'material_price_snapshot' => 'decimal:2',
         ];
     }
@@ -213,12 +216,17 @@ class Order extends Model
             return null;
         }
 
+        // Loop through flow rules until we find an active status
         $nextStatusId = \App\Models\TrackingFlowRule::where('from_status_id', $currentStatusId)->value('to_status_id');
-        if (!$nextStatusId) {
-            return null;
+        while ($nextStatusId) {
+            $status = \App\Models\MasterTrackingStatus::find($nextStatusId);
+            if ($status && $status->is_active) {
+                return $status->code;
+            }
+            $nextStatusId = \App\Models\TrackingFlowRule::where('from_status_id', $nextStatusId)->value('to_status_id');
         }
 
-        return \App\Models\MasterTrackingStatus::where('id', $nextStatusId)->value('code');
+        return null;
     }
 
     /**

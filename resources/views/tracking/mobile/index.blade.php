@@ -73,14 +73,24 @@
             @endforeach
         </div>
 
+        @if(isset($nextStatusModel) && $nextStatusModel->requires_payment && !$isPaymentFulfilled)
+            <div class="alert alert-danger d-flex align-items-start gap-2 py-2 mb-3 text-sm">
+                <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                <div>
+                    <strong>Pembayaran Belum Lunas!</strong><br>
+                    Tahap "{{ \App\Models\Order::statusLabel($nextStatus) }}" mensyaratkan pesanan sudah lunas. Silakan cek invoice dan selesaikan pembayaran terlebih dahulu.
+                </div>
+            </div>
+        @endif
+
         <form action="{{ route('orders.tracking.store', $order) }}" method="POST">
             @csrf
             <input type="hidden" name="status" value="{{ $nextStatus }}">
             
-            @if(isset($nextStatusModel) && $nextStatusModel->is_produksi)
+            @if(isset($nextStatusModel) && $nextStatusModel->has_sub_type)
                 <div class="mb-3">
                     <label class="form-label text-sm fw-6">Tipe Produksi <span class="text-danger">*</span></label>
-                    <select name="sub_type" class="form-select text-sm @error('sub_type') is-invalid @enderror" required>
+                    <select name="sub_type" class="form-select text-sm @error('sub_type') is-invalid @enderror" required {{ (isset($nextStatusModel) && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>
                         <option value="">-- Pilih Tipe Produksi --</option>
                         <option value="penjahitan" {{ old('sub_type') == 'penjahitan' ? 'selected' : '' }}>Penjahitan</option>
                         <option value="bordir" {{ old('sub_type') == 'bordir' ? 'selected' : '' }}>Bordir</option>
@@ -93,11 +103,12 @@
             <div class="mb-3">
                 <label class="form-label text-sm fw-6">Catatan Pembaruan <span class="text-danger">*</span></label>
                 <textarea name="description" class="form-control text-sm @error('description') is-invalid @enderror" 
-                          rows="2" required placeholder="Keterangan proses ini...">{{ old('description') }}</textarea>
+                          rows="2" required placeholder="Keterangan proses ini..." {{ (isset($nextStatusModel) && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>{{ old('description') }}</textarea>
                 @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
             <button type="submit" class="btn btn-primary w-100 fw-6" 
+                    {{ (isset($nextStatusModel) && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}
                     onclick="confirmAction(event, this.closest('form'), 'Lanjutkan Pesanan?', 'Lanjutkan ke tahap: {{ \App\Models\Order::statusLabel($nextStatus) }}?')">
                 Lanjutkan ke: {{ \App\Models\Order::statusLabel($nextStatus) }}
             </button>

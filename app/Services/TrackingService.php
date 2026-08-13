@@ -39,6 +39,17 @@ class TrackingService
             );
         }
 
+        // Check if target status requires payment
+        $targetStatusModel = \App\Models\MasterTrackingStatus::where('code', $status)->first();
+        if ($targetStatusModel && $targetStatusModel->requires_payment) {
+            $order->loadMissing('invoice');
+            if (!$order->invoice || !$order->invoice->isPaid()) {
+                throw new \InvalidArgumentException(
+                    "Pesanan harus lunas sebelum bisa lanjut ke tahap \"{$targetStatusModel->label}\"."
+                );
+            }
+        }
+
         // Create the tracking history record
         $tracking = TrackingHistory::create([
             'order_id'    => $order->id,
