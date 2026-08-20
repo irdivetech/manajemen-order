@@ -124,13 +124,16 @@
                 <x-badge :status="$order->current_status" />
             </div>
             @if($order->isShipped())
-                <div class="alert alert-success d-flex align-items-center gap-2 mb-0">
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
                     <i class="bi bi-check-circle-fill"></i>
                     <div>
                         <strong>Produksi Selesai!</strong><br>
                         <span class="small">Pesanan ini telah dikirim.</span>
                     </div>
                 </div>
+                <a href="{{ route('orders.shipping-label', $order) }}" class="btn btn-dark w-100" target="_blank">
+                    <i class="bi bi-printer me-1"></i> Cetak Resi Pengiriman
+                </a>
             @endif
         </x-card>
 
