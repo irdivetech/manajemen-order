@@ -34,7 +34,11 @@ class UpdateTrackingRequest extends FormRequest
         ];
 
         if ($nextStatus === 'production') {
-            $rules['sub_type'] = ['required', 'string', Rule::in(['bordir', 'penjahitan', 'penjahitan_dan_bordir'])];
+            if ($order->has_embroidery) {
+                $rules['sub_type'] = ['required', 'string', Rule::in(['bordir', 'penjahitan', 'barengan'])];
+            } else {
+                $rules['sub_type'] = ['nullable']; // Tidak perlu pilih rute jika tanpa bordir
+            }
         } elseif ($nextStatus === 'ironing') {
             $rules['sub_type'] = ['required', 'string', Rule::in(['dalam', 'vendor'])];
         } else {

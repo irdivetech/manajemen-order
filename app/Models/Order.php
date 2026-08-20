@@ -232,19 +232,26 @@ class Order extends Model
 
         // Conditional Routing Logic for Production Phase
         if ($currentStatus === 'production') {
-            if ($route === 'bordir') return 'embroidery';
-            if ($route === 'penjahitan') return 'sewing';
-            if ($route === 'penjahitan_dan_bordir') return 'button_installation';
+            if (!$this->has_embroidery) {
+                return 'sewing'; // Tanpa bordir: langsung jahit
+            }
+            // Dengan bordir
+            if ($route === 'bordir') return 'embroidery'; // Bordir dulu
+            if ($route === 'penjahitan') return 'sewing'; // Jahit dulu
+            if ($route === 'barengan' || $route === 'penjahitan_dan_bordir') return 'button_installation'; // Barengan: langsung ke kancing
         }
 
         if ($currentStatus === 'embroidery') {
-            if ($route === 'bordir') return 'sewing';
-            return 'button_installation';
+            if ($route === 'bordir') return 'sewing'; // Bordir -> Jahit
+            return 'button_installation'; // Jahit -> Bordir -> Kancing
         }
 
         if ($currentStatus === 'sewing') {
-            if ($route === 'penjahitan') return 'embroidery';
-            return 'button_installation';
+            if (!$this->has_embroidery) {
+                return 'button_installation'; // Tanpa bordir: Jahit -> Kancing
+            }
+            if ($route === 'penjahitan') return 'embroidery'; // Jahit -> Bordir
+            return 'button_installation'; // Bordir -> Jahit -> Kancing
         }
 
         // Default sequential logic from DB for other statuses

@@ -693,9 +693,9 @@
         </a>
         <a href="{{ route('settings.index') }}" class="drawer-nav-item">
             <div class="dni-icon" style="background:#fefce8; color:var(--warning);">
-                <i class="bi bi-gear-fill"></i>
+                <i class="bi bi-receipt"></i>
             </div>
-            Pengaturan Sistem
+            Pengaturan Invoice
         </a>
         <a href="{{ route('profile.index') }}" class="drawer-nav-item">
             <div class="dni-icon" style="background:#faf5ff; color:#9333ea;">

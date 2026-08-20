@@ -196,13 +196,19 @@
                 @if($nextStatusModel && $nextStatusModel->has_sub_type)
                     <div class="mb-3">
                         @if($nextStatus === 'production')
-                            <label class="form-label">Tipe Produksi <span class="text-danger">*</span></label>
-                            <select name="sub_type" class="form-select @error('sub_type') is-invalid @enderror" required {{ ($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>
-                                <option value="">-- Pilih Tipe Produksi --</option>
-                                <option value="bordir" {{ old('sub_type') == 'bordir' ? 'selected' : '' }}>Bordir</option>
-                                <option value="penjahitan" {{ old('sub_type') == 'penjahitan' ? 'selected' : '' }}>Penjahitan</option>
-                                <option value="penjahitan_dan_bordir" {{ old('sub_type') == 'penjahitan_dan_bordir' ? 'selected' : '' }}>Penjahitan & Bordir</option>
-                            </select>
+                            @if($order->has_embroidery)
+                                <label class="form-label">Urutan Pengerjaan <span class="text-danger">*</span></label>
+                                <select name="sub_type" class="form-select @error('sub_type') is-invalid @enderror" required {{ ($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>
+                                    <option value="">-- Pilih Urutan Pengerjaan --</option>
+                                    <option value="bordir" {{ old('sub_type') == 'bordir' ? 'selected' : '' }}>Bordir Dahulu, Lalu Jahit</option>
+                                    <option value="penjahitan" {{ old('sub_type') == 'penjahitan' ? 'selected' : '' }}>Jahit Dahulu, Lalu Bordir</option>
+                                    <option value="barengan" {{ old('sub_type') == 'barengan' ? 'selected' : '' }}>Jahit & Bordir Barengan</option>
+                                </select>
+                            @else
+                                <div class="alert alert-info py-2 mb-2 small">
+                                    <i class="bi bi-info-circle me-1"></i> Pesanan ini tidak menggunakan bordir. Alur akan otomatis lanjut ke penjahitan.
+                                </div>
+                            @endif
                         @elseif($nextStatus === 'ironing')
                             <label class="form-label">Lokasi Setrika <span class="text-danger">*</span></label>
                             <select name="sub_type" class="form-select @error('sub_type') is-invalid @enderror" required {{ ($nextStatusModel && $nextStatusModel->requires_payment && !$isPaymentFulfilled) ? 'disabled' : '' }}>

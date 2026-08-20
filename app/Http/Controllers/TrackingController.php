@@ -38,14 +38,23 @@ class TrackingController extends Controller
             'production',
         ];
 
-        if ($route === 'bordir') {
-            $codes[] = 'embroidery';
+        if (!$order->has_embroidery) {
             $codes[] = 'sewing';
-        } elseif ($route === 'penjahitan') {
-            $codes[] = 'sewing';
-            $codes[] = 'embroidery';
+        } else {
+            if ($route === 'bordir') {
+                $codes[] = 'embroidery';
+                $codes[] = 'sewing';
+            } elseif ($route === 'penjahitan') {
+                $codes[] = 'sewing';
+                $codes[] = 'embroidery';
+            } elseif ($route === 'barengan') {
+                // Skips individual embroidery and sewing
+            } else {
+                // If not yet selected but has embroidery, show default
+                $codes[] = 'embroidery';
+                $codes[] = 'sewing';
+            }
         }
-        // If penjahitan_dan_bordir or null, both are excluded.
 
         $codes = array_merge($codes, [
             'button_installation',
