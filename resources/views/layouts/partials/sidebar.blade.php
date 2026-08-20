@@ -50,15 +50,12 @@
         <a href="{{ route('master-data.index', 'usage-estimates') }}" class="nav-link {{ request()->is('master-data/usage-estimates*') ? 'active' : '' }}">
             <i class="bi bi-calculator"></i> Estimasi Bahan
         </a>
-        <a href="{{ route('master-data.index', 'tracking-statuses') }}" class="nav-link {{ request()->is('master-data/tracking-statuses*') ? 'active' : '' }}">
-            <i class="bi bi-list-task"></i> Status Tracking
-        </a>
     </div>
 
     <div class="nav-section">
         <div class="nav-section-title">Pengaturan</div>
         <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-            <i class="bi bi-gear-fill"></i> Pengaturan Sistem
+            <i class="bi bi-receipt"></i> Pengaturan Invoice
         </a>
         <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
             <i class="bi bi-people-fill"></i> Kelola Pengguna

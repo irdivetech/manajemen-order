@@ -24,16 +24,49 @@ class TrackingController extends Controller
 
         // Fetch sequential pipeline (only active statuses)
         $pipeline = collect();
-        $currentId = \App\Models\MasterTrackingStatus::orderBy('sort_order')->value('id');
-        while ($currentId) {
-            $status = \App\Models\MasterTrackingStatus::find($currentId);
-            if ($status) {
-                if ($status->is_active) {
-                    $pipeline->push($status);
-                }
-                $currentId = \App\Models\TrackingFlowRule::where('from_status_id', $currentId)->value('to_status_id');
+        $allStatuses = \App\Models\MasterTrackingStatus::where('is_active', true)
+            ->get()
+            ->keyBy('code');
+
+        $route = $order->production_route;
+
+        $codes = [
+            'order_received',
+            'material_order_pending',
+            'material_order_ready',
+            'fabric_cutting',
+            'production',
+        ];
+
+        if (!$order->has_embroidery) {
+            $codes[] = 'sewing';
+        } else {
+            if ($route === 'bordir') {
+                $codes[] = 'embroidery';
+                $codes[] = 'sewing';
+            } elseif ($route === 'penjahitan') {
+                $codes[] = 'sewing';
+                $codes[] = 'embroidery';
+            } elseif ($route === 'barengan') {
+                // Skips individual embroidery and sewing
             } else {
-                $currentId = null;
+                // If not yet selected but has embroidery, show default
+                $codes[] = 'embroidery';
+                $codes[] = 'sewing';
+            }
+        }
+
+        $codes = array_merge($codes, [
+            'button_installation',
+            'qc',
+            'ironing',
+            'packing',
+            'shipping',
+        ]);
+
+        foreach ($codes as $code) {
+            if ($allStatuses->has($code)) {
+                $pipeline->push($allStatuses->get($code));
             }
         }
 

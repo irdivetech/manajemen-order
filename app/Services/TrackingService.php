@@ -62,6 +62,11 @@ class TrackingService
         // Update the order's current status
         $order->current_status = $status;
 
+        // Save the chosen production route if the current stage is production
+        if ($status === 'production' && $subType) {
+            $order->production_route = $subType;
+        }
+
         // Auto-archive when shipping status is reached
         if ($status === Order::STATUS_SHIPPING) {
             $order->archived_at = Carbon::now();
