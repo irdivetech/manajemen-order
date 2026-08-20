@@ -32,6 +32,13 @@
                 <i class="bi bi-arrow-repeat text-white fs-1 opacity-50"></i>
             @endif
         </div>
+        @if($order->isShipped())
+        <a href="{{ route('orders.shipping-label', $order) }}" target="_blank"
+           class="d-flex align-items-center justify-content-center gap-2 mt-3"
+           style="background:rgba(255,255,255,0.2); color:#fff; padding:0.5rem; border-radius:10px; text-decoration:none; font-size:0.85rem; font-weight:600;">
+            <i class="bi bi-printer"></i> Cetak Resi Pengiriman
+        </a>
+        @endif
     </div>
 </div>
 

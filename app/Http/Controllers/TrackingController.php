@@ -91,4 +91,19 @@ class TrackingController extends Controller
         return redirect()->route('orders.tracking', $order)
             ->with('success', 'Status produksi berhasil diperbarui.');
     }
+
+    /**
+     * Print shipping label / resi for a shipped order.
+     */
+    public function printShippingLabel(Order $order): View
+    {
+        // Only allow printing when status is shipping
+        if (!$order->isShipped()) {
+            abort(403, 'Resi hanya dapat dicetak setelah pesanan masuk tahap Pengiriman.');
+        }
+
+        $order->load('sizeDetails');
+
+        return view('tracking.shipping_label', compact('order'));
+    }
 }

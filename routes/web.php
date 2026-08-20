@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     // ─── Tracking ───────────────────────────────────────────────────────────
     Route::get('orders/{order}/tracking', [TrackingController::class, 'index'])->name('orders.tracking');
     Route::post('orders/{order}/tracking', [TrackingController::class, 'store'])->name('orders.tracking.store');
+    Route::get('orders/{order}/shipping-label', [TrackingController::class, 'printShippingLabel'])->name('orders.shipping-label');
 
     // ─── Invoice ────────────────────────────────────────────────────────────
     Route::get('orders/{order}/invoice', [InvoiceController::class, 'show'])->name('orders.invoice');
