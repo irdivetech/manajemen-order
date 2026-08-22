@@ -8,8 +8,6 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #111;
             background: #f0f0f0;
             padding: 30px;
         }
@@ -18,6 +16,7 @@
         .no-print {
             text-align: center;
             margin-bottom: 24px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
         .btn {
             display: inline-block;
@@ -37,198 +36,101 @@
         /* ─── Label Container ─── */
         .label-page {
             width: 210mm;
-            min-height: 297mm;
+            height: 148mm; /* A5 Landscape */
             background: #fff;
             margin: 0 auto;
-            padding: 28mm 22mm;
+            padding: 12mm 15mm;
             position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         /* ─── Header ─── */
-        .label-header {
-            text-align: center;
-            border-bottom: 3px solid #111;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
-        .label-header h1 {
-            font-size: 26px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-        .label-header-meta {
+        .header {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            color: #333;
-        }
-        .label-header-meta span {
-            font-weight: 600;
-        }
-
-        /* ─── Sections ─── */
-        .section {
-            margin-bottom: 22px;
-            border: 2px solid #111;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .section-title {
-            background: #111;
-            color: #fff;
-            padding: 8px 16px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
-        .section-body {
-            padding: 18px 20px;
-        }
-
-        /* ─── Recipient (largest / most prominent) ─── */
-        .recipient-name {
-            font-size: 28px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-            line-height: 1.2;
-        }
-        .recipient-phone {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 14px;
-        }
-        .recipient-location {
-            display: flex;
-            gap: 24px;
+            align-items: flex-start;
             margin-bottom: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .recipient-location .loc-item {
-            flex: 1;
+        
+        .header-left {
+            flex-shrink: 0;
+            text-align: center;
         }
-        .loc-label {
-            font-size: 10px;
+        
+        .header-left img {
+            max-width: 100%;
+            max-height: 95px;
+            object-fit: contain;
+        }
+        
+        .header-right {
+            flex-grow: 1;
+            max-width: 380px;
+            text-align: right;
+            font-size: 12.5px;
+            line-height: 1.45;
+            color: #000;
+        }
+        
+        .header-right .company-name {
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 2px;
-        }
-        .loc-value {
-            font-size: 15px;
-            font-weight: 700;
-            color: #111;
-        }
-        .recipient-address-label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-        .recipient-address {
-            font-size: 15px;
-            font-weight: 500;
-            line-height: 1.55;
-            color: #111;
-        }
-
-        /* ─── Package Details ─── */
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-        }
-        .detail-item .detail-label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
+            font-size: 13px;
             margin-bottom: 3px;
         }
-        .detail-item .detail-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #111;
-        }
-
-        /* ─── Sender ─── */
-        .sender-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 24px;
-        }
-        .sender-item .sender-label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 2px;
-        }
-        .sender-item .sender-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #111;
-        }
-        .sender-item.full-width {
-            grid-column: 1 / -1;
-        }
-        .sender-address {
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.5;
-            color: #333;
-        }
-
-        /* ─── Shipping Info (manual fill) ─── */
-        .shipping-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .shipping-field .field-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        .shipping-field .field-line {
-            border-bottom: 2px dashed #999;
-            height: 32px;
-        }
-
-        /* ─── Footer Note ─── */
-        .label-footer {
-            margin-top: 28px;
-            text-align: center;
-            font-size: 11px;
-            color: #999;
-            font-style: italic;
-        }
-
-        /* ─── Dashed cut line ─── */
-        .cut-line {
+        
+        .divider {
             border: none;
-            border-top: 2px dashed #ccc;
-            margin: 20px 0 0;
+            border-top: 1.5px solid #000;
+            margin-bottom: 18px;
         }
-        .cut-label {
+
+        /* ─── Main Content ─── */
+        .content {
+            font-family: "Times New Roman", Times, serif;
+            color: #000;
+        }
+        
+        table.resi-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table.resi-table td {
+            vertical-align: top;
+            padding: 6px 0;
+        }
+        
+        table.resi-table td.label-col {
+            width: 175px;
+            font-weight: bold;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+        
+        table.resi-table td.colon-col {
+            width: 25px;
+            font-weight: bold;
+            font-size: 24px;
             text-align: center;
-            font-size: 10px;
-            color: #bbb;
-            margin-top: 4px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        }
+        
+        table.resi-table td.value-col {
+            font-size: 24px;
+            line-height: 1.4;
+        }
+        
+        .phone-bullet {
+            padding-left: 18px;
+            position: relative;
+        }
+        .phone-bullet::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-size: 26px;
+            top: -2px;
         }
 
         /* ─── Print Styles ─── */
@@ -244,20 +146,30 @@
                 border: none;
                 box-shadow: none;
                 width: 100%;
-                min-height: auto;
-                padding: 18mm 20mm;
+                height: 100%;
+                padding: 10mm 15mm;
             }
-            .section { page-break-inside: avoid; }
-        }
-
-        @page {
-            size: A4 portrait;
-            margin: 0;
+            @page {
+                size: A5 landscape;
+                margin: 0;
+            }
         }
     </style>
 </head>
 <body>
     @inject('settings', 'App\Services\SettingService')
+
+    @php
+        $companyName = $settings->get('company_name') ?: 'SHALEEA';
+        $companyAddress = $settings->get('company_address') ?: "Gg. Pangrango No.2 No. 7, RT.01/RW.07, Sawah Gede,\nKec. Cianjur, Kabupaten Cianjur, Jawa Barat 43211";
+        $companyEmail = $settings->get('company_email') ?: 'shaleea.official@gmail.com';
+        $companyPhone = $settings->get('company_phone') ?: '0815-1519-2525';
+        
+        // Cek jika ada di settings, jika tidak fallback ke hardcode sesuai referensi
+        $companyWa = $settings->get('company_wa') ?: $companyPhone;
+        $companyIg = $settings->get('company_ig') ?: '@shaleea.konveksi';
+        $companyTiktok = $settings->get('company_tiktok') ?: '@shaleea.official';
+    @endphp
 
     <div class="no-print">
         <a href="{{ route('orders.tracking', $order->id) }}" class="btn btn-back">← Kembali</a>
@@ -265,116 +177,64 @@
     </div>
 
     <div class="label-page">
-
-        {{-- ── Header ── --}}
-        <div class="label-header">
-            <h1>Resi / Label Pengiriman</h1>
-            <div class="label-header-meta">
-                <span>Nomor Pesanan: {{ $order->order_number }}</span>
-                <span>Tanggal: {{ now()->translatedFormat('d F Y') }}</span>
-            </div>
-        </div>
-
-        {{-- ── Penerima ── --}}
-        <div class="section">
-            <div class="section-title">Penerima</div>
-            <div class="section-body">
-                <div class="recipient-name">{{ $order->customer_name }}</div>
-                <div class="recipient-phone">{{ $order->customer_phone }}</div>
-
-                @if($order->customer_district || $order->customer_city)
-                <div class="recipient-location">
-                    @if($order->customer_district)
-                    <div class="loc-item">
-                        <div class="loc-label">Kecamatan</div>
-                        <div class="loc-value">{{ $order->customer_district }}</div>
-                    </div>
-                    @endif
-                    @if($order->customer_city)
-                    <div class="loc-item">
-                        <div class="loc-label">Kabupaten / Kota</div>
-                        <div class="loc-value">{{ $order->customer_city }}</div>
-                    </div>
-                    @endif
-                </div>
-                @endif
-
-                @if($order->customer_address)
-                <div style="margin-top: 6px;">
-                    <div class="recipient-address-label">Alamat Lengkap</div>
-                    <div class="recipient-address">{!! nl2br(e($order->customer_address)) !!}</div>
-                </div>
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                @if($settings->get('resi_logo'))
+                    <img src="{{ Storage::url($settings->get('resi_logo')) }}" alt="Logo Resi">
+                @elseif($settings->get('company_logo'))
+                    <img src="{{ Storage::url($settings->get('company_logo')) }}" alt="Logo">
+                @else
+                    <h2 style="font-family: 'Times New Roman', serif; font-size: 26px; font-weight: bold; margin-top: 15px;">
+                        {{ $companyName }}
+                    </h2>
                 @endif
             </div>
-        </div>
-
-        {{-- ── Detail Paket ── --}}
-        <div class="section">
-            <div class="section-title">Detail Paket</div>
-            <div class="section-body">
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Nama Produk</div>
-                        <div class="detail-value">{{ $order->product_name }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Total Quantity</div>
-                        <div class="detail-value">{{ $order->totalQuantity() }} PCS</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Nomor Pesanan</div>
-                        <div class="detail-value">{{ $order->order_number }}</div>
-                    </div>
+            <div class="header-right">
+                <div class="company-name">{{ strtoupper($companyName) }}</div>
+                <div>{!! nl2br(e($companyAddress)) !!}</div>
+                <div>
+                    Email: {{ $companyEmail }} | WA: {{ $companyWa }}
+                </div>
+                <div>
+                    Instagram: {{ $companyIg }} | TikTok: {{ $companyTiktok }}
                 </div>
             </div>
         </div>
 
-        {{-- ── Pengirim ── --}}
-        <div class="section">
-            <div class="section-title">Pengirim</div>
-            <div class="section-body">
-                <div class="sender-grid">
-                    <div class="sender-item">
-                        <div class="sender-label">Nama Pengirim / Konveksi</div>
-                        <div class="sender-value">{{ $settings->get('company_name') ?: '-' }}</div>
-                    </div>
-                    <div class="sender-item">
-                        <div class="sender-label">Nomor HP</div>
-                        <div class="sender-value">{{ $settings->get('company_phone') ?: '-' }}</div>
-                    </div>
-                    <div class="sender-item full-width">
-                        <div class="sender-label">Alamat Pengirim</div>
-                        <div class="sender-address">{{ $settings->get('company_address') ?: '-' }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <hr class="divider">
 
-        {{-- ── Informasi Pengiriman (diisi manual) ── --}}
-        <div class="section">
-            <div class="section-title">Informasi Pengiriman</div>
-            <div class="section-body">
-                <div class="shipping-fields">
-                    <div class="shipping-field">
-                        <div class="field-label">Jasa Pengiriman</div>
-                        <div class="field-line"></div>
-                    </div>
-                    <div class="shipping-field">
-                        <div class="field-label">Nomor Resi Ekspedisi</div>
-                        <div class="field-line"></div>
-                    </div>
-                </div>
-            </div>
+        <!-- CONTENT -->
+        <div class="content">
+            <table class="resi-table">
+                <tr>
+                    <td class="label-col">PENGIRIM</td>
+                    <td class="colon-col">:</td>
+                    <td class="value-col">{{ $companyName }} ({{ $companyWa }})</td>
+                </tr>
+                <tr>
+                    <td class="label-col" style="padding-top: 12px;">KEPADA</td>
+                    <td class="colon-col" style="padding-top: 12px;">:</td>
+                    <td class="value-col" style="padding-top: 12px;">
+                        NAMA : {{ strtoupper($order->customer_name) }}<br>
+                        <div class="phone-bullet">NO. HP : {{ $order->customer_phone }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-col" style="padding-top: 16px;">ALAMAT</td>
+                    <td class="colon-col" style="padding-top: 16px;">:</td>
+                    <td class="value-col" style="padding-top: 16px; padding-right: 20px; text-align: justify;">
+                        @php
+                            $addressParts = [];
+                            if ($order->customer_address) $addressParts[] = $order->customer_address;
+                            if ($order->customer_district) $addressParts[] = 'Kec. ' . $order->customer_district;
+                            if ($order->customer_city) $addressParts[] = $order->customer_city;
+                        @endphp
+                        {{ implode(', ', $addressParts) }}
+                    </td>
+                </tr>
+            </table>
         </div>
-
-        {{-- ── Footer ── --}}
-        <div class="label-footer">
-            Dokumen ini dicetak oleh sistem POMS &mdash; {{ now()->translatedFormat('d F Y, H:i') }}
-        </div>
-
-        <hr class="cut-line">
-        <div class="cut-label">✂ garis potong</div>
     </div>
-
 </body>
 </html>

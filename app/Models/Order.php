@@ -67,6 +67,7 @@ class Order extends Model
         'customer_category',
         'customer_title',
         'customer_address',
+        'customer_province',
         'customer_city', // NEW
         'customer_district', // NEW
         'product_name',
@@ -317,20 +318,17 @@ class Order extends Model
         return $this->sizeDetails->sum('quantity');
     }
 
-    /**
-     * Get total quantity of items in this order by gender name.
-     * This is primarily used for the excel report.
-     */
     public function quantityByGender(string $genderName): int
     {
         return $this->sizeDetails->filter(function ($detail) use ($genderName) {
-            // master_genders -> name (e.g. "Laki-laki", "Perempuan", "Anak-anak")
-            // The old hardcoded genders were 'male', 'female', 'child'
-            // We map them loosely or exactly
-            $name = strtolower($detail->gender?->name ?? '');
-            if ($genderName === 'male') return str_contains($name, 'laki');
-            if ($genderName === 'female') return str_contains($name, 'perempuan');
-            if ($genderName === 'child') return str_contains($name, 'anak');
+            // master_genders -> label (e.g. "Laki-laki", "Perempuan", "Anak-anak")
+            // Or fallback to old deprecated string column
+            $name = strtolower($detail->gender?->label ?? $detail->getRawOriginal('gender') ?? '');
+            
+            if ($genderName === 'male') return str_contains($name, 'laki') || $name === 'male';
+            if ($genderName === 'female') return str_contains($name, 'perempuan') || $name === 'female';
+            if ($genderName === 'child') return str_contains($name, 'anak') || $name === 'child';
+            
             return $name === strtolower($genderName);
         })->sum('quantity');
     }

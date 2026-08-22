@@ -83,6 +83,11 @@
     <div class="col-12">
         <x-card>
             <x-slot name="title">Daftar Bahan Yang Harus Dibeli (Belum Dibeli)</x-slot>
+            <x-slot name="actions">
+                <a href="{{ route('material-purchases.print', request()->query()) }}" target="_blank" class="btn btn-sm btn-outline-dark">
+                    <i class="bi bi-printer"></i> Cetak / Export PDF
+                </a>
+            </x-slot>
 
             <div class="accordion mt-3" id="materialAccordion">
                 @forelse($summary as $index => $item)

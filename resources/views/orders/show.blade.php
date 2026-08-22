@@ -282,8 +282,8 @@
                                     <div class="info-label">Alamat Lengkap</div>
                                     <div class="info-value" style="line-height: 1.4;">
                                         {{ $order->customer_address }}<br>
-                                        @if($order->customer_district || $order->customer_city)
-                                            <span class="text-muted small">{{ collect([$order->customer_district, $order->customer_city])->filter()->join(', ') }}</span>
+                                        @if($order->customer_district || $order->customer_city || $order->customer_province)
+                                            <span class="text-muted small">{{ collect([$order->customer_district, $order->customer_city, $order->customer_province])->filter()->join(', ') }}</span>
                                         @endif
                                     </div>
                                 </div>

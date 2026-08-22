@@ -16,6 +16,12 @@ use Illuminate\Support\Facades\Route;
 | the 'api' middleware group by bootstrap/app.php.
 |
 */
+use App\Http\Controllers\RegionController;
+
+// ─── Public API ─────────────────────────────────────────────────────────
+Route::get('regions/provinces', [RegionController::class, 'getProvinces']);
+Route::get('regions/cities/{province}', [RegionController::class, 'getCities']);
+Route::get('regions/districts/{city}', [RegionController::class, 'getDistricts']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -23,7 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
 
     // ─── Orders (CRUD) ──────────────────────────────────────────────────────
-    Route::apiResource('orders', OrderController::class);
+    Route::apiResource('orders', OrderController::class)->names('api.orders');
 
     // ─── Tracking History ───────────────────────────────────────────────────
     Route::get('orders/{order}/tracking', [TrackingController::class, 'index']);

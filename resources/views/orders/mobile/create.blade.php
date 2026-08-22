@@ -61,19 +61,29 @@
                        value="{{ old('customer_address') }}" placeholder="cth: Jl. Merdeka No. 10">
                 @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
+            <div class="mb-3">
+                <label class="form-label text-sm fw-6">Provinsi</label>
+                <select name="customer_province" id="customer_province" class="form-select @error('customer_province') is-invalid @enderror">
+                    <option value="">-- Pilih Provinsi --</option>
+                </select>
+                <input type="hidden" id="old_province" value="{{ old('customer_province') }}">
+                @error('customer_province') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
             <div class="row g-2">
                 <div class="col-6">
                     <label class="form-label text-sm fw-6">Kota / Kab.</label>
-                    <input type="text" name="customer_city"
-                           class="form-control @error('customer_city') is-invalid @enderror"
-                           value="{{ old('customer_city') }}">
+                    <select name="customer_city" id="customer_city" class="form-select @error('customer_city') is-invalid @enderror" disabled>
+                        <option value="">-- Pilih Kota/Kab --</option>
+                    </select>
+                    <input type="hidden" id="old_city" value="{{ old('customer_city') }}">
                     @error('customer_city') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-6">
                     <label class="form-label text-sm fw-6">Kecamatan</label>
-                    <input type="text" name="customer_district"
-                           class="form-control @error('customer_district') is-invalid @enderror"
-                           value="{{ old('customer_district') }}">
+                    <select name="customer_district" id="customer_district" class="form-select @error('customer_district') is-invalid @enderror" disabled>
+                        <option value="">-- Pilih Kecamatan --</option>
+                    </select>
+                    <input type="hidden" id="old_district" value="{{ old('customer_district') }}">
                     @error('customer_district') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
             </div>
@@ -523,5 +533,108 @@ if (form) {
         }
     });
 }
+
+// ── Region Dependent Dropdown ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async function() {
+    const provinceSelect = document.getElementById('customer_province');
+    const citySelect = document.getElementById('customer_city');
+    const districtSelect = document.getElementById('customer_district');
+    
+    const oldProvince = document.getElementById('old_province').value;
+    const oldCity = document.getElementById('old_city').value;
+    const oldDistrict = document.getElementById('old_district').value;
+
+    let provincesData = [];
+    let citiesData = [];
+
+    // Load Provinces
+    try {
+        const res = await fetch('/api/regions/provinces');
+        provincesData = await res.json();
+        
+        provincesData.forEach(prov => {
+            const option = document.createElement('option');
+            option.value = prov.name;
+            option.dataset.id = prov.id;
+            option.textContent = prov.name;
+            if (prov.name === oldProvince) {
+                option.selected = true;
+            }
+            provinceSelect.appendChild(option);
+        });
+
+        if (oldProvince) {
+            provinceSelect.dispatchEvent(new Event('change'));
+        }
+    } catch (e) {
+        console.error('Failed to load provinces:', e);
+    }
+
+    // Province Change -> Load Cities
+    provinceSelect.addEventListener('change', async function() {
+        citySelect.innerHTML = '<option value="">-- Pilih Kota/Kab --</option>';
+        districtSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        citySelect.disabled = true;
+        districtSelect.disabled = true;
+
+        const selectedOption = this.options[this.selectedIndex];
+        const provinceId = selectedOption?.dataset?.id;
+
+        if (!provinceId) return;
+
+        try {
+            const res = await fetch(`/api/regions/cities/${provinceId}`);
+            citiesData = await res.json();
+            
+            citiesData.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.name;
+                option.dataset.id = city.id;
+                option.textContent = city.name;
+                if (city.name === oldCity) {
+                    option.selected = true;
+                }
+                citySelect.appendChild(option);
+            });
+            citySelect.disabled = false;
+
+            if (oldCity && oldProvince === this.value) {
+                citySelect.dispatchEvent(new Event('change'));
+            }
+        } catch (e) {
+            console.error('Failed to load cities:', e);
+        }
+    });
+
+    // City Change -> Load Districts
+    citySelect.addEventListener('change', async function() {
+        districtSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        districtSelect.disabled = true;
+
+        const selectedOption = this.options[this.selectedIndex];
+        const cityId = selectedOption?.dataset?.id;
+
+        if (!cityId) return;
+
+        try {
+            const res = await fetch(`/api/regions/districts/${cityId}`);
+            const districtsData = await res.json();
+            
+            districtsData.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district.name;
+                option.dataset.id = district.id;
+                option.textContent = district.name;
+                if (district.name === oldDistrict) {
+                    option.selected = true;
+                }
+                districtSelect.appendChild(option);
+            });
+            districtSelect.disabled = false;
+        } catch (e) {
+            console.error('Failed to load districts:', e);
+        }
+    });
+});
 </script>
 @endpush

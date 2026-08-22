@@ -27,6 +27,7 @@ class UpdateOrderRequest extends FormRequest
             'customer_category' => ['sometimes', 'string', 'in:b2b,retail'],
             'customer_title'    => ['nullable', 'string', 'max:1000'],
             'customer_address'  => ['nullable', 'string', 'max:1000'],
+            'customer_province'    => ['nullable', 'string', 'max:255'],
             'customer_city'        => ['nullable', 'string', 'max:255'],
             'customer_district'    => ['nullable', 'string', 'max:255'],
             
