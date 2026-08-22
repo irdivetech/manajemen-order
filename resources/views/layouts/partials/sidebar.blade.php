@@ -27,9 +27,12 @@
         <a href="{{ route('archives.index') }}" class="nav-link {{ request()->routeIs('archives.*') ? 'active' : '' }}">
             <i class="bi bi-archive-fill"></i> Arsip Pesanan
         </a>
+        <a href="{{ route('best-sellers.index') }}" class="nav-link {{ request()->routeIs('best-sellers.*') ? 'active' : '' }}">
+            <i class="bi bi-trophy-fill"></i> Best Seller
+        </a>
     </div>
 
-    @if(Auth::user()?->isAdmin())
+    @if(Auth::user()?->isOwner())
     <div class="nav-section">
         <div class="nav-section-title">Master Data</div>
         <a href="{{ route('master-data.index', 'genders') }}" class="nav-link {{ request()->is('master-data/genders*') ? 'active' : '' }}">
@@ -60,11 +63,14 @@
         <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
             <i class="bi bi-people-fill"></i> Kelola Pengguna
         </a>
+    </div>
+    @endif
+
+    <div class="nav-section">
         <a href="{{ route('profile.index') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
             <i class="bi bi-person-gear"></i> Profil
         </a>
     </div>
-    @endif
 
     {{-- User Info (Bottom) --}}
     <div class="mt-auto border-top p-3" style="position:absolute;bottom:0;left:0;right:0;">

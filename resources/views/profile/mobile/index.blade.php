@@ -23,59 +23,71 @@
     </div>
 </div>
 
-{{-- ── Form Ubah Profil ── --}}
-<div class="section-title">Pengaturan Profil</div>
-<div class="m-card mb-4">
-    <div class="m-card-body">
-        <form action="{{ route('profile.update') }}" method="POST">
-            @csrf
-            @method('PUT')
-            
-            <div class="mb-3">
-                <label class="form-label text-sm fw-6">Nama Lengkap</label>
-                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', Auth::user()->name) }}" required>
-                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label text-sm fw-6">Alamat Email</label>
-                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', Auth::user()->email) }}" required>
-                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-            
-            <button type="submit" class="btn btn-outline-primary w-100 fw-6">Simpan Profil</button>
-        </form>
+@if(Auth::user()?->isOwner())
+    {{-- ── Form Ubah Profil ── --}}
+    <div class="section-title">Pengaturan Profil</div>
+    <div class="m-card mb-4">
+        <div class="m-card-body">
+            <form action="{{ route('profile.update') }}" method="POST">
+                @csrf
+                @method('PUT')
+                
+                <div class="mb-3">
+                    <label class="form-label text-sm fw-6">Nama Lengkap</label>
+                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', Auth::user()->name) }}" required>
+                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-sm fw-6">Alamat Email</label>
+                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', Auth::user()->email) }}" required>
+                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                
+                <button type="submit" class="btn btn-outline-primary w-100 fw-6">Simpan Profil</button>
+            </form>
+        </div>
     </div>
-</div>
 
-{{-- ── Form Ganti Password ── --}}
-<div class="section-title">Keamanan</div>
-<div class="m-card mb-4">
-    <div class="m-card-body">
-        <form action="{{ route('profile.password') }}" method="POST">
-            @csrf
-            @method('PUT')
-            
-            <div class="mb-3">
-                <label class="form-label text-sm fw-6">Kata Sandi Saat Ini</label>
-                <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
-                @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label text-sm fw-6">Kata Sandi Baru</label>
-                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
-                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label text-sm fw-6">Konfirmasi Kata Sandi Baru</label>
-                <input type="password" name="password_confirmation" class="form-control" required minlength="8">
-            </div>
-            
-            <button type="submit" class="btn btn-outline-danger w-100 fw-6">Perbarui Kata Sandi</button>
-        </form>
+    {{-- ── Form Ganti Password ── --}}
+    <div class="section-title">Keamanan</div>
+    <div class="m-card mb-4">
+        <div class="m-card-body">
+            <form action="{{ route('profile.password') }}" method="POST">
+                @csrf
+                @method('PUT')
+                
+                <div class="mb-3">
+                    <label class="form-label text-sm fw-6">Kata Sandi Saat Ini</label>
+                    <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
+                    @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-sm fw-6">Kata Sandi Baru</label>
+                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
+                    @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-sm fw-6">Konfirmasi Kata Sandi Baru</label>
+                    <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                </div>
+                
+                <button type="submit" class="btn btn-outline-danger w-100 fw-6">Perbarui Kata Sandi</button>
+            </form>
+        </div>
     </div>
-</div>
+@else
+    <div class="section-title">Informasi</div>
+    <div class="m-card mb-4">
+        <div class="m-card-body">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-info-circle text-primary fs-3"></i>
+                <p class="mb-0 text-sm">Perubahan profil dan kata sandi hanya dapat dilakukan oleh <strong>Owner</strong>. Silakan hubungi Owner jika Anda perlu mengubah data akun Anda.</p>
+            </div>
+        </div>
+    </div>
+@endif
 
 @endsection

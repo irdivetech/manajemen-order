@@ -38,12 +38,33 @@
                     <label class="form-label text-xs fw-6 text-muted">Alamat Lengkap</label>
                     <textarea name="company_address" class="form-control" rows="3" required>{{ old('company_address', $settings['company_address'] ?? '') }}</textarea>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label text-xs fw-6 text-muted">Logo Perusahaan</label>
+                <div class="mb-3">
+                    <label class="form-label text-xs fw-6 text-muted">WhatsApp Resi</label>
+                    <input type="text" name="company_wa" class="form-control" value="{{ old('company_wa', $settings['company_wa'] ?? '') }}" placeholder="08...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-xs fw-6 text-muted">Instagram Resi</label>
+                    <input type="text" name="company_ig" class="form-control" value="{{ old('company_ig', $settings['company_ig'] ?? '') }}" placeholder="@...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-xs fw-6 text-muted">TikTok Resi</label>
+                    <input type="text" name="company_tiktok" class="form-control" value="{{ old('company_tiktok', $settings['company_tiktok'] ?? '') }}" placeholder="@...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-xs fw-6 text-muted">Logo Perusahaan (Untuk Faktur)</label>
                     <input type="file" name="company_logo" class="form-control" accept="image/png, image/jpeg, image/jpg">
                     @if(!empty($settings['company_logo']))
                         <div class="mt-2">
                             <img src="{{ Storage::url($settings['company_logo']) }}" alt="Logo" class="img-thumbnail" style="max-height: 80px;">
+                        </div>
+                    @endif
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-xs fw-6 text-muted">Logo Khusus Resi (B/W Disarankan)</label>
+                    <input type="file" name="resi_logo" class="form-control" accept="image/png, image/jpeg, image/jpg">
+                    @if(!empty($settings['resi_logo']))
+                        <div class="mt-2">
+                            <img src="{{ Storage::url($settings['resi_logo']) }}" alt="Logo Resi" class="img-thumbnail" style="max-height: 80px;">
                         </div>
                     @endif
                 </div>

@@ -74,7 +74,7 @@
                             {{ $order->customer_name }}
                             @if($order->customer_title) - <span class="fs-6 fw-normal text-muted">{{ $order->customer_title }}</span> @endif
                         </div>
-                        <div class="text-muted mb-1">{!! nl2br(e($order->customer_address)) !!}</div>
+                        <div class="text-muted mb-1">{{ $order->customer_city ?? '-' }}</div>
                         <div class="text-muted"><i class="bi bi-telephone text-muted me-1"></i> {{ $order->customer_phone }}</div>
                     </div>
                     <div class="col-sm-6 text-sm-end mt-4 mt-sm-0">

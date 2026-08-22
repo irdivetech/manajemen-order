@@ -14,15 +14,15 @@
         <p class="text-muted mb-0">Metrik performa real-time untuk pusat manufaktur StitchFlow Anda.</p>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <form method="GET" action="{{ route('dashboard.index') }}" class="d-inline-block">
-            <select name="range" class="form-select bg-white shadow-sm border-0" onchange="this.form.submit()" style="cursor:pointer; min-width: 160px;">
+        <form method="GET" action="{{ route('dashboard.index') }}" class="m-0 d-flex align-items-center">
+            <select name="range" class="form-select bg-white shadow-sm border-0" onchange="this.form.submit()" style="cursor:pointer; min-width: 160px; height: 38px;">
                 <option value="30_days" {{ $range == '30_days' ? 'selected' : '' }}>30 Hari Terakhir</option>
                 <option value="this_month" {{ $range == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
                 <option value="this_year" {{ $range == 'this_year' ? 'selected' : '' }}>Tahun Ini</option>
                 <option value="all_time" {{ $range == 'all_time' ? 'selected' : '' }}>Sepanjang Waktu</option>
             </select>
         </form>
-        <a href="{{ route('dashboard.export', ['range' => $range]) }}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+        <a href="{{ route('dashboard.export', ['range' => $range]) }}" target="_blank" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" style="height: 38px;">
             <i class="bi bi-download"></i> Ekspor PDF
         </a>
     </div>

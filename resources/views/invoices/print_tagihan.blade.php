@@ -238,7 +238,7 @@
                     <h4>
                         {{ $order->customer_name }}
                     </h4>
-                    <p>{!! nl2br(e($order->customer_address)) !!}</p>
+                    <p>{{ $order->customer_city ?? '-' }}</p>
                 </div>
             </div>
 

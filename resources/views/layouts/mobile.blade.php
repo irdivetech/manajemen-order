@@ -675,13 +675,65 @@
 
 
 
-        @if(Auth::user()?->isAdmin())
+        <div class="section-title mt-3">Menu Utama</div>
+        <a href="{{ route('material-purchases.index') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#e0f2fe; color:#0284c7;">
+                <i class="bi bi-cart-check"></i>
+            </div>
+            Belanja Bahan
+        </a>
+        <a href="{{ route('best-sellers.index') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#fef08a; color:#a16207;">
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+            Best Seller
+        </a>
+
         <div class="section-title mt-3">Laporan</div>
         <a href="{{ route('hpp.index') }}" class="drawer-nav-item">
             <div class="dni-icon" style="background:#fee2e2; color:var(--danger);">
                 <i class="bi bi-calculator"></i>
             </div>
             Laporan Modal (HPP)
+        </a>
+
+        @if(Auth::user()?->isOwner())
+        <div class="section-title mt-3">Master Data</div>
+        <a href="{{ route('master-data.index', 'genders') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#f3f4f6; color:#4b5563;">
+                <i class="bi bi-gender-ambiguous"></i>
+            </div>
+            Gender
+        </a>
+        <a href="{{ route('master-data.index', 'size-categories') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#f3f4f6; color:#4b5563;">
+                <i class="bi bi-layers-half"></i>
+            </div>
+            Kategori Ukuran
+        </a>
+        <a href="{{ route('master-data.index', 'sizes') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#f3f4f6; color:#4b5563;">
+                <i class="bi bi-rulers"></i>
+            </div>
+            Ukuran
+        </a>
+        <a href="{{ route('master-data.index', 'materials') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#f3f4f6; color:#4b5563;">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            Bahan
+        </a>
+        <a href="{{ route('master-data.index', 'clothing-categories') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#f3f4f6; color:#4b5563;">
+                <i class="bi bi-tags"></i>
+            </div>
+            Kategori Baju
+        </a>
+        <a href="{{ route('master-data.index', 'usage-estimates') }}" class="drawer-nav-item">
+            <div class="dni-icon" style="background:#f3f4f6; color:#4b5563;">
+                <i class="bi bi-calculator"></i>
+            </div>
+            Estimasi Bahan
         </a>
 
         <div class="section-title mt-3">Sistem</div>
@@ -697,13 +749,14 @@
             </div>
             Pengaturan Invoice
         </a>
+        @endif
+
         <a href="{{ route('profile.index') }}" class="drawer-nav-item">
             <div class="dni-icon" style="background:#faf5ff; color:#9333ea;">
                 <i class="bi bi-person-gear"></i>
             </div>
             Profil Saya
         </a>
-        @endif
 
         <div class="section-title mt-3">Akun</div>
 

@@ -59,7 +59,7 @@
                     {{ $order->customer_name }}
                     @if($order->customer_title) <br><span class="fw-normal text-muted">{{ $order->customer_title }}</span> @endif
                 </div>
-                <div class="text-xs text-muted my-1">{!! nl2br(e($order->customer_address)) !!}</div>
+                <div class="text-xs text-muted my-1">{{ $order->customer_city ?? '-' }}</div>
                 <div class="text-xs text-muted"><i class="bi bi-telephone"></i> {{ $order->customer_phone }}</div>
             </div>
             <div class="col-6 ps-3">

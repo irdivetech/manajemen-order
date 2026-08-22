@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BestSellerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +50,9 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
     // ─── Archives ───────────────────────────────────────────────────────────
     Route::get('archives', [OrderController::class, 'archives'])->name('archives.index');
 
+    // ─── Best Seller ────────────────────────────────────────────────────────
+    Route::get('best-sellers', [BestSellerController::class, 'index'])->name('best-sellers.index');
+
     // ─── Laporan ────────────────────────────────────────────────────────────
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [\App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
@@ -60,11 +64,12 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
 
     // ─── Views Belanja Bahan ────────────────────────────────────────────────
     Route::get('/material-purchases', [\App\Http\Controllers\MaterialPurchaseController::class, 'index'])->name('material-purchases.index');
+    Route::get('/material-purchases/print', [\App\Http\Controllers\MaterialPurchaseController::class, 'print'])->name('material-purchases.print');
     Route::patch('/material-purchases/{order}/mark-purchased', [\App\Http\Controllers\MaterialPurchaseController::class, 'markAsPurchased'])->name('material-purchases.mark-purchased');
     Route::patch('/material-purchases/{order}/sync-hpp', [\App\Http\Controllers\MaterialPurchaseController::class, 'syncHpp'])->name('material-purchases.sync-hpp');
 
-    // ─── Admin Only ─────────────────────────────────────────────────────────
-    Route::middleware('role:admin')->group(function () {
+    // ─── Owner Only ─────────────────────────────────────────────────────────
+    Route::middleware('role:owner')->group(function () {
         // User Management
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -93,9 +98,11 @@ Route::middleware(['auth', 'role:admin,owner'])->group(function () {
         Route::delete('master-data/{type}/{id}', [\App\Http\Controllers\MasterDataController::class, 'destroy'])->name('master-data.destroy');
         Route::patch('master-data/{type}/{id}/toggle', [\App\Http\Controllers\MasterDataController::class, 'toggleActive'])->name('master-data.toggle');
 
-        // Profile
-        Route::get('profile', fn () => view(isMobile() ? 'profile.mobile.index' : 'profile.index'))->name('profile.index');
+        // Profile Update (Owner Only - Admin can view but cannot edit)
         Route::put('profile', [UserController::class, 'updateProfile'])->name('profile.update');
         Route::put('profile/password', [UserController::class, 'updatePassword'])->name('profile.password');
     });
+
+    // ─── Profile (All Roles - View Only for Admin) ──────────────────────────
+    Route::get('profile', fn () => view(isMobile() ? 'profile.mobile.index' : 'profile.index'))->name('profile.index');
 });

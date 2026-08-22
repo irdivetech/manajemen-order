@@ -76,6 +76,31 @@ class MaterialPurchaseController extends Controller
     }
 
     /**
+     * Display the printable material purchasing view.
+     */
+    public function print(Request $request): View
+    {
+        $period = $request->query('period', 'monthly');
+        $from = $request->query('from') ? Carbon::parse($request->query('from')) : null;
+        $to = $request->query('to') ? Carbon::parse($request->query('to')) : null;
+        $dateColumn = $request->query('date_column', 'order_date');
+
+        $summary = $this->reportService->getMaterialPurchasingSummary($period, $from, $to, $dateColumn);
+        $unpurchasedOrders = $this->reportService->getUnpurchasedOrders($period, $from, $to, $dateColumn);
+        $ordersByMaterial = $unpurchasedOrders->groupBy('material_id');
+        $totalEstimatedCash = $summary->sum('total_estimated_cost');
+
+        return view('material-purchases.print', compact(
+            'summary',
+            'ordersByMaterial',
+            'totalEstimatedCash',
+            'period',
+            'from',
+            'to'
+        ));
+    }
+
+    /**
      * Mark material for an order as purchased.
      */
     public function markAsPurchased(Order $order)

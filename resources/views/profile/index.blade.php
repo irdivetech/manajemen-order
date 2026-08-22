@@ -29,55 +29,63 @@
     </div>
 
     <div class="col-md-8">
-        <x-card title="Pengaturan Profil" class="mb-4">
-            <form action="{{ route('profile.update') }}" method="POST">
-                @csrf
-                @method('PUT')
-                
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', Auth::user()->name) }}" required>
-                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        @if(Auth::user()?->isOwner())
+            <x-card title="Pengaturan Profil" class="mb-4">
+                <form action="{{ route('profile.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', Auth::user()->name) }}" required>
+                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Alamat Email</label>
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', Auth::user()->email) }}" required>
+                            @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-12 text-end mt-4">
+                            <button type="submit" class="btn btn-primary">Simpan Profil</button>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Alamat Email</label>
-                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', Auth::user()->email) }}" required>
-                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-12 text-end mt-4">
-                        <button type="submit" class="btn btn-primary">Simpan Profil</button>
-                    </div>
-                </div>
-            </form>
-        </x-card>
+                </form>
+            </x-card>
 
-        <x-card title="Ubah Kata Sandi">
-            <form action="{{ route('profile.password') }}" method="POST">
-                @csrf
-                @method('PUT')
-                
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">Kata Sandi Saat Ini</label>
-                        <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
-                        @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <x-card title="Ubah Kata Sandi">
+                <form action="{{ route('profile.password') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Kata Sandi Saat Ini</label>
+                            <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
+                            @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kata Sandi Baru</label>
+                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
+                            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                        </div>
+                        <div class="col-12 text-end mt-4">
+                            <button type="submit" class="btn btn-primary">Perbarui Kata Sandi</button>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Kata Sandi Baru</label>
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
-                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-                        <input type="password" name="password_confirmation" class="form-control" required minlength="8">
-                    </div>
-                    <div class="col-12 text-end mt-4">
-                        <button type="submit" class="btn btn-primary">Perbarui Kata Sandi</button>
-                    </div>
+                </form>
+            </x-card>
+        @else
+            <x-card title="Informasi">
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle me-2"></i> Perubahan profil dan kata sandi hanya dapat dilakukan oleh <strong>Owner</strong>. Silakan hubungi Owner jika Anda perlu mengubah data akun Anda.
                 </div>
-            </form>
-        </x-card>
+            </x-card>
+        @endif
     </div>
 </div>
 @endsection
