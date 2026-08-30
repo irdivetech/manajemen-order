@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk - POMS</title>
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fc; height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -40,7 +41,12 @@
                 </div>
                 <div class="mb-4">
                     <label class="form-label small fw-medium">Kata Sandi</label>
-                    <input type="password" name="password" class="form-control" required placeholder="••••••••">
+                    <div class="position-relative">
+                        <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••" style="padding-right: 2.5rem;">
+                        <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword()">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-4 form-check">
                     <input type="checkbox" class="form-check-input" id="remember" name="remember">
@@ -50,5 +56,22 @@
             </form>
         </div>
     </div>
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.querySelector('.position-relative button i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+                icon.style.color = '#4f46e5'; // Change color to primary when visible
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+                icon.style.color = ''; // Reset color
+            }
+        }
+    </script>
 </body>
 </html>

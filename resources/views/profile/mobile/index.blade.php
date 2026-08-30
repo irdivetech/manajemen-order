@@ -59,19 +59,34 @@
                 
                 <div class="mb-3">
                     <label class="form-label text-sm fw-6">Kata Sandi Saat Ini</label>
-                    <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
-                    @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="position-relative">
+                        <input type="password" name="current_password" id="m_current_password" class="form-control @error('current_password') is-invalid @enderror" required style="padding-right: 2.5rem;">
+                        <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword('m_current_password', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
                 
                 <div class="mb-3">
                     <label class="form-label text-sm fw-6">Kata Sandi Baru</label>
-                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
-                    @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="position-relative">
+                        <input type="password" name="password" id="m_password" class="form-control @error('password') is-invalid @enderror" required minlength="8" style="padding-right: 2.5rem;">
+                        <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword('m_password', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
                 
                 <div class="mb-3">
                     <label class="form-label text-sm fw-6">Konfirmasi Kata Sandi Baru</label>
-                    <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                    <div class="position-relative">
+                        <input type="password" name="password_confirmation" id="m_password_confirmation" class="form-control" required minlength="8" style="padding-right: 2.5rem;">
+                        <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword('m_password_confirmation', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn btn-outline-danger w-100 fw-6">Perbarui Kata Sandi</button>
@@ -91,3 +106,23 @@
 @endif
 
 @endsection
+
+@push('scripts')
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+        icon.style.color = 'var(--primary)'; // Changed color to make it distinct
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+        icon.style.color = ''; // Reset color
+    }
+}
+</script>
+@endpush

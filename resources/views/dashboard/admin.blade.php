@@ -323,30 +323,18 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 3. Mock Revenue Chart (Line) - In a real scenario, we'd pull monthly data from a service
+    // 3. Real Revenue Chart (Line)
     const ctxRev = document.getElementById('revenueChart').getContext('2d');
     
-    // Using current month revenue as the last data point, mock previous months for visual
-    const currentRev = {{ $summary['monthly_revenue'] }};
-    const mockData = [
-        currentRev * 0.7, currentRev * 0.8, currentRev * 0.75, 
-        currentRev * 0.9, currentRev * 0.85, currentRev
-    ];
-    
-    const months = [];
-    for(let i=5; i>=0; i--) {
-        const d = new Date();
-        d.setMonth(d.getMonth() - i);
-        months.push(d.toLocaleString('id-ID', { month: 'short' }));
-    }
+    const revenueTrendData = {!! json_encode($revenueTrend) !!};
 
     new Chart(ctxRev, {
         type: 'line',
         data: {
-            labels: months,
+            labels: revenueTrendData.labels,
             datasets: [{
                 label: 'Pendapatan (Rp)',
-                data: mockData,
+                data: revenueTrendData.revenue_data,
                 borderColor: '#4f46e5',
                 backgroundColor: 'rgba(79, 70, 229, 0.1)',
                 borderWidth: 2,

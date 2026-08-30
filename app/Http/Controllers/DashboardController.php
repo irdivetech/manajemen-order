@@ -25,11 +25,13 @@ class DashboardController extends Controller
 
         if (auth()->user()?->isAdmin()) {
             $summary = $this->dashboardService->getSummary();
+            $revenueTrend = $this->dashboardService->getRevenueTrend();
             
             return view(isMobile() ? 'dashboard.mobile.admin' : 'dashboard.admin', compact(
                 'summary', 
                 'recentOrders',
-                'statusBreakdownUI'
+                'statusBreakdownUI',
+                'revenueTrend'
             ));
         }
 

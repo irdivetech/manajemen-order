@@ -24,13 +24,15 @@
         /* ─── Sidebar ─── */
         .sidebar {
             width: var(--sidebar-width);
-            min-height: 100vh;
+            height: 100vh;
             background: #fff;
             border-right: 1px solid #e5e7eb;
             position: fixed;
             top: 0; left: 0;
             z-index: 1040;
             transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
         .sidebar .brand {
             height: 64px;
@@ -46,6 +48,16 @@
             display: flex; align-items: center; justify-content: center;
             color: #fff; font-weight: 700; font-size: 1rem;
         }
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 1rem;
+        }
+        /* Custom Scrollbar for Sidebar */
+        .sidebar-menu::-webkit-scrollbar { width: 5px; }
+        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-menu::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar-menu::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         .sidebar .nav-section { padding: 1rem 0.75rem; }
         .sidebar .nav-section-title {
             font-size: 0.7rem;

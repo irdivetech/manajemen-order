@@ -31,8 +31,8 @@
                 <div class="mb-4">
                     <label class="form-label">Peran (Role) <span class="text-danger">*</span></label>
                     <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-                        <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin (Akses Penuh)</option>
-                        <option value="owner" {{ old('role', $user->role) === 'owner' ? 'selected' : '' }}>Owner (Hanya Baca)</option>
+                        <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="owner" {{ old('role', $user->role) === 'owner' ? 'selected' : '' }}>Owner</option>
                     </select>
                     @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
@@ -41,13 +41,19 @@
                 <h6 class="mb-3 text-primary">Ubah Kata Sandi (Opsional)</h6>
                 <div class="mb-3">
                     <label class="form-label">Kata Sandi Baru</label>
-                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Biarkan kosong jika tidak ingin mengubah">
-                    @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="input-group">
+                        <input type="password" name="password" id="passwordInput" class="form-control @error('password') is-invalid @enderror" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordInput', this)"><i class="bi bi-eye"></i></button>
+                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
 
                 <div class="mb-4">
                     <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-                    <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi kata sandi baru">
+                    <div class="input-group">
+                        <input type="password" name="password_confirmation" id="passwordConfirmInput" class="form-control" placeholder="Ulangi kata sandi baru">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordConfirmInput', this)"><i class="bi bi-eye"></i></button>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 border-top pt-4">
@@ -58,4 +64,18 @@
         </x-card>
     </div>
 </div>
+
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 @endsection

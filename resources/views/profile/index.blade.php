@@ -61,17 +61,32 @@
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Kata Sandi Saat Ini</label>
-                            <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" required>
-                            @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="position-relative">
+                                <input type="password" name="current_password" id="current_password" class="form-control @error('current_password') is-invalid @enderror" required style="padding-right: 2.5rem;">
+                                <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword('current_password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                @error('current_password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kata Sandi Baru</label>
-                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
-                            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="position-relative">
+                                <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" required minlength="8" style="padding-right: 2.5rem;">
+                                <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword('password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-                            <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                            <div class="position-relative">
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required minlength="8" style="padding-right: 2.5rem;">
+                                <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y" style="color: #9ca3af; background: transparent; box-shadow: none;" type="button" onclick="togglePassword('password_confirmation', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-12 text-end mt-4">
                             <button type="submit" class="btn btn-primary">Perbarui Kata Sandi</button>
@@ -89,3 +104,23 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+        icon.style.color = 'var(--primary)'; // Changed color to make it distinct
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+        icon.style.color = ''; // Reset color
+    }
+}
+</script>
+@endpush

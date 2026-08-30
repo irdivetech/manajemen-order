@@ -17,12 +17,12 @@
 @section('content')
 
 {{-- ── Status Banner ── --}}
-<div class="m-card mb-3" style="background:linear-gradient(135deg,#4f46e5,#6366f1); border:none;">
+<div class="m-card mb-3 border-primary" style="border-width: 2px;">
     <div class="m-card-body">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <div style="font-size:0.7rem; color:rgba(255,255,255,0.7); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Status Saat Ini</div>
-                <div style="color:#fff; font-weight:700; font-size:1rem; margin-top:0.25rem;">
+                <div style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Status Saat Ini</div>
+                <div style="color:var(--text); font-weight:700; font-size:1.1rem; margin-top:0.25rem;">
                     {{ Str::title(str_replace('_', ' ', $order->current_status)) }}
                 </div>
             </div>

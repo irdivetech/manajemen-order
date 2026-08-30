@@ -42,7 +42,7 @@
                 <i class="bi bi-printer"></i>
             </a>
         @else
-            <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="icon-btn bg-danger text-white border-0" style="width:40px;height:40px;" title="Cetak Tagihan">
+            <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="icon-btn bg-danger text-white border-0" style="width:40px;height:40px;" title="Cetak Invoice">
                 <i class="bi bi-receipt"></i>
             </a>
         @endif

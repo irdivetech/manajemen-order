@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Tagihan #{{ $invoice->invoice_number }}</title>
+    <title>Invoice #{{ $invoice->invoice_number }}</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 40px; background: #fff; }
         .no-print { text-align: center; margin-bottom: 20px; }
@@ -118,7 +118,7 @@
     
     <div class="no-print">
         <a href="{{ route('orders.invoice', $order->id) }}" class="btn-back" style="text-decoration: none; display: inline-block;">Kembali</a>
-        <button class="btn-print" onclick="window.print()">Cetak Tagihan</button>
+        <button class="btn-print" onclick="window.print()">Cetak Invoice</button>
     </div>
     
     <div class="invoice-wrapper">
@@ -135,8 +135,8 @@
                 @endif
             </div>
             <div class="header-title">
-                <h1>TAGIHAN.</h1>
-                <h3>Billing Statement</h3>
+                <h1>INVOICE.</h1>
+                <h3>Account Receivable</h3>
             </div>
         </div>
 
@@ -147,7 +147,7 @@
                     <td>: {{ $invoice->invoice_number }}</td>
                 </tr>
                 <tr>
-                    <td>Tanggal Tagihan</td>
+                    <td>Tanggal Invoice</td>
                     <td>: {{ strtoupper(date('d F Y')) }}</td>
                 </tr>
                 @if($order->deadline)
@@ -249,7 +249,7 @@
                         <div class="amount-val">Rp. {{ number_format($invoice->grand_total, 0, ',', '.') }}</div>
                     </div>
                     <div class="total-box-row" style="color: #15803d;">
-                        <span>Telah Dibayar :</span>
+                        <span>Down Payment :</span>
                         <div class="amount-val">- Rp. {{ number_format($invoice->paid_amount, 0, ',', '.') }}</div>
                     </div>
                     <div class="total-box-row sisa">
