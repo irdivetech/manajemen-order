@@ -25,8 +25,8 @@
 </div>
 @endif
 
-{{-- ── Company Header ── --}}
-<div class="d-flex justify-content-between align-items-center mb-4">
+{{-- ── Company Header & Actions ── --}}
+<div class="d-flex flex-column gap-3 mb-4">
     <div class="d-flex align-items-center gap-2">
         @if(!empty($settings->get('company_logo')))
             <img src="{{ Storage::url($settings->get('company_logo')) }}" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;" class="rounded bg-white">
@@ -36,14 +36,15 @@
             <div class="text-xs text-muted mt-1">{!! nl2br(e($settings->get('company_address'))) !!}</div>
         </div>
     </div>
-    <div class="text-end">
+    
+    <div>
         @if($invoice->isPaid())
-            <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="icon-btn bg-primary text-white border-0" style="width:40px;height:40px;" title="Cetak Faktur">
-                <i class="bi bi-printer"></i>
+            <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="btn btn-primary w-100 fw-6 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 12px; padding: 0.75rem;">
+                <i class="bi bi-printer fs-5"></i> Cetak Faktur Lunas
             </a>
         @else
-            <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="icon-btn bg-danger text-white border-0" style="width:40px;height:40px;" title="Cetak Invoice">
-                <i class="bi bi-receipt"></i>
+            <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="btn btn-danger w-100 fw-6 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 12px; padding: 0.75rem;">
+                <i class="bi bi-receipt fs-5"></i> Cetak Invoice Tagihan
             </a>
         @endif
     </div>

@@ -130,8 +130,7 @@
                             <i class="bi bi-check2-circle me-1"></i> Terapkan Filter
                         </button>
                     </div>
-            </div>
-        </form>
+                </form>
     </div>
 </div>
 

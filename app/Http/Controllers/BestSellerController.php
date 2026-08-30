@@ -30,7 +30,7 @@ class BestSellerController extends Controller
 
         $period = $request->query('period', 'this_month');
 
-        return view('best-sellers.index', compact(
+        return view(isMobile() ? 'best-sellers.mobile.index' : 'best-sellers.index', compact(
             'topClothingCategories',
             'topColors',
             'topMaterials',

@@ -149,6 +149,54 @@
 </div>
 @endforelse
 
+{{-- ── Batas Waktu Mendekat ── --}}
+<div class="section-title mt-4">Batas Waktu Mendekat (Aktif)</div>
+<div class="m-card">
+    <div class="m-card-body p-0">
+        @php
+            $upcoming = \App\Models\Order::active()
+                        ->whereNotNull('deadline')
+                        ->orderBy('deadline', 'asc')
+                        ->limit(5)
+                        ->get();
+        @endphp
+        @forelse($upcoming as $order)
+            @php
+                $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($order->deadline), false);
+                if ($daysLeft < 0) {
+                    $borderClass = 'border-danger';
+                    $textClass = 'text-danger';
+                    $badgeText = 'Terlambat';
+                } elseif ($daysLeft <= 3) {
+                    $borderClass = 'border-danger';
+                    $textClass = 'text-danger';
+                    $badgeText = 'Mendesak';
+                } elseif ($daysLeft <= 7) {
+                    $borderClass = 'border-warning';
+                    $textClass = 'text-warning';
+                    $badgeText = 'Segera';
+                } else {
+                    $borderClass = 'border-info';
+                    $textClass = 'text-muted';
+                    $badgeText = 'Aman';
+                }
+            @endphp
+            <a href="{{ route('orders.show', $order) }}" class="m-list-item d-flex align-items-center justify-content-between text-decoration-none border-start border-4 {{ $borderClass }}">
+                <div>
+                    <h6 class="mb-0 fw-semibold text-dark">#{{ $order->order_number }}</h6>
+                    <p class="mb-0 text-xs text-muted">{{ $order->customer_name }}</p>
+                    <p class="mb-0 text-xs fw-medium mt-1"><i class="bi bi-calendar3 me-1"></i>{{ \Carbon\Carbon::parse($order->deadline)->format('d M Y') }}</p>
+                </div>
+                <div>
+                    <span class="badge bg-{{ str_replace('text-', '', $textClass) }} bg-opacity-10 {{ $textClass }}">{{ $badgeText }}</span>
+                </div>
+            </a>
+        @empty
+            <div class="text-center py-4 text-muted small">Tidak ada pesanan aktif dengan batas waktu.</div>
+        @endforelse
+    </div>
+</div>
+
 {{-- Spacer for FAB --}}
 <div style="height: 5rem;"></div>
 

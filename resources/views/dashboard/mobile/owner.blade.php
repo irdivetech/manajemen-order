@@ -171,6 +171,87 @@
 </div>
 @endforelse
 
+{{-- ── Bauran Produk ── --}}
+<div class="section-title mt-4">Bauran Produk (Product Mix)</div>
+<div class="m-card">
+    <div class="m-card-body">
+        <div class="position-relative d-flex justify-content-center mb-4" style="height: 180px;">
+            <canvas id="productMixChart"></canvas>
+        </div>
+        <div class="d-flex flex-column gap-3">
+            @php 
+                $colors = ['bg-primary', 'bg-info', 'bg-warning', 'bg-secondary', 'bg-dark']; 
+                $i = 0;
+            @endphp
+            @forelse($productMix as $mix)
+            <div>
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="d-flex align-items-center gap-2 fw-medium">
+                        <span class="rounded-circle {{ $colors[$i % count($colors)] }}" style="width:10px;height:10px;"></span>
+                        {{ $mix['name'] }}
+                    </span>
+                    <span class="fw-bold">{{ $mix['percentage'] }}%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar {{ $colors[$i % count($colors)] }}" role="progressbar" style="width: {{ $mix['percentage'] }}%"></div>
+                </div>
+            </div>
+            @php $i++; @endphp
+            @empty
+            <p class="text-center text-muted small mb-0">Belum ada data bauran produk.</p>
+            @endforelse
+        </div>
+    </div>
+</div>
+
+{{-- ── Batas Waktu Mendekat ── --}}
+<div class="section-title mt-4">Batas Waktu Mendekat (Aktif)</div>
+<div class="m-card">
+    <div class="m-card-body p-0">
+        @php
+            $upcoming = \App\Models\Order::active()
+                        ->whereNotNull('deadline')
+                        ->orderBy('deadline', 'asc')
+                        ->limit(5)
+                        ->get();
+        @endphp
+        @forelse($upcoming as $order)
+            @php
+                $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($order->deadline), false);
+                if ($daysLeft < 0) {
+                    $borderClass = 'border-danger';
+                    $textClass = 'text-danger';
+                    $badgeText = 'Terlambat';
+                } elseif ($daysLeft <= 3) {
+                    $borderClass = 'border-danger';
+                    $textClass = 'text-danger';
+                    $badgeText = 'Mendesak';
+                } elseif ($daysLeft <= 7) {
+                    $borderClass = 'border-warning';
+                    $textClass = 'text-warning';
+                    $badgeText = 'Segera';
+                } else {
+                    $borderClass = 'border-info';
+                    $textClass = 'text-muted';
+                    $badgeText = 'Aman';
+                }
+            @endphp
+            <a href="{{ route('orders.show', $order) }}" class="m-list-item d-flex align-items-center justify-content-between text-decoration-none border-start border-4 {{ $borderClass }}">
+                <div>
+                    <h6 class="mb-0 fw-semibold text-dark">#{{ $order->order_number }}</h6>
+                    <p class="mb-0 text-xs text-muted">{{ $order->customer_name }}</p>
+                    <p class="mb-0 text-xs fw-medium mt-1"><i class="bi bi-calendar3 me-1"></i>{{ \Carbon\Carbon::parse($order->deadline)->format('d M Y') }}</p>
+                </div>
+                <div>
+                    <span class="badge bg-{{ str_replace('text-', '', $textClass) }} bg-opacity-10 {{ $textClass }}">{{ $badgeText }}</span>
+                </div>
+            </a>
+        @empty
+            <div class="text-center py-4 text-muted small">Tidak ada pesanan aktif dengan batas waktu.</div>
+        @endforelse
+    </div>
+</div>
+
 {{-- Spacer to prevent content cut-off by bottom nav --}}
 <div style="height: 3rem;"></div>
 
@@ -231,6 +312,39 @@ document.addEventListener("DOMContentLoaded", function() {
             datasets: [{ data: [parseFloat('{{ $ownerSummary['b2b_percentage'] }}'), parseFloat('{{ $ownerSummary['retail_percentage'] }}')], backgroundColor: ['#4f46e5', '#0ea5e9'], borderWidth: 0 }]
         },
         options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
+    });
+
+    // 3. Product Mix Chart (Pie)
+    const ctxMix = document.getElementById('productMixChart').getContext('2d');
+    const productMixData = {!! json_encode($productMix) !!};
+    const mixLabels = productMixData.map(item => item.name);
+    const mixValues = productMixData.map(item => item.percentage);
+    
+    new Chart(ctxMix, {
+        type: 'pie',
+        data: {
+            labels: mixLabels,
+            datasets: [{
+                data: mixValues,
+                backgroundColor: ['#4f46e5', '#0ea5e9', '#f59e0b', '#64748b', '#0f172a'],
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw + '%';
+                        }
+                    }
+                }
+            }
+        }
     });
 });
 </script>

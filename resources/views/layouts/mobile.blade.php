@@ -95,13 +95,16 @@
         }
         .mobile-header .icon-btn:hover,
         .mobile-header .icon-btn:active { background: var(--bg); }
+        .avatar {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 600;
+            cursor: pointer;
+        }
         .mobile-header .avatar {
             width: 32px; height: 32px;
             border-radius: 10px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 600; font-size: 0.75rem;
-            cursor: pointer;
+            font-size: 0.75rem;
         }
 
         /* ─── Page Header (breadcrumb-like) ─── */
@@ -664,7 +667,7 @@
         {{-- User info --}}
         <div class="d-flex align-items-center gap-3 p-3 mb-2"
              style="background:var(--bg); border-radius:12px;">
-            <div class="avatar" style="width:44px; height:44px; border-radius:12px; font-size:1rem;">
+            <div class="avatar" style="width:44px; height:44px; border-radius:12px; font-size:1.2rem; flex-shrink:0;">
                 {{ strtoupper(substr(Auth::user()?->name ?? 'A', 0, 1)) }}
             </div>
             <div>

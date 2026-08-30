@@ -110,6 +110,9 @@ class MasterDataController extends Controller
         }
         $data = $query->get();
 
+        if (isMobile()) {
+            return view('master-data.mobile.index', compact('type', 'config', 'data'));
+        }
         return view('master-data.index', compact('type', 'config', 'data'));
     }
 
@@ -125,6 +128,9 @@ class MasterDataController extends Controller
             }
         }
 
+        if (isMobile()) {
+            return view('master-data.mobile.form', compact('type', 'config', 'selectData'));
+        }
         return view('master-data.form', compact('type', 'config', 'selectData'));
     }
 
@@ -169,6 +175,9 @@ class MasterDataController extends Controller
             }
         }
 
+        if (isMobile()) {
+            return view('master-data.mobile.form', compact('type', 'config', 'data', 'selectData'));
+        }
         return view('master-data.form', compact('type', 'config', 'data', 'selectData'));
     }
 

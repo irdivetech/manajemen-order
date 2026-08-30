@@ -25,7 +25,7 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden d-none d-md-block">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -92,6 +92,63 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    {{-- Mobile View (Cards) --}}
+    <div class="d-md-none">
+        @forelse($data as $item)
+            <div class="m-card mb-3 shadow-sm">
+                <div class="m-card-body">
+                    @foreach($config['fields'] as $key => $field)
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                            <span class="text-xs text-muted fw-bold">{{ $field['label'] }}</span>
+                            @if($field['type'] === 'boolean')
+                                <span class="badge {{ $item->$key ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger' }} border {{ $item->$key ? 'border-success-subtle' : 'border-danger-subtle' }} rounded-pill px-2 py-1">
+                                    {{ $item->$key ? 'Aktif' : 'Tidak Aktif' }}
+                                </span>
+                            @elseif($field['type'] === 'select_model')
+                                @php
+                                    $relationName = \Illuminate\Support\Str::camel(str_replace('_id', '', $key));
+                                @endphp
+                                <span class="fw-bold text-sm text-dark">{{ $item->$relationName->{$field['display']} ?? '-' }}</span>
+                            @elseif($key === 'estimated_usage')
+                                <span class="fw-bold text-sm text-dark">{{ rtrim(rtrim(number_format($item->$key, 4, ',', '.'), '0'), ',') }} {{ $item->material->unit ?? 'M' }}</span>
+                            @else
+                                <span class="fw-bold text-sm text-dark">{{ $item->$key }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                    
+                    {{-- Actions --}}
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        @if(isset($config['fields']['is_active']))
+                        <form action="{{ route('master-data.toggle', ['type' => $type, 'id' => $item->id]) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn btn-sm {{ $item->is_active ? 'btn-outline-secondary' : 'btn-outline-success' }} w-100" title="{{ $item->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                <i class="bi bi-power"></i>
+                            </button>
+                        </form>
+                        @endif
+                        <a href="{{ route('master-data.edit', ['type' => $type, 'id' => $item->id]) }}" class="btn btn-sm btn-light text-primary border w-100" title="Edit">
+                            <i class="bi bi-pencil-fill"></i> Edit
+                        </a>
+                        <form action="{{ route('master-data.destroy', ['type' => $type, 'id' => $item->id]) }}" method="POST" class="d-inline flex-grow-1" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-light text-danger border w-100" title="Hapus">
+                                <i class="bi bi-trash-fill"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 mb-2"></i>
+                <p>Belum ada data.</p>
+            </div>
+        @endforelse
     </div>
 </div>
 @endsection
