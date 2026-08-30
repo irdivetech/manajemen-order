@@ -31,7 +31,7 @@
 <!-- KPI Cards Row -->
 <div class="row g-4 mb-4">
     <!-- Total Orders -->
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-4 col-xl-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -51,7 +51,7 @@
     </div>
     
     <!-- Completed Orders -->
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-4 col-xl-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -71,7 +71,7 @@
     </div>
     
     <!-- Monthly Revenue -->
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-4 col-xl-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -90,25 +90,7 @@
         </div>
     </div>
     
-    <!-- Production Performance -->
-    <div class="col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="bg-warning bg-opacity-10 text-warning rounded p-2">
-                        <i class="bi bi-speedometer2 fs-5"></i>
-                    </div>
-                    <span class="badge {{ str_contains($ownerSummary['kpi_perf_growth'], '-') ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success' }} px-2 py-1 rounded-pill">
-                        <i class="bi {{ str_contains($ownerSummary['kpi_perf_growth'], '-') ? 'bi-graph-down' : 'bi-graph-up' }}"></i> 
-                        {{ $ownerSummary['kpi_perf_growth'] }}
-                    </span>
-                </div>
-                <p class="text-muted small text-uppercase fw-semibold mb-1">Efisiensi Produksi</p>
-                <h3 class="fw-bold mb-0">{{ $ownerSummary['kpi_production_perf'] }}</h3>
-                <p class="text-muted small mt-2 mb-0 fst-italic">Skor agregat kecepatan vs kualitas</p>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <div class="row g-4 mb-4">
@@ -268,39 +250,57 @@
             </div>
         </div>
 
-        <!-- Operations Alerts -->
+        <!-- Upcoming Deadlines -->
         <div class="card border-0 shadow-sm flex-grow-1">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fs-6 fw-bold">Peringatan Operasional</h5>
-                <span class="badge bg-danger rounded-pill">3</span>
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fs-6 fw-bold">Batas Waktu Mendekat (Aktif)</h5>
             </div>
             <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex gap-3 py-3">
-                        <i class="bi bi-exclamation-triangle text-warning fs-5"></i>
-                        <div>
-                            <h6 class="mb-1 fw-bold text-dark">Stok Kain Denim Menipis</h6>
-                            <p class="mb-0 small text-muted">Stok saat ini di bawah batas aman untuk 2 pesanan mendatang.</p>
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex gap-3 py-3">
-                        <i class="bi bi-clock-history text-danger fs-5"></i>
-                        <div>
-                            <h6 class="mb-1 fw-bold text-dark">Tenggat Waktu Kritis</h6>
-                            <p class="mb-0 small text-muted">Pesanan #ORD-9012 (Grosir) harus dikirim hari ini sebelum 17:00.</p>
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex gap-3 py-3">
-                        <i class="bi bi-gear-wide-connected text-info fs-5"></i>
-                        <div>
-                            <h6 class="mb-1 fw-bold text-dark">Pemeliharaan Mesin Terjadwal</h6>
-                            <p class="mb-0 small text-muted">Mesin Jahit J-04 dijadwalkan untuk servis rutin besok.</p>
-                        </div>
-                    </li>
-                </ul>
+                <div class="list-group list-group-flush">
+                    @php
+                        $upcoming = \App\Models\Order::active()
+                                    ->whereNotNull('deadline')
+                                    ->orderBy('deadline', 'asc')
+                                    ->limit(5)
+                                    ->get();
+                    @endphp
+                    @forelse($upcoming as $order)
+                        @php
+                            $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($order->deadline), false);
+                            if ($daysLeft < 0) {
+                                $borderClass = 'border-danger';
+                                $textClass = 'text-danger';
+                                $badgeText = 'Terlambat';
+                            } elseif ($daysLeft <= 3) {
+                                $borderClass = 'border-danger';
+                                $textClass = 'text-danger';
+                                $badgeText = 'Mendesak';
+                            } elseif ($daysLeft <= 7) {
+                                $borderClass = 'border-warning';
+                                $textClass = 'text-warning';
+                                $badgeText = 'Segera';
+                            } else {
+                                $borderClass = 'border-info';
+                                $textClass = 'text-muted';
+                                $badgeText = 'Aman';
+                            }
+                        @endphp
+                        <a href="{{ route('orders.show', $order) }}" class="list-group-item list-group-item-action border-start border-4 {{ $borderClass }} py-3">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0 fw-semibold">#{{ $order->order_number }}</h6>
+                                <span class="badge bg-{{ str_replace('text-', '', $textClass) }} bg-opacity-10 {{ $textClass }}">{{ $badgeText }}</span>
+                            </div>
+                            <p class="mb-0 small text-muted d-flex justify-content-between">
+                                <span>{{ $order->customer_name }}</span>
+                                <span class="fw-medium">{{ \Carbon\Carbon::parse($order->deadline)->format('d M Y') }}</span>
+                            </p>
+                        </a>
+                    @empty
+                        <div class="text-center py-4 text-muted small">Tidak ada pesanan aktif dengan batas waktu.</div>
+                    @endforelse
+                </div>
             </div>
         </div>
-
     </div>
 </div>
 @endsection

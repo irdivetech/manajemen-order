@@ -74,22 +74,7 @@
         </div>
     </div>
 
-    {{-- Efisiensi --}}
-    <div class="m-stat" style="grid-column: span 2;">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <div class="stat-label">Efisiensi Produksi</div>
-                <div class="stat-value">{{ $ownerSummary['kpi_production_perf'] }}</div>
-                <span class="stat-badge {{ str_contains($ownerSummary['kpi_perf_growth'], '-') ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success' }} mt-1">
-                    <i class="bi {{ str_contains($ownerSummary['kpi_perf_growth'], '-') ? 'bi-graph-down' : 'bi-graph-up' }}"></i>
-                    {{ $ownerSummary['kpi_perf_growth'] }}
-                </span>
-            </div>
-            <div class="stat-icon" style="background:#fefce8; color:#f59e0b; width:44px; height:44px;">
-                <i class="bi bi-speedometer2"></i>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 {{-- ── Grafik Pendapatan ── --}}

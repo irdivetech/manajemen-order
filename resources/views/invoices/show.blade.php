@@ -38,7 +38,7 @@
                 @if($invoice->isPaid())
                     <a href="{{ route('orders.invoice.print', $order) }}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-printer me-1"></i> Cetak Faktur</a>
                 @else
-                    <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="btn btn-outline-danger me-2"><i class="bi bi-receipt me-1"></i> Cetak Tagihan</a>
+                    <a href="{{ route('orders.invoice.print-tagihan', $order) }}" target="_blank" class="btn btn-outline-danger me-2"><i class="bi bi-receipt me-1"></i> Cetak Invoice</a>
                 @endif
             </div>
         </div>

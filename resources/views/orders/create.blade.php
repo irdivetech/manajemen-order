@@ -37,7 +37,6 @@
                 <textarea name="customer_title"
                     class="form-control @error('customer_title') is-invalid @enderror"
                     rows="3"
-                    placeholder="cth: Ketua OSIS SMA N 1 Semarang&#10;atas nama seluruh anggota&#10;Angkatan 2024"
                     style="resize:vertical;">{{ old('customer_title') }}</textarea>
                 <div class="form-text small text-muted">Opsional. Tampil di laporan.</div>
                 @error('customer_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -46,7 +45,7 @@
                 <div class="row g-2">
                     <div class="col-12">
                         <label class="form-label">Alamat Lengkap</label>
-                        <input type="text" name="customer_address" class="form-control @error('customer_address') is-invalid @enderror" value="{{ old('customer_address') }}" placeholder="cth: Jl. Merdeka No. 10">
+                        <input type="text" name="customer_address" class="form-control @error('customer_address') is-invalid @enderror" value="{{ old('customer_address') }}">
                         @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="col-4">
@@ -106,7 +105,7 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">Tipe Lengan / Spesifikasi <span class="text-danger">*</span></label>
-                <input type="text" name="product_type" class="form-control @error('product_type') is-invalid @enderror" value="{{ old('product_type') }}" placeholder="Lengan Pendek / Lengan Panjang" required>
+                <input type="text" name="product_type" class="form-control @error('product_type') is-invalid @enderror" value="{{ old('product_type') }}" required>
                 @error('product_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="col-md-4">

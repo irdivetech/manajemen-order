@@ -13,7 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->isAdmin() ?? false;
+        return $this->user()?->isOwner() ?? false;
     }
 
     /**
@@ -35,6 +35,24 @@ class UpdateUserRequest extends FormRequest
             ],
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'role'     => ['sometimes', 'required', 'in:admin,owner'],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required'       => 'Nama lengkap wajib diisi.',
+            'name.max'            => 'Nama maksimal 255 karakter.',
+            'email.required'      => 'Alamat email wajib diisi.',
+            'email.email'         => 'Format email tidak valid.',
+            'email.unique'        => 'Email sudah digunakan oleh pengguna lain.',
+            'password.confirmed'  => 'Konfirmasi kata sandi tidak cocok.',
+            'password.min'        => 'Kata sandi minimal harus :min karakter.',
+            'role.required'       => 'Peran wajib dipilih.',
+            'role.in'             => 'Peran yang dipilih tidak valid.',
         ];
     }
 }

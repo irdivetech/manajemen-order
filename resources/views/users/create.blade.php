@@ -30,8 +30,8 @@
                     <label class="form-label">Peran (Role) <span class="text-danger">*</span></label>
                     <select name="role" class="form-select @error('role') is-invalid @enderror" required>
                         <option value="">-- Pilih Peran --</option>
-                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin (Akses Penuh)</option>
-                        <option value="owner" {{ old('role') === 'owner' ? 'selected' : '' }}>Owner (Hanya Baca)</option>
+                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="owner" {{ old('role') === 'owner' ? 'selected' : '' }}>Owner</option>
                     </select>
                     @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
@@ -39,12 +39,18 @@
                 <div class="row g-3 mb-4 border-top pt-3 mt-2">
                     <div class="col-md-6">
                         <label class="form-label">Kata Sandi <span class="text-danger">*</span></label>
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required minlength="8">
-                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="input-group">
+                            <input type="password" name="password" id="passwordInput" class="form-control @error('password') is-invalid @enderror" required minlength="8">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordInput', this)"><i class="bi bi-eye"></i></button>
+                            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Konfirmasi Kata Sandi <span class="text-danger">*</span></label>
-                        <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                        <div class="input-group">
+                            <input type="password" name="password_confirmation" id="passwordConfirmInput" class="form-control" required minlength="8">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordConfirmInput', this)"><i class="bi bi-eye"></i></button>
+                        </div>
                     </div>
                     <div class="col-12 text-muted small">
                         <i class="bi bi-info-circle me-1"></i> Kata sandi minimal harus 8 karakter.
@@ -59,4 +65,18 @@
         </x-card>
     </div>
 </div>
+
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 @endsection

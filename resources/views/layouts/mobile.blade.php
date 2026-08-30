@@ -528,8 +528,8 @@
         .drawer-nav-item.danger { color: var(--danger); }
 
         /* ─── Utilities ─── */
-        .text-primary { color: var(--primary) !important; }
-        .bg-primary   { background-color: var(--primary) !important; }
+        .text-primary { color: rgba(79, 70, 229, var(--bs-text-opacity, 1)) !important; }
+        .bg-primary   { background-color: rgba(79, 70, 229, var(--bs-bg-opacity, 1)) !important; }
         .btn-primary  { background-color: var(--primary); border-color: var(--primary); }
         .btn-primary:hover { background-color: var(--primary-dark); border-color: var(--primary-dark); }
         .fw-6 { font-weight: 600; }

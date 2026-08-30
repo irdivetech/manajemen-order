@@ -70,10 +70,8 @@
                 <span class="d-none d-sm-inline small fw-medium">{{ Auth::user()?->name }}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border">
-                @if(Auth::user()?->isAdmin())
                 <li><a class="dropdown-item small" href="{{ route('profile.index') }}"><i class="bi bi-person me-2"></i>Profil</a></li>
                 <li><hr class="dropdown-divider"></li>
-                @endif
                 <li>
                     <form method="POST" action="{{ route('logout') }}" onsubmit="confirmAction(event, this, 'Keluar Sistem', 'Apakah Anda yakin ingin keluar dari aplikasi?', 'Ya, Keluar', '#ef4444');">
                         @csrf

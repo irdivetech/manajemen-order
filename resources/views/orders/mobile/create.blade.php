@@ -50,7 +50,7 @@
                 <textarea name="customer_title"
                        class="form-control @error('customer_title') is-invalid @enderror"
                        rows="3"
-                       placeholder="cth: Ketua OSIS&#10;atas nama semua anggota" style="resize:vertical;">{{ old('customer_title') }}</textarea>
+                       style="resize:vertical;">{{ old('customer_title') }}</textarea>
                 <div class="text-xs text-muted mt-1">Opsional — bisa lebih dari satu baris</div>
                 @error('customer_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
@@ -58,7 +58,7 @@
                 <label class="form-label text-sm fw-6">Alamat Lengkap</label>
                 <input type="text" name="customer_address"
                        class="form-control @error('customer_address') is-invalid @enderror"
-                       value="{{ old('customer_address') }}" placeholder="cth: Jl. Merdeka No. 10">
+                       value="{{ old('customer_address') }}">
                 @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="mb-3">
@@ -125,7 +125,7 @@
                 <label class="form-label text-sm fw-6">Tipe Lengan / Spesifikasi <span class="text-danger">*</span></label>
                 <input type="text" name="product_type"
                        class="form-control @error('product_type') is-invalid @enderror"
-                       value="{{ old('product_type') }}" required placeholder="Lengan Pendek / Lengan Panjang">
+                       value="{{ old('product_type') }}" required>
                 @error('product_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="mb-3">

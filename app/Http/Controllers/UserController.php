@@ -126,6 +126,11 @@ class UserController extends Controller
         $data = $request->validate([
             'current_password' => ['required'],
             'password'         => ['required', 'confirmed', 'min:8'],
+        ], [
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'password.min'       => 'Kata sandi minimal harus 8 karakter.',
+            'password.required'  => 'Kata sandi baru wajib diisi.',
+            'current_password.required' => 'Kata sandi saat ini wajib diisi.',
         ]);
 
         if (! Hash::check($data['current_password'], Auth::user()->password)) {

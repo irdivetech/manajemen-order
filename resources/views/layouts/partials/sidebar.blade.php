@@ -3,11 +3,12 @@
     {{-- Brand --}}
     <div class="brand">
         <div class="brand-icon me-2">P</div>
-        <span class="fw-bold text-dark fs-6">POMS</span>
+        <span class="fw-bold text-dark fs-6">POMS SHALEEA</span>
     </div>
 
     {{-- Navigation --}}
-    <div class="nav-section">
+    <div class="sidebar-menu">
+        <div class="nav-section">
         <div class="nav-section-title">Menu Utama</div>
         <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard*') ? 'active' : '' }}">
             <i class="bi bi-grid-1x2-fill"></i> Dasbor
@@ -72,8 +73,10 @@
         </a>
     </div>
 
+    </div>
+
     {{-- User Info (Bottom) --}}
-    <div class="mt-auto border-top p-3" style="position:absolute;bottom:0;left:0;right:0;">
+    <div class="mt-auto border-top p-3">
         <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-semibold" style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--primary-light));font-size:0.85rem;">
                 {{ strtoupper(substr(Auth::user()?->name ?? 'A', 0, 1)) }}
